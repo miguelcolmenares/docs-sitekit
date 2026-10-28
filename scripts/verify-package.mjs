@@ -14,7 +14,7 @@ const TOOLS = join(WORK, "tools");
 const REPO = join(WORK, "repo");
 const SITE = join(REPO, "site");
 
-const PACKAGE = "@miguelcolmenares/sitekit";
+const PACKAGE = "docs-sitekit";
 const failures = [];
 let passed = 0;
 
@@ -259,7 +259,7 @@ check(
     const { version } = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
     const workflow = readFileSync(join(REPO, ".github", "workflows", "docs.yml"), "utf8");
     assert(
-      workflow.includes(`miguelcolmenares/sitekit@v${version}`),
+      workflow.includes(`miguelcolmenares/docs-sitekit@v${version}`),
       "the action is not pinned to this version",
     );
     assert(
@@ -278,7 +278,7 @@ check("the generated site depends on no sitekit package and on no private regist
   const manifest =
     readFileSync(join(SITE, "package.json"), "utf8") +
     readFileSync(join(SITE, "package-lock.json"), "utf8");
-  assert(!manifest.includes("@miguelcolmenares/sitekit"), "the site depends on the CLI");
+  assert(!manifest.includes("docs-sitekit"), "the site depends on the CLI");
   assert(!existsSync(join(SITE, ".npmrc")), "the site has an .npmrc");
   assert(!/npm\.pkg\.github\.com/.test(manifest), "the lockfile points at a private registry");
 });

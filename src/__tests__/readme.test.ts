@@ -45,7 +45,7 @@ describe("the README documents the action", () => {
   });
 
   it("shows how to call it, rebuild on a release, and keep deploy in its own job", () => {
-    expect(readme).toContain("uses: miguelcolmenares/sitekit@v");
+    expect(readme).toContain("uses: miguelcolmenares/docs-sitekit@v");
     expect(readme).toMatch(/release:\n\s+types: \[published\]/);
     expect(readme).toMatch(/pages: write\n\s+id-token: write/);
   });
@@ -53,7 +53,7 @@ describe("the README documents the action", () => {
   it("the example in the README is the one init generates, apart from the version", () => {
     const generated = read("template/_github/workflows/docs.yml");
     for (const needle of [
-      "miguelcolmenares/sitekit@v",
+      "miguelcolmenares/docs-sitekit@v",
       "actions/deploy-pages",
       "types: [published]",
       "github-pages",

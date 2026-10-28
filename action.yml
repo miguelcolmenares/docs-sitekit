@@ -13,7 +13,7 @@ inputs:
     default: "site"
   version:
     description: >-
-      Version of @miguelcolmenares/sitekit that runs `check`, for example "0.1.0". Pin an exact
+      Version of docs-sitekit that runs `check`, for example "0.1.1". Pin an exact
       version so a site is checked by the same rules on every run.
     required: false
     default: "latest"
@@ -70,7 +70,7 @@ runs:
         SITEKIT_DIST: ${{ steps.paths.outputs.dist }}
         SITEKIT_VERSION: ${{ inputs.version }}
         GH_TOKEN: ${{ github.token }}
-      run: npx --yes "@miguelcolmenares/sitekit@${SITEKIT_VERSION}" check --dir "$SITEKIT_DIR" --dist "$SITEKIT_DIST"
+      run: npx --yes "docs-sitekit@${SITEKIT_VERSION}" check --dir "$SITEKIT_DIR" --dist "$SITEKIT_DIST"
 
     - name: Upload the Pages artifact
       if: ${{ inputs.upload == 'true' }}

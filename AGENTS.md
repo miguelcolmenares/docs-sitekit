@@ -4,7 +4,7 @@ Context for any AI agent working in this repository.
 
 ## What this is
 
-`@miguelcolmenares/sitekit`: a CLI and a site template. The CLI scaffolds a documentation site into a repository, checks that it is
+`docs-sitekit`: a CLI and a site template. The CLI scaffolds a documentation site into a repository, checks that it is
 safe to publish, and restores components. The template is an Astro site with a design system. MIT, written from scratch.
 Do not add code, text or configuration copied from other projects, and do not depend on private packages.
 

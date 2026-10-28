@@ -15,7 +15,7 @@ Node 22 or newer. The generated site needs no token and no private registry: eve
 Run this in the root of the repository you want to document:
 
 ```bash
-npx @miguelcolmenares/sitekit init
+npx docs-sitekit init
 ```
 
 It writes `sitekit.config.json` and a `site/` folder, reading the name, description, license and repository from your `package.json` and git remote.

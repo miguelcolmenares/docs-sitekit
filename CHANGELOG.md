@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-28
+
+### Changed
+
+- **The package is now `docs-sitekit`, and the repository `miguelcolmenares/docs-sitekit`.** The scope `@miguelcolmenares` is not owned by the npm account that publishes this, and the plain name `sitekit` belongs to another project. The `sitekit` command is unchanged: `npx docs-sitekit init`. The action is now `miguelcolmenares/docs-sitekit`.
+- Version 0.1.0 was tagged but never published to npm, and tags are immutable, so this is the first version on the registry.
+
 ## [0.1.0] - 2026-10-28
 
 First release.

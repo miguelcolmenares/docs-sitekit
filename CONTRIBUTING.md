@@ -7,7 +7,7 @@ Thanks for helping. This is a small project with strict checks, so most of the w
 You need Node 22.23.4 or newer (Node 26 is the current LTS).
 
 ```bash
-git clone https://github.com/miguelcolmenares/sitekit.git
+git clone https://github.com/miguelcolmenares/docs-sitekit.git
 cd sitekit
 npm run bootstrap     # installs the CLI and the template
 npm test              # unit and integration

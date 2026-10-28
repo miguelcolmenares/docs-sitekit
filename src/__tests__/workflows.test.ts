@@ -25,7 +25,7 @@ function usesOf(path: string): Array<{ ref: string; line: string }> {
 }
 
 // A reference to this project's own action in a generated workflow is a version tag, and tags are immutable.
-const ownAction = /^miguelcolmenares\/sitekit@v(__SITEKIT_VERSION__|\d+\.\d+\.\d+)$/;
+const ownAction = /^miguelcolmenares\/docs-sitekit@v(__SITEKIT_VERSION__|\d+\.\d+\.\d+)$/;
 
 describe("workflows and the action", () => {
   it.each(files)("%s pins every action to a commit, with the version in a comment", (path) => {
@@ -38,7 +38,7 @@ describe("workflows and the action", () => {
 
   it("the generated workflow uses this project's action at the version init writes", () => {
     const refs = usesOf("template/_github/workflows/docs.yml").map((entry) => entry.ref);
-    expect(refs).toContain("miguelcolmenares/sitekit@v__SITEKIT_VERSION__");
+    expect(refs).toContain("miguelcolmenares/docs-sitekit@v__SITEKIT_VERSION__");
   });
 
   it("the generated workflow rebuilds on a release, and does not deploy from a pull request", () => {

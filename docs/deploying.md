@@ -19,7 +19,7 @@ separate job deploys it. The workflow runs when the docs change and when a relea
 ## Check before you publish
 
 ```bash
-npx @miguelcolmenares/sitekit check --dist dist
+npx docs-sitekit check --dist dist
 ```
 
 It rebuilds the content, scans it and the built files for credentials and internal hosts, and checks the repository visibility. A private repository's Pages site is public, so the check fails until you say that is intended.

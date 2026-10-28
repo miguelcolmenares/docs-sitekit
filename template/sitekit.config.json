@@ -4,9 +4,9 @@
     "description": "Design system and scaffold for documentation microsites on GitHub Pages.",
     "url": "https://miguelcolmenares.github.io",
     "base": "/sitekit/",
-    "repository": "https://github.com/miguelcolmenares/sitekit",
+    "repository": "https://github.com/miguelcolmenares/docs-sitekit",
     "license": "MIT",
-    "installCommand": "npx @miguelcolmenares/sitekit init"
+    "installCommand": "npx docs-sitekit init"
   },
   "hero": {
     "badge": "Astro \u00b7 Tailwind \u00b7 shadcn/ui \u00b7 lucide",

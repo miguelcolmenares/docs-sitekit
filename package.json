@@ -1,13 +1,13 @@
 {
-  "name": "@miguelcolmenares/sitekit",
-  "version": "0.1.0",
+  "name": "docs-sitekit",
+  "version": "0.1.1",
   "description": "Design system and scaffold for documentation microsites on GitHub Pages: Astro, Tailwind, shadcn/ui and lucide-react.",
   "author": "Miguel Colmenares <me@miguelcolmenares.com>",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "bin": {
-    "sitekit": "./dist/cli.js"
+    "sitekit": "dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -59,12 +59,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/miguelcolmenares/sitekit.git"
+    "url": "git+https://github.com/miguelcolmenares/docs-sitekit.git"
   },
   "bugs": {
-    "url": "https://github.com/miguelcolmenares/sitekit/issues"
+    "url": "https://github.com/miguelcolmenares/docs-sitekit/issues"
   },
-  "homepage": "https://github.com/miguelcolmenares/sitekit#readme",
+  "homepage": "https://github.com/miguelcolmenares/docs-sitekit#readme",
   "publishConfig": {
     "access": "public",
     "provenance": true
