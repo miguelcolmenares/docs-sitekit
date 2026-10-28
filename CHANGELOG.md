@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-28
+
+### Fixed
+
+- **Two CodeQL findings in `describe.ts`**, the file that turns markdown into titles and descriptions and that every generated site carries. Removing HTML tags in a single pass left a `<script` behind when tags were nested, so tags are now removed until the text stops changing. The check for a row of badges used a nested repetition that could backtrack exponentially on a long run of badge-like text, and now removes each badge with a single pattern. Both have regression tests. A site generated with 0.1.0 can copy `describe.ts` from this version.
+- The project site is served under `/docs-sitekit/`, where it was still asking for its assets under the old repository name. A test now ties the site's base path, address and repository to `package.json`.
+
 ## [0.1.0] - 2026-10-28
 
 First release. The package is `docs-sitekit` and the action is `miguelcolmenares/docs-sitekit`. The `sitekit` command is the one you run: `npx docs-sitekit init`.

@@ -13,7 +13,7 @@ inputs:
     default: "site"
   version:
     description: >-
-      Version of docs-sitekit that runs `check`, for example "0.1.0". Pin an exact
+      Version of docs-sitekit that runs `check`, for example "0.1.1". Pin an exact
       version so a site is checked by the same rules on every run.
     required: false
     default: "latest"
