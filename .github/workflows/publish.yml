@@ -36,4 +36,16 @@ jobs:
       - run: npm test
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
-      - run: npm publish
+      # The first version of a package is published by hand, because a new name cannot have a trusted
+      # publisher until it exists. The tag that follows must not fail on a version that is already there.
+      - name: Is this version already on npm?
+        id: published
+        run: |
+          name="$(node -p "require('./package.json').name")"
+          version="$(node -p "require('./package.json').version")"
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "already=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::$name@$version is already on npm, so there is nothing to publish."
+          fi
+      - if: steps.published.outputs.already != 'true'
+        run: npm publish
