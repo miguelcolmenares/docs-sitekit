@@ -12,6 +12,12 @@ describe("plainText", () => {
       plainText("Use `npx foo` and **bold** with [a link](./x.md) <b>now</b> ![img](a.png)"),
     ).toBe("Use npx foo and bold with a link now");
   });
+
+  it("leaves no tag behind when one tag is nested inside another", () => {
+    const text = plainText("a <<script>script>alert(1)<</script>/script> b");
+    expect(text).not.toContain("<script");
+    expect(text).not.toContain("</script");
+  });
 });
 
 describe("extractTitle", () => {
@@ -34,6 +40,13 @@ describe("extractDescription", () => {
     expect(extractDescription("# Title\n\nFirst paragraph\nacross two lines.\n\nSecond.")).toBe(
       "First paragraph across two lines.",
     );
+  });
+
+  it("tells a long run of badge-like text from a badge row without backtracking", () => {
+    const hostile = `![]()${" ![]()".repeat(5000)} x`;
+    const started = Date.now();
+    expect(extractDescription(`# T\n\n${hostile}`)).toContain("x");
+    expect(Date.now() - started).toBeLessThan(1000);
   });
 
   it("skips a row of badges", () => {
