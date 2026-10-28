@@ -3,7 +3,7 @@
     "name": "sitekit",
     "description": "Design system and scaffold for documentation microsites on GitHub Pages.",
     "url": "https://miguelcolmenares.github.io",
-    "base": "/sitekit/",
+    "base": "/docs-sitekit/",
     "repository": "https://github.com/miguelcolmenares/docs-sitekit",
     "license": "MIT",
     "installCommand": "npx docs-sitekit init"
