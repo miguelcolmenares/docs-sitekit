@@ -1,0 +1,81 @@
+name: "sitekit docs build"
+description: >-
+  Install, build and check a documentation site made with sitekit, and upload it as the GitHub
+  Pages artifact. Deploying stays in the caller, in a job with its own permissions.
+author: "Miguel Colmenares"
+
+branding:
+  icon: "book-open"
+  color: "purple"
+
+inputs:
+  dir:
+    description: "Folder of the site, relative to the repository root."
+    required: false
+    default: "site"
+  version:
+    description: >-
+      Version of @miguelcolmenares/sitekit that runs `check`, for example "0.1.0". Pin an exact
+      version so a site is checked by the same rules on every run.
+    required: false
+    default: "latest"
+  node-version:
+    description: "Node.js version. The generated site needs 22.23.4 or newer."
+    required: false
+    default: "24"
+  check:
+    description: "Run `sitekit check` on the built site and fail on a problem. Turn off only to debug."
+    required: false
+    default: "true"
+  upload:
+    description: "Upload the built site as the GitHub Pages artifact. Turn off for a build that is only checked."
+    required: false
+    default: "true"
+
+outputs:
+  dist:
+    description: "Path of the built site, relative to the repository root."
+    value: ${{ steps.paths.outputs.dist }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: paths
+      shell: bash
+      env:
+        SITEKIT_DIR: ${{ inputs.dir }}
+      run: echo "dist=${SITEKIT_DIR%/}/dist" >> "$GITHUB_OUTPUT"
+
+    - name: Setup Node ${{ inputs.node-version }}
+      uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: npm
+        cache-dependency-path: ${{ inputs.dir }}/package-lock.json
+
+    - name: Install the site
+      shell: bash
+      working-directory: ${{ inputs.dir }}
+      run: npm ci
+
+    - name: Build the site
+      shell: bash
+      working-directory: ${{ inputs.dir }}
+      run: npm run build
+
+    # Rebuilds the content, scans it and the built files, and checks the repository visibility.
+    - name: Check that it is safe to publish
+      if: ${{ inputs.check == 'true' }}
+      shell: bash
+      env:
+        SITEKIT_DIR: ${{ inputs.dir }}
+        SITEKIT_DIST: ${{ steps.paths.outputs.dist }}
+        SITEKIT_VERSION: ${{ inputs.version }}
+        GH_TOKEN: ${{ github.token }}
+      run: npx --yes "@miguelcolmenares/sitekit@${SITEKIT_VERSION}" check --dir "$SITEKIT_DIR" --dist "$SITEKIT_DIST"
+
+    - name: Upload the Pages artifact
+      if: ${{ inputs.upload == 'true' }}
+      uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      with:
+        path: ${{ steps.paths.outputs.dist }}

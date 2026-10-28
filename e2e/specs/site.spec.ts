@@ -8,6 +8,9 @@ const ROUTES = [
   { path: `${BASE}docs/`, title: /Docs/ },
   { path: `${BASE}docs/getting-started/`, title: /Getting started/ },
   { path: `${BASE}docs/guide/`, title: /Guide/ },
+  { path: `${BASE}docs/overview/`, title: /Widget documentation/ },
+  { path: `${BASE}tutorials/`, title: /Tutorials/ },
+  { path: `${BASE}tutorials/first-steps/`, title: /First steps/ },
   { path: `${BASE}examples/`, title: /Examples/ },
   { path: `${BASE}examples/basic/`, title: /Basic example/ },
   { path: `${BASE}changelog/`, title: /Changelog/ },
@@ -92,6 +95,66 @@ test.describe("links", () => {
       .getByRole("link", { name: /Guide/ })
       .click();
     await expect(page).toHaveURL(`${BASE}docs/guide/`);
+  });
+});
+
+test.describe("collections and groups", () => {
+  test("the docs index shows pages under the name of their group, in the configured order", async ({
+    page,
+  }) => {
+    await page.goto(`${BASE}docs/`);
+    const headings = await page.locator("main h2").allTextContents();
+    expect(headings).toEqual(["Start", "Use"]);
+    const start = page.locator("section", { has: page.getByRole("heading", { name: "Start" }) });
+    expect(await start.locator("a.group h3").allTextContents()).toEqual([
+      "Widget documentation",
+      "Getting started",
+    ]);
+  });
+
+  test("each card carries its group as a badge", async ({ page }) => {
+    await page.goto(`${BASE}docs/`);
+    const card = (title: string) =>
+      page
+        .locator("a.group")
+        .filter({ has: page.getByRole("heading", { name: title, exact: true }) });
+    await expect(card("Getting started").getByText("Start", { exact: true })).toBeVisible();
+    await expect(card("Guide").getByText("Use", { exact: true })).toBeVisible();
+  });
+
+  test("the sidebar names the groups, and a nested collection has its own menu entry and index", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`${BASE}docs/guide/`);
+    const sidebar = page.getByRole("navigation", { name: "Docs" });
+    await expect(sidebar.getByText("Start", { exact: true })).toBeVisible();
+    await expect(sidebar.getByText("Use", { exact: true })).toBeVisible();
+    await expect(sidebar.getByRole("link", { name: "First steps" })).toHaveCount(0); // that is a tutorial
+    await page
+      .getByRole("navigation", { name: "Main" })
+      .getByRole("link", { name: "Tutorials" })
+      .click();
+    await expect(page).toHaveURL(`${BASE}tutorials/`);
+    await expect(page.getByRole("link", { name: /First steps/ })).toBeVisible();
+  });
+
+  test("the menu follows the configured collections, then the changelog", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(BASE);
+    expect(
+      await page.getByRole("navigation", { name: "Main" }).getByRole("link").allTextContents(),
+    ).toEqual(["Docs", "Tutorials", "Examples", "Changelog"]);
+  });
+});
+
+test.describe("version", () => {
+  test("the footer shows the version of the repository and links to the changelog", async ({
+    page,
+  }) => {
+    await page.goto(BASE);
+    const link = page.locator("footer").getByRole("link", { name: "v1.3.0" });
+    await expect(link).toHaveAttribute("href", `${BASE}changelog/`);
   });
 });
 

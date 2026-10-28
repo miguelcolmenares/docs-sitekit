@@ -16,7 +16,9 @@ export interface RepositoryFacts {
   remoteUrl?: string;
   /** Used when the package has no description: the first paragraph of the README. */
   readmeDescription?: string;
-  folders: { docs: boolean; examples: boolean; changelog: boolean };
+  /** Folders that hold pages, found in the repository, in menu order. `dir` is relative to the repository root. */
+  collections: { id: string; label: string; dir: string }[];
+  hasChangelog: boolean;
   /** Name of the folder, the last resort for a project name. */
   folderName: string;
 }
@@ -51,7 +53,8 @@ export function deriveConfig(facts: RepositoryFacts): SiteConfig {
   const userSite =
     github && github.name.toLowerCase() === `${github.owner.toLowerCase()}.github.io`;
 
-  const firstPage = facts.folders.docs ? "/docs/" : facts.folders.examples ? "/examples/" : "/";
+  const first = facts.collections[0];
+  const firstPage = first ? `/${first.id}/` : "/";
   const installable = pkg.name !== undefined && pkg.private !== true;
 
   return parseSiteConfig({
@@ -62,7 +65,6 @@ export function deriveConfig(facts: RepositoryFacts): SiteConfig {
       base: github && !userSite ? `/${github.name}/` : "/",
       ...(github ? { repository: github.url } : {}),
       ...(pkg.license ? { license: pkg.license } : {}),
-      ...(pkg.version ? { version: pkg.version } : {}),
       ...(installable ? { installCommand: `npm install ${pkg.name}` } : {}),
     },
     hero: {
@@ -71,5 +73,10 @@ export function deriveConfig(facts: RepositoryFacts): SiteConfig {
       primary: { label: "Get started", href: firstPage },
       ...(github ? { secondary: { label: "View on GitHub", href: github.url } } : {}),
     },
+    collections: facts.collections.map((collection) => ({
+      id: collection.id,
+      label: collection.label,
+      dir: `../${collection.dir}`,
+    })),
   });
 }

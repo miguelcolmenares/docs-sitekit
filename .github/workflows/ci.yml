@@ -26,7 +26,12 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            template/package-lock.json
       - run: npm ci
+      # The tests and the type check import code from template/, which has its own dependencies.
+      - run: npm ci --prefix template
       - run: npm run lint
       - run: npm run format:check
       - run: npm run typecheck
@@ -57,7 +62,12 @@ jobs:
         with:
           node-version: 26
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            template/package-lock.json
       - run: npm ci
+      # The tests and the type check import code from template/, which has its own dependencies.
+      - run: npm ci --prefix template
       - run: npx playwright install --with-deps chromium
       # Packs the tarball, installs it, runs the CLI on a throwaway repository, builds the site it
       # generates, and then drives that site in a browser on a phone and a desktop.
@@ -68,3 +78,50 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  # The composite action, run for real on a small repository that this commit's CLI initialised.
+  # `check` is off because it runs the published CLI, which does not exist before the first release.
+  action:
+    name: Action smoke test
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            template/package-lock.json
+      - run: npm ci
+      - run: npm ci --prefix template
+      - run: npm run build
+      - name: Make a small repository inside the workspace
+        run: |
+          mkdir -p smoke/docs
+          cat > smoke/package.json <<'JSON'
+          { "name": "smoke", "version": "1.0.0", "description": "A repository to smoke test the action.", "license": "MIT" }
+          JSON
+          cat > smoke/docs/hello.md <<'MARKDOWN'
+          # Hello
+
+          A first page.
+          MARKDOWN
+          node dist/cli.js init --root smoke
+      - id: build
+        uses: ./
+        with:
+          dir: smoke/site
+          check: "false"
+          upload: "false"
+      - name: The action built the site and reported where
+        env:
+          DIST: ${{ steps.build.outputs.dist }}
+        run: |
+          test "$DIST" = "smoke/site/dist"
+          test -f "$DIST/index.html"
+          test -f "$DIST/docs/hello/index.html"
+          test -f "$DIST/404.html"
+          grep -q "<title>Hello" "$DIST/docs/hello/index.html"
+          grep -q ">v1.0.0<" "$DIST/index.html"

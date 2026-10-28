@@ -1,0 +1,76 @@
+name: Docs
+
+# The documentation site of this project, built with this project: the template, read from docs/,
+# using the CLI built from the same commit. It is the same path a generated site follows.
+on:
+  push:
+    branches: [main]
+    paths:
+      [
+        "template/**",
+        "docs/**",
+        "examples/**",
+        "CHANGELOG.md",
+        "src/**",
+        ".github/workflows/docs.yml",
+      ]
+  pull_request:
+    paths:
+      [
+        "template/**",
+        "docs/**",
+        "examples/**",
+        "CHANGELOG.md",
+        "src/**",
+        ".github/workflows/docs.yml",
+      ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            template/package-lock.json
+      - run: npm ci
+      - run: npm ci --prefix template
+      - run: npm run build
+      - run: npm run build
+        working-directory: template
+      # The CLI from this commit, not a published one, so the site is checked by the code it documents.
+      - run: node dist/cli.js check --dir template --dist template/dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: template/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    # Pages needs a public repository on the free plan, so this waits until there is one.
+    if: github.event_name != 'pull_request' && github.event.repository.private == false
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

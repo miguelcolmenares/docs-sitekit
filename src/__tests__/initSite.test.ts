@@ -110,6 +110,43 @@ describe("initSite", () => {
     expect(result.written.length).toBeGreaterThan(5);
   });
 
+  it("finds docs, tutorials and examples, including the ones inside docs/", () => {
+    const { run } = setup({
+      [`${ROOT}/docs/tutorials/first.md`]: "# First",
+      [`${ROOT}/docs/examples/one.md`]: "# One",
+    });
+    const { config } = run();
+    expect(config.collections.map((c) => [c.id, c.dir])).toEqual([
+      ["docs", "../docs"],
+      ["tutorials", "../docs/tutorials"],
+      ["examples", "../docs/examples"],
+    ]);
+  });
+
+  it("prefers docs/examples over examples when both exist, so the ids stay unique", () => {
+    const { run } = setup({
+      [`${ROOT}/docs/examples/one.md`]: "# One",
+      [`${ROOT}/examples/two.md`]: "# Two",
+    });
+    expect(
+      run()
+        .config.collections.filter((c) => c.id === "examples")
+        .map((c) => c.dir),
+    ).toEqual(["../docs/examples"]);
+  });
+
+  it("makes no collections for a repository without documentation folders", () => {
+    const fs = new MemoryFileSystem({
+      [`${ROOT}/package.json`]: JSON.stringify({ name: "x" }),
+      [`${ROOT}/src/a.ts`]: "export {}",
+    });
+    const result = initSite(
+      { fs, env: fakeEnv(), template: fakeTemplate(), hash: sha },
+      { root: ROOT, siteDir: "site" },
+    );
+    expect(result.config.collections).toEqual([]);
+  });
+
   it("keeps what it derived when the command line passes undefined, as the CLI does", () => {
     const { run } = setup();
     const { config } = run({ overrides: { name: undefined, description: undefined } });

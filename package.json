@@ -26,7 +26,8 @@
     "!template/.astro",
     "!template/sitekit.config.json",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
   ],
   "engines": {
     "node": ">=22.0.0"
@@ -43,7 +44,8 @@
     "test:e2e": "node scripts/verify-package.mjs && playwright test -c e2e/playwright.config.ts",
     "verify:package": "node scripts/verify-package.mjs",
     "prepare": "husky",
-    "build:tokens": "node scripts/build-tokens.mjs"
+    "build:tokens": "node scripts/build-tokens.mjs",
+    "bootstrap": "npm ci && npm ci --prefix template"
   },
   "keywords": [
     "documentation",

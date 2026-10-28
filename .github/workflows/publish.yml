@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: 26
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            template/package-lock.json
           registry-url: https://registry.npmjs.org
       - name: Tag must match package.json
         run: |
@@ -26,6 +29,8 @@ jobs:
             echo "Tag $GITHUB_REF_NAME does not match package.json ($expected)"; exit 1
           fi
       - run: npm ci
+      # The tests and the type check import code from template/, which has its own dependencies.
+      - run: npm ci --prefix template
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test

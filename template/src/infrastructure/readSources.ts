@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 import matter from "gray-matter";
 import { applyReplacements, matchesAny } from "../domain";
-import type { Collection, SiteConfig, SourceFile } from "../domain";
+import type { SiteConfig, SourceFile } from "../domain";
 
 const SKIPPED_FOLDERS = new Set(["node_modules", ".git", "dist", ".astro", ".next", "coverage"]);
 
@@ -20,6 +20,7 @@ function walk(directory: string): string[] {
 }
 
 /** The markdown read from a repository, and the paths of every file in it. */
+/** The markdown read from a repository, and the paths of every file in it. */
 export interface RepositorySources {
   /** Absolute path of the repository root. */
   root: string;
@@ -30,7 +31,9 @@ export interface RepositorySources {
 
 /**
  * Read the markdown the site documents. A file matched by `anonymize.excludePaths` is never read,
- * and `anonymize.replace` is applied to everything that is.
+ * and `anonymize.replace` is applied to everything that is. A file belongs to the collection whose
+ * folder is the deepest one that contains it, so `docs/tutorials/` can be its own collection
+ * inside `docs/` without its pages also showing up in the parent.
  */
 export function readSources(siteDir: string, config: SiteConfig): RepositorySources {
   const root = resolve(siteDir, config.sources.root);
@@ -38,13 +41,28 @@ export function readSources(siteDir: string, config: SiteConfig): RepositorySour
   const existing = new Set(walk(root).map(toRepoPath));
   const { excludePaths, replace } = config.anonymize;
 
-  const read = (absolute: string, collection: Collection): SourceFile | null => {
+  const folders = config.collections.map((collection) => ({
+    id: collection.id,
+    absolute: resolve(siteDir, collection.dir),
+    path: toRepoPath(resolve(siteDir, collection.dir)),
+  }));
+  const ownerOf = (repoPath: string) =>
+    folders
+      .filter((folder) => repoPath === folder.path || repoPath.startsWith(`${folder.path}/`))
+      .sort((a, b) => b.path.length - a.path.length)[0];
+
+  const read = (
+    absolute: string,
+    collection: string,
+    collectionPath: string,
+  ): SourceFile | null => {
     const path = toRepoPath(absolute);
     if (matchesAny(path, excludePaths)) return null;
     const parsed = matter(readFileSync(absolute, "utf8"));
     return {
       path,
       collection,
+      collectionPath,
       frontmatter: JSON.parse(applyReplacements(JSON.stringify(parsed.data), replace)) as Record<
         string,
         unknown
@@ -53,21 +71,21 @@ export function readSources(siteDir: string, config: SiteConfig): RepositorySour
     };
   };
 
-  const collect = (directory: string, collection: Collection): SourceFile[] =>
-    walk(resolve(siteDir, directory))
+  const files: SourceFile[] = [];
+  for (const folder of folders) {
+    for (const absolute of walk(folder.absolute)
       .filter((file) => /\.mdx?$/i.test(file))
-      .sort()
-      .map((file) => read(file, collection))
-      .filter((file): file is SourceFile => file !== null);
-
-  const files = [
-    ...collect(config.sources.docs, "docs"),
-    ...collect(config.sources.examples, "examples"),
-  ];
+      .sort()) {
+      const repoPath = toRepoPath(absolute);
+      if (ownerOf(repoPath)?.id !== folder.id) continue; // a deeper collection owns it
+      const file = read(absolute, folder.id, repoPath.slice(folder.path.length + 1));
+      if (file) files.push(file);
+    }
+  }
 
   const changelog = resolve(siteDir, config.sources.changelog);
   if (existsSync(changelog) && statSync(changelog).isFile()) {
-    const file = read(changelog, "changelog");
+    const file = read(changelog, "changelog", toRepoPath(changelog));
     if (file) files.push(file);
   }
   return { root, files, existing };

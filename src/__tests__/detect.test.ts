@@ -2,7 +2,8 @@ import { deriveConfig, parseGitHubUrl } from "../domain";
 import type { RepositoryFacts } from "../domain";
 
 const facts = (overrides: Partial<RepositoryFacts> = {}): RepositoryFacts => ({
-  folders: { docs: true, examples: false, changelog: true },
+  collections: [{ id: "docs", label: "Docs", dir: "docs" }],
+  hasChangelog: true,
   folderName: "my-folder",
   ...overrides,
 });
@@ -47,9 +48,10 @@ describe("deriveConfig", () => {
       base: "/widget/",
       repository: "https://github.com/Me/widget",
       license: "MIT",
-      version: "1.2.3",
       installCommand: "npm install @me/widget",
     });
+    // Not copied into the config: the site reads it from package.json at build time, so a release rebuild shows the release.
+    expect(config.site.version).toBeUndefined();
     expect(config.hero.primary).toEqual({ label: "Get started", href: "/docs/" });
     expect(config.hero.secondary?.href).toBe("https://github.com/Me/widget");
   });
@@ -73,15 +75,28 @@ describe("deriveConfig", () => {
     expect(bare.site.description).toBe("Documentation for my-folder.");
   });
 
-  it("points the primary action at the first page that exists", () => {
-    expect(
-      deriveConfig(facts({ folders: { docs: false, examples: true, changelog: false } })).hero
-        .primary.href,
-    ).toBe("/examples/");
-    expect(
-      deriveConfig(facts({ folders: { docs: false, examples: false, changelog: false } })).hero
-        .primary.href,
-    ).toBe("/");
+  it("points the primary action at the first collection that exists, and at the home page when there is none", () => {
+    const examples = [{ id: "examples", label: "Examples", dir: "examples" }];
+    expect(deriveConfig(facts({ collections: examples })).hero.primary.href).toBe("/examples/");
+    expect(deriveConfig(facts({ collections: [] })).hero.primary.href).toBe("/");
+  });
+
+  it("turns the folders it found into collections, with their folder relative to the site", () => {
+    const config = deriveConfig(
+      facts({
+        collections: [
+          { id: "docs", label: "Docs", dir: "docs" },
+          { id: "tutorials", label: "Tutorials", dir: "docs/tutorials" },
+          { id: "examples", label: "Examples", dir: "examples" },
+        ],
+      }),
+    );
+    expect(config.collections.map((c) => [c.id, c.label, c.dir])).toEqual([
+      ["docs", "Docs", "../docs"],
+      ["tutorials", "Tutorials", "../docs/tutorials"],
+      ["examples", "Examples", "../examples"],
+    ]);
+    expect(config.collections.every((c) => c.groups.length === 0)).toBe(true);
   });
 
   it("produces a config that passes the schema without a GitHub remote", () => {

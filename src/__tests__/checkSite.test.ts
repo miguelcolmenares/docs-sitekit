@@ -23,6 +23,7 @@ const config = (deploy: Record<string, unknown> = {}, anonymize: Record<string, 
 const doc = (path: string, content: string): SourceFile => ({
   path,
   collection: "docs",
+  collectionPath: path.replace(/^docs\//, ""),
   frontmatter: {},
   content,
 });

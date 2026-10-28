@@ -7,6 +7,7 @@ pipeline that reads your repository, and a scaffold you run once with `npx`.
   copied into your site, so you own them.
 - **Your repository is the source**: `docs/`, `examples/` and `CHANGELOG.md` become pages. Relative links keep working
   on GitHub and on the site.
+- **Rebuilds on every release** with a reusable GitHub Action that installs, builds, checks and uploads the site.
 - **Safe to publish**: a closed config contract, and a check that scans the content and the built files for
   credentials and internal hosts, and for a private repository whose Pages site would be public.
 - **No token, no private registry**: a generated site builds with public packages only, and does not depend on this CLI.
@@ -35,6 +36,87 @@ and `--dry-run` shows what it would write.
 | `sitekit list`                          | List the components.                                                        |
 | `sitekit add <component> [--force]`     | Copy a component and what it needs. A file you edited is kept.              |
 
+## GitHub Action
+
+`init` writes a workflow that rebuilds the site with this repository's action. You can also call it from any workflow of your own, for example to
+rebuild the site on every release.
+
+```yaml
+- uses: actions/checkout@v7
+- uses: miguelcolmenares/sitekit@v0.1.0
+  with:
+    version: 0.1.0 # the sitekit CLI that runs `check`
+```
+
+The action installs the site, builds it, runs `sitekit check` on the result, and uploads it as the GitHub Pages artifact. **Deploying stays in
+your workflow**, in a job of its own with the permissions it needs, so a pull request can build and check a site without being able to publish it.
+
+### Rebuild on every release
+
+```yaml
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", "docs/**", "examples/**", "README.md", "CHANGELOG.md"]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: miguelcolmenares/sitekit@v0.1.0
+        with:
+          version: 0.1.0
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+```
+
+A release changes the changelog and the version in the footer, which is read from the repository's `package.json` on every build, so rebuilding is
+all it takes. For a package that publishes from a tag, add the same two jobs after the publish job and give the deploy job `needs: [publish, build]`.
+
+### Inputs
+
+| Input          | Default  | What it does                                                                                                     |
+| -------------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| `dir`          | `site`   | Folder of the site, relative to the repository root.                                                             |
+| `version`      | `latest` | Version of `@miguelcolmenares/sitekit` that runs `check`. Pin an exact version so every run uses the same rules. |
+| `node-version` | `24`     | Node.js version. A generated site needs 22.23.4 or newer.                                                        |
+| `check`        | `true`   | Run `sitekit check` on the built site and fail on a problem. Turn it off only to debug.                          |
+| `upload`       | `true`   | Upload the built site as the GitHub Pages artifact. Turn it off for a build that is only checked.                |
+
+### Outputs
+
+| Output | What it is                                               |
+| ------ | -------------------------------------------------------- |
+| `dist` | Path of the built site, relative to the repository root. |
+
+### Good to know
+
+- The build job needs only `contents: read`. The action never asks for `pages` or `id-token`: only the deploy job does.
+- Pin the action to a version tag, or to a commit. Tags of this repository are immutable.
+- A private repository's GitHub Pages site is public. `check` stops the job until you set `deploy.acknowledgePublicPages` in the site's config, and
+  it asks GitHub for the visibility, so give the step a token (the action already passes `github.token`).
+- It needs no secret and no private registry, so it runs the same for pull requests from forks and from Dependabot.
+
 ## Content
 
 | Source         | Becomes                  |
@@ -54,7 +136,7 @@ The documentation site is built with this kit. Read it under `docs/`: getting st
 ## Development
 
 ```bash
-npm ci
+npm run bootstrap      # installs the CLI and the template
 npm test               # unit and integration
 npm run test:e2e       # packs the package, generates a site, builds it, and drives it in a browser
 npm run build:tokens   # regenerate the CSS from template/design/tokens.json

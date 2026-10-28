@@ -5,13 +5,9 @@ const file = (
   path: string,
   content: string,
   frontmatter: Record<string, unknown> = {},
-  collection: SourceFile["collection"] = "docs",
-): SourceFile => ({
-  path,
-  collection,
-  frontmatter,
-  content,
-});
+  collection = "docs",
+  collectionPath = path.replace(/^(docs|examples|tutorials)\//, ""),
+): SourceFile => ({ path, collection, collectionPath, frontmatter, content });
 
 describe("buildDocuments", () => {
   it("takes title and description from the content when the frontmatter has none", () => {
@@ -74,7 +70,7 @@ describe("buildDocuments", () => {
 
   it("gives the changelog one fixed route", () => {
     const [doc] = buildDocuments(
-      [file("CHANGELOG.md", "# Changelog\n\n## 1.0.0", {}, "changelog")],
+      [file("CHANGELOG.md", "# Changelog\n\n## 1.0.0", {}, "changelog", "CHANGELOG.md")],
       { base: "/x/" },
     );
     expect(doc).toMatchObject({ slug: "changelog", route: "/x/changelog/" });
@@ -104,5 +100,104 @@ describe("buildDocuments", () => {
   it("maps repository paths to routes", () => {
     const docs = buildDocuments([file("docs/a.md", "# A")], { base: "/" });
     expect(publishedRoutes(docs).get("docs/a.md")).toBe("/docs/a/");
+  });
+});
+
+describe("buildDocuments collections and groups", () => {
+  const collections = (
+    groups: Array<{
+      name: string;
+      tone?: "neutral" | "brand" | "success" | "warn";
+      items: string[];
+    }> = [],
+  ) => [
+    {
+      id: "docs",
+      label: "Docs",
+      dir: "../docs",
+      groups: groups.map((group) => ({ tone: "neutral" as const, ...group })),
+    },
+    { id: "tutorials", label: "Tutorials", dir: "../docs/tutorials", groups: [] },
+  ];
+
+  it("gives a README at the top of a collection the slug overview", () => {
+    const [doc] = buildDocuments([file("docs/README.md", "# Docs home\n\nStart here.")], {
+      base: "/",
+      collections: collections(),
+    });
+    expect(doc).toMatchObject({ slug: "overview", route: "/docs/overview/", title: "Docs home" });
+  });
+
+  it("names a nested folder page after its folder", () => {
+    const [doc] = buildDocuments([file("docs/guide/README.md", "# Guide")], {
+      base: "/",
+      collections: collections(),
+    });
+    expect(doc!.slug).toBe("guide");
+  });
+
+  it("orders collections as configured, then the changelog last, whatever order the files come in", () => {
+    const docs = buildDocuments(
+      [
+        file("CHANGELOG.md", "# Changelog", {}, "changelog", "CHANGELOG.md"),
+        file("docs/tutorials/t.md", "# T", {}, "tutorials", "t.md"),
+        file("docs/a.md", "# A"),
+      ],
+      { base: "/", collections: collections() },
+    );
+    expect(docs.map((d) => d.collection)).toEqual(["docs", "tutorials", "changelog"]);
+  });
+
+  it("orders pages by their groups and records the group on each page", () => {
+    const docs = buildDocuments(
+      [file("docs/a.md", "# A"), file("docs/b.md", "# B"), file("docs/c.md", "# C")],
+      {
+        base: "/",
+        collections: collections([
+          { name: "Later", tone: "warn", items: ["c"] },
+          { name: "First", tone: "brand", items: ["b", "a"] },
+        ]),
+      },
+    );
+    expect(docs.map((d) => [d.slug, d.group?.name])).toEqual([
+      ["c", "Later"],
+      ["b", "First"],
+      ["a", "First"],
+    ]);
+  });
+
+  it("fails the build on a page that no group lists", () => {
+    expect(() =>
+      buildDocuments([file("docs/a.md", "# A"), file("docs/b.md", "# B")], {
+        base: "/",
+        collections: collections([{ name: "G", items: ["a"] }]),
+      }),
+    ).toThrow(/b is in no group of "Docs"/);
+  });
+
+  it("fails the build on a group that lists a missing page", () => {
+    expect(() =>
+      buildDocuments([file("docs/a.md", "# A")], {
+        base: "/",
+        collections: collections([{ name: "G", items: ["a", "gone"] }]),
+      }),
+    ).toThrow(/lists "gone"/);
+  });
+
+  it("leaves pages ungrouped, sorted by name, when a collection has no groups", () => {
+    const docs = buildDocuments([file("docs/b.md", "# B"), file("docs/a.md", "# A")], {
+      base: "/",
+      collections: collections(),
+    });
+    expect(docs.map((d) => d.slug)).toEqual(["a", "b"]);
+    expect(docs.every((d) => d.group === null)).toBe(true);
+  });
+
+  it("keeps a page of an unconfigured collection, after the configured ones", () => {
+    const docs = buildDocuments(
+      [file("extra/x.md", "# X", {}, "extra", "x.md"), file("docs/a.md", "# A")],
+      { base: "/", collections: collections() },
+    );
+    expect(docs.map((d) => d.collection)).toEqual(["docs", "extra"]);
   });
 });

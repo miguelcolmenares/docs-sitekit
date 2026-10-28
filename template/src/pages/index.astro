@@ -9,8 +9,14 @@ import BaseLayout from "../presentation/layouts/BaseLayout.astro";
 
 const site = loadSite();
 const { config, href } = site;
-const docs = site.documents.filter((document) => document.collection === "docs").slice(0, 6);
-const examples = site.documents.filter((document) => document.collection === "examples").slice(0, 3);
+// One section per collection that has pages: the first six, with the link to the rest.
+const sections = config.collections
+  .map((collection) => ({
+    ...collection,
+    title: collection.lede ? `${collection.label}` : collection.label,
+    documents: site.documents.filter((document) => document.collection === collection.id).slice(0, 6),
+  }))
+  .filter((section) => section.documents.length > 0);
 // A link in the config that starts with "/" is a path on this site, so it gets the base.
 const resolve = (link: { label: string; href: string }) => ({ ...link, href: link.href.startsWith("/") ? href(link.href) : link.href });
 ---
@@ -35,29 +41,31 @@ const resolve = (link: { label: string; href: string }) => ({ ...link, href: lin
   }
 
   {
-    docs.length > 0 && (
+    sections.map((section, index) => (
       <section class="mx-auto max-w-site border-t border-border px-5 py-20">
-        <SectionHeader eyebrow={`${config.features.length > 0 ? "02" : "01"} · Documentation`} title="Start here" lede="Everything you need, in reading order.">
-          <a href={href("docs/")} class="inline-flex min-h-11 items-center text-sm text-fg-muted hover:text-fg-bright">All docs →</a>
+        <SectionHeader
+          eyebrow={`${String(index + (config.features.length > 0 ? 2 : 1)).padStart(2, "0")} · ${section.label}`}
+          title={section.title}
+          lede={section.lede}
+        >
+          <a href={href(`${section.id}/`)} class="inline-flex min-h-11 items-center text-sm text-fg-muted hover:text-fg-bright">
+            All {section.label.toLowerCase()} →
+          </a>
         </SectionHeader>
         <CardGrid>
-          {docs.map((document) => <ItemCard href={document.route} title={document.title} description={document.description} hint="Read" />)}
+          {section.documents.map((document) => (
+            <ItemCard
+              href={document.route}
+              title={document.title}
+              description={document.description}
+              badge={document.group?.name}
+              tone={document.group?.tone}
+              hint="Read"
+            />
+          ))}
         </CardGrid>
       </section>
-    )
-  }
-
-  {
-    examples.length > 0 && (
-      <section class="mx-auto max-w-site border-t border-border px-5 py-20">
-        <SectionHeader eyebrow="Examples" title="See it in use">
-          <a href={href("examples/")} class="inline-flex min-h-11 items-center text-sm text-fg-muted hover:text-fg-bright">All examples →</a>
-        </SectionHeader>
-        <CardGrid>
-          {examples.map((document) => <ItemCard href={document.route} title={document.title} description={document.description} hint="Open" />)}
-        </CardGrid>
-      </section>
-    )
+    ))
   }
 
   <CtaBand

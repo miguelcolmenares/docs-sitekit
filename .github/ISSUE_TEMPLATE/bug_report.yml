@@ -1,0 +1,31 @@
+name: Bug report
+description: Something does not work, or a generated site looks or behaves wrong.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you ran, what you expected and what you got. Paste the command and its output.
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: sitekit.config.json
+      description: Remove anything private first.
+      render: json
+  - type: input
+    id: version
+    attributes:
+      label: sitekit version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node version and operating system
+      placeholder: "Node 26.13.0, macOS"
+    validations:
+      required: true

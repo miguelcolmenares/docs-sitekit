@@ -1,0 +1,15 @@
+name: Feature request
+description: Something sitekit should do, or a component it should have.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What you are trying to do
+      description: The situation first, then what you would like. A repository where it comes up helps.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you do today

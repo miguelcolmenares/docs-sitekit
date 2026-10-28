@@ -17,6 +17,10 @@ const config = (extra: Record<string, unknown> = {}) =>
   JSON.stringify({
     site: { name: "Demo", description: "d", url: "https://me.github.io" },
     hero: { title: "Demo", lede: "l", primary: { label: "Go", href: "/docs/" } },
+    collections: [
+      { id: "docs", label: "Docs", dir: "../docs" },
+      { id: "examples", label: "Examples", dir: "../examples" },
+    ],
     ...extra,
   });
 
@@ -87,6 +91,94 @@ describe("readSources", () => {
     });
     expect(publishedRoutes(documents).get("CHANGELOG.md")).toBe("/demo/changelog/");
   });
+});
+
+describe("readSources collections", () => {
+  const nested = () =>
+    config({
+      collections: [
+        { id: "docs", label: "Docs", dir: "../docs" },
+        { id: "tutorials", label: "Tutorials", dir: "../docs/tutorials" },
+        { id: "examples", label: "Examples", dir: "../docs/examples" },
+      ],
+    });
+
+  it("gives a file to the collection with the deepest folder, so a nested collection is not also in its parent", () => {
+    write("docs/tutorials/first.md", "# First tutorial");
+    write("docs/examples/params.md", "# Params example");
+    writeFileSync(join(site, "sitekit.config.json"), nested());
+    const files = readSources(site, loadSiteConfig(site)).files;
+    const owner = (path: string) => files.find((file) => file.path === path)?.collection;
+    expect(owner("docs/start.md")).toBe("docs");
+    expect(owner("docs/tutorials/first.md")).toBe("tutorials");
+    expect(owner("docs/examples/params.md")).toBe("examples");
+    expect(files.filter((file) => file.path === "docs/tutorials/first.md")).toHaveLength(1);
+  });
+
+  it("records the path of each file inside its collection folder", () => {
+    write("docs/tutorials/first.md", "# First tutorial");
+    writeFileSync(join(site, "sitekit.config.json"), nested());
+    const files = readSources(site, loadSiteConfig(site)).files;
+    expect(files.find((file) => file.path === "docs/tutorials/first.md")!.collectionPath).toBe(
+      "first.md",
+    );
+    expect(files.find((file) => file.path === "docs/start.md")!.collectionPath).toBe("start.md");
+  });
+
+  it("turns a README at the top of a collection into its overview page, and a nested one into a folder page", () => {
+    write("docs/README.md", "# Docs home\n\nStart here.");
+    write("docs/tutorials/README.md", "# Tutorials\n\nAll the tutorials.");
+    writeFileSync(join(site, "sitekit.config.json"), nested());
+    const { config: loaded, documents } = loadFor();
+    expect(documents.find((d) => d.path === "docs/README.md")).toMatchObject({
+      collection: "docs",
+      slug: "overview",
+    });
+    expect(documents.find((d) => d.path === "docs/tutorials/README.md")).toMatchObject({
+      collection: "tutorials",
+      slug: "overview",
+    });
+    expect(loaded.collections).toHaveLength(3);
+  });
+
+  it("fails the build when a collection has groups and a page is in none", () => {
+    writeFileSync(
+      join(site, "sitekit.config.json"),
+      config({
+        collections: [
+          {
+            id: "docs",
+            label: "Docs",
+            dir: "../docs",
+            groups: [{ name: "Only", items: ["start"] }],
+          },
+        ],
+      }),
+    );
+    write("docs/another.md", "# Another");
+    expect(() => loadFor()).toThrow(/another, plan are in no group of "Docs".*Add them to a group/);
+  });
+
+  it("reads nothing for a collection whose folder does not exist", () => {
+    writeFileSync(
+      join(site, "sitekit.config.json"),
+      config({ collections: [{ id: "guides", label: "Guides", dir: "../guides" }] }),
+    );
+    expect(
+      readSources(site, loadSiteConfig(site)).files.filter((file) => file.collection === "guides"),
+    ).toEqual([]);
+  });
+
+  function loadFor() {
+    const loaded = loadSiteConfig(site);
+    return {
+      config: loaded,
+      documents: buildDocuments(readSources(site, loaded).files, {
+        base: "/",
+        collections: loaded.collections,
+      }),
+    };
+  }
 });
 
 describe("loadSiteConfig", () => {

@@ -53,6 +53,20 @@ function readJson(fs: FileSystem, path: string): Record<string, unknown> | undef
   }
 }
 
+/** The sets of pages a repository usually has, with the folders to look in. The first folder that exists wins. */
+const COLLECTION_CANDIDATES = [
+  { id: "docs", label: "Docs", dirs: ["docs"] },
+  { id: "tutorials", label: "Tutorials", dirs: ["docs/tutorials", "tutorials"] },
+  { id: "examples", label: "Examples", dirs: ["docs/examples", "examples"] },
+];
+
+function findCollections(fs: FileSystem, root: string): RepositoryFacts["collections"] {
+  return COLLECTION_CANDIDATES.flatMap((candidate) => {
+    const dir = candidate.dirs.find((path) => fs.isDirectory(joinPath(root, path)));
+    return dir ? [{ id: candidate.id, label: candidate.label, dir }] : [];
+  });
+}
+
 function collectFacts(deps: InitDeps, root: string): RepositoryFacts {
   const { fs, env } = deps;
   const readme = fs.exists(joinPath(root, "README.md"))
@@ -62,11 +76,8 @@ function collectFacts(deps: InitDeps, root: string): RepositoryFacts {
     packageJson: readJson(fs, joinPath(root, "package.json")) as RepositoryFacts["packageJson"],
     remoteUrl: env.remoteUrl(root),
     readmeDescription: readme || undefined,
-    folders: {
-      docs: fs.exists(joinPath(root, "docs")),
-      examples: fs.exists(joinPath(root, "examples")),
-      changelog: fs.exists(joinPath(root, "CHANGELOG.md")),
-    },
+    collections: findCollections(fs, root),
+    hasChangelog: fs.exists(joinPath(root, "CHANGELOG.md")),
     folderName: baseName(root),
   };
 }

@@ -9,11 +9,17 @@
     "installCommand": "npx @miguelcolmenares/sitekit init"
   },
   "hero": {
-    "badge": "Astro · Tailwind · shadcn/ui · lucide",
+    "badge": "Astro \u00b7 Tailwind \u00b7 shadcn/ui \u00b7 lucide",
     "title": "Documentation sites that look like a product.",
     "lede": "A dark design system, a content pipeline that reads your repository, and a scaffold that publishes to GitHub Pages. MIT licensed.",
-    "primary": { "label": "Get started", "href": "/docs/getting-started/" },
-    "secondary": { "label": "Browse the components", "href": "/docs/components/" }
+    "primary": {
+      "label": "Get started",
+      "href": "/docs/getting-started/"
+    },
+    "secondary": {
+      "label": "Browse the components",
+      "href": "/docs/components/"
+    }
   },
   "features": [
     {
@@ -43,8 +49,42 @@
   ],
   "sources": {
     "root": "..",
-    "docs": "../docs",
-    "examples": "../examples",
     "changelog": "../CHANGELOG.md"
+  },
+  "collections": [
+    {
+      "id": "docs",
+      "label": "Docs",
+      "dir": "../docs",
+      "lede": "Guides and reference for using sitekit.",
+      "groups": [
+        {
+          "name": "Start",
+          "tone": "brand",
+          "items": ["getting-started"]
+        },
+        {
+          "name": "Design system",
+          "tone": "neutral",
+          "items": ["components", "design-tokens"]
+        },
+        {
+          "name": "Content",
+          "tone": "success",
+          "items": ["content", "deploying"]
+        }
+      ]
+    },
+    {
+      "id": "examples",
+      "label": "Examples",
+      "dir": "../examples",
+      "lede": "Working examples you can copy and adapt."
+    }
+  ],
+  "deploy": {
+    "target": "github-pages",
+    "acknowledgePublicPages": false,
+    "repositoryVisibility": "public"
   }
 }

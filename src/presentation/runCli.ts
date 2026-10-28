@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { addComponent, checkSite, initSite, listComponents } from "../application";
 // Deep imports on purpose: the template infrastructure barrel also exports the markdown renderer,
 // which belongs to the generated site and must not end up in this CLI.
+import { buildDocuments } from "../../template/src/application/buildDocuments";
 import { readSources } from "../../template/src/infrastructure/readSources";
 import { loadSiteConfig } from "../../template/src/infrastructure/siteConfig";
 import { nodeEnvironment, nodeFileSystem, packagedTemplate, sha256 } from "../infrastructure";
@@ -84,7 +85,10 @@ export function runCli(argv: string[], io: CliIo): number {
             env: nodeEnvironment,
             loadContent: (siteAbs) => {
               const config = loadSiteConfig(siteAbs);
-              return { config, files: readSources(siteAbs, config).files };
+              const { files } = readSources(siteAbs, config);
+              // Builds the pages only to validate them: two files on one route, or a page in no group, throw here.
+              buildDocuments(files, { base: config.site.base, collections: config.collections });
+              return { config, files };
             },
           },
           { root, siteDir, dist: values.dist ? resolve(io.cwd, values.dist) : undefined },

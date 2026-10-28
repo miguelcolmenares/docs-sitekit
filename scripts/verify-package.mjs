@@ -91,6 +91,7 @@ check("tarball has the CLI, the template, the registry and the workflow", () => 
     "template/src/domain/config.ts",
     "template/src/presentation/components/site/Hero.astro",
     "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
   ]) {
     assert(packedPaths.includes(required), `missing ${required}`);
   }
@@ -192,6 +193,14 @@ write(
   "# Guide\n\nThe longer guide.\n\n## Advanced\n\nAdvanced use.\n",
 );
 write(join(REPO, "docs", "internal", "plan.md"), "# Plan\n\nNot for the site.\n");
+write(
+  join(REPO, "docs", "README.md"),
+  "# Widget documentation\n\nStart with the getting started guide.\n",
+);
+write(
+  join(REPO, "docs", "tutorials", "first-steps.md"),
+  "# First steps\n\nA tutorial in its own collection.\n",
+);
 write(join(REPO, "examples", "basic", "README.md"), "# Basic example\n\nThe smallest example.\n");
 write(
   join(REPO, "CHANGELOG.md"),
@@ -232,15 +241,39 @@ check("the config comes from the repository", () => {
     `install command: ${site.installCommand}`,
   );
 });
-check("the workflow pins the version of the CLI that wrote it", () => {
-  const { version } = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+check("init found docs, tutorials (inside docs/) and examples, each as its own collection", () => {
+  const { collections } = JSON.parse(readFileSync(join(SITE, "sitekit.config.json"), "utf8"));
   assert(
-    readFileSync(join(REPO, ".github", "workflows", "docs.yml"), "utf8").includes(
-      `@miguelcolmenares/sitekit@${version} check`,
-    ),
-    "version is not pinned",
+    JSON.stringify(collections.map((c) => [c.id, c.dir])) ===
+      JSON.stringify([
+        ["docs", "../docs"],
+        ["tutorials", "../docs/tutorials"],
+        ["examples", "../examples"],
+      ]),
+    `got ${JSON.stringify(collections)}`,
   );
 });
+check(
+  "the generated workflow calls the sitekit action at the version that wrote it, and rebuilds on a release",
+  () => {
+    const { version } = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+    const workflow = readFileSync(join(REPO, ".github", "workflows", "docs.yml"), "utf8");
+    assert(
+      workflow.includes(`miguelcolmenares/sitekit@v${version}`),
+      "the action is not pinned to this version",
+    );
+    assert(
+      new RegExp(`version: ${version.replaceAll(".", "\\.")}`).test(workflow),
+      "the CLI version is not pinned",
+    );
+    assert(
+      /release:\s*\n\s*types: \[published\]/.test(workflow),
+      "a release does not trigger a rebuild",
+    );
+    assert(!workflow.includes("__SITEKIT_VERSION__"), "the version placeholder was left in");
+    assert(!workflow.includes("configure-pages"), "it uses configure-pages");
+  },
+);
 check("the generated site depends on no sitekit package and on no private registry", () => {
   const manifest =
     readFileSync(join(SITE, "package.json"), "utf8") +
@@ -273,7 +306,37 @@ const configPath = join(SITE, "sitekit.config.json");
 const config = JSON.parse(readFileSync(configPath, "utf8"));
 config.deploy.repositoryVisibility = "public";
 config.anonymize.excludePaths = ["docs/internal/**"];
+config.collections[0].groups = [
+  { name: "Start", tone: "brand", items: ["overview", "getting-started"] },
+  { name: "Use", tone: "success", items: ["guide"] },
+];
 writeFileSync(configPath, JSON.stringify(config, null, 2));
+check("check fails on a page that no group lists, and says how to fix it", () => {
+  const extra = join(REPO, "docs", "extra.md");
+  writeFileSync(extra, "# Extra\n\nA page nobody classified.\n");
+  let message = "";
+  try {
+    sitekit(["check"]);
+  } catch (error) {
+    message = error.stderr;
+  }
+  rmSync(extra);
+  assert(/extra is in no group of "Docs".*Add it to a group/.test(message), `got: ${message}`);
+});
+check("check fails on a group that names a page that does not exist", () => {
+  const original = readFileSync(configPath, "utf8");
+  const broken = JSON.parse(original);
+  broken.collections[0].groups[1].items.push("tpyo");
+  writeFileSync(configPath, JSON.stringify(broken, null, 2));
+  let message = "";
+  try {
+    sitekit(["check"]);
+  } catch (error) {
+    message = error.stderr;
+  }
+  writeFileSync(configPath, original);
+  assert(/lists "tpyo", which is not a page/.test(message), `got: ${message}`);
+});
 check("check passes clean content", () => {
   assert(/Safe to publish/.test(sitekit(["check"])), "not safe");
 });
@@ -307,6 +370,9 @@ check("every document, example and the changelog became a page with its own titl
     "index.html": "widget",
     "docs/getting-started/index.html": "Getting started",
     "docs/guide/index.html": "Guide",
+    "docs/overview/index.html": "Widget documentation",
+    "tutorials/first-steps/index.html": "First steps",
+    "tutorials/index.html": "Tutorials",
     "examples/basic/index.html": "Basic example",
     "changelog/index.html": "Changelog",
   };
@@ -318,6 +384,20 @@ check("every document, example and the changelog became a page with its own titl
     );
   }
 });
+check(
+  "pages are grouped on the index and in the sidebar, and a nested collection is not repeated in its parent",
+  () => {
+    const index = read("docs/index.html");
+    assert(
+      />Start</.test(index) && />Use</.test(index),
+      "group names are missing from the docs index",
+    );
+    assert(index.indexOf(">Start<") < index.indexOf(">Use<"), "groups are out of order");
+    assert(!index.includes("First steps"), "a tutorial leaked into the docs index");
+    assert(!existsSync(join(dist, "docs", "first-steps")), "a tutorial was also built under docs/");
+    assert(/>Start</.test(read("docs/guide/index.html")), "the sidebar has no group names");
+  },
+);
 check("an excluded file is not on the site", () => {
   assert(!existsSync(join(dist, "docs", "plan")), "docs/internal/plan.md was published");
   assert(
@@ -355,6 +435,32 @@ check("fonts are served from the site, with no request to a font host", () => {
     "a font host is referenced",
   );
 });
+check(
+  "the footer shows the version from package.json, and a rebuild after a release shows the new one",
+  () => {
+    assert(/>v1\.2\.3</.test(read("index.html")), "the footer does not show v1.2.3");
+    const manifest = join(REPO, "package.json");
+    const original = readFileSync(manifest, "utf8");
+    writeFileSync(manifest, original.replace('"version": "1.2.3"', '"version": "1.3.0"'));
+    try {
+      run("npm", ["run", "build"], {
+        cwd: SITE,
+        env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" },
+      });
+    } finally {
+      // The config never held the version, so only the repository's package.json changed.
+      assert(
+        !/"version"/.test(readFileSync(join(SITE, "sitekit.config.json"), "utf8")),
+        "the config holds a version",
+      );
+    }
+    assert(/>v1\.3\.0</.test(read("index.html")), "the rebuilt footer does not show v1.3.0");
+    assert(
+      /href="\/widget\/changelog\/"[^>]*>v1\.3\.0</.test(read("docs/guide/index.html")),
+      "the version does not link to the changelog",
+    );
+  },
+);
 check("the built site has no credentials and passes check --dist", () => {
   assert(/Safe to publish/.test(sitekit(["check", "--dist", "site/dist"])), "check --dist failed");
 });

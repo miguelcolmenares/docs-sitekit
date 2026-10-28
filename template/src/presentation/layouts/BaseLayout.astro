@@ -16,13 +16,13 @@ const pageTitle = title ? `${title} · ${config.site.name}` : `${config.site.nam
 const canonical = new URL(Astro.url.pathname, config.site.url).toString();
 
 const has = (collection: string) => site.documents.some((document) => document.collection === collection);
+// One menu entry per collection that has pages, in the order of the config, then the changelog.
 const defaultNav = [
-  ...(has("docs") ? [{ label: "Docs", href: href("docs/") }] : []),
-  ...(has("examples") ? [{ label: "Examples", href: href("examples/") }] : []),
+  ...config.collections.filter((collection) => has(collection.id)).map((collection) => ({ label: collection.label, href: href(`${collection.id}/`) })),
   ...(has("changelog") ? [{ label: "Changelog", href: href("changelog/") }] : []),
 ];
 const nav = config.nav.length > 0 ? config.nav : defaultNav;
-const firstDoc = site.documents.find((document) => document.collection === "docs");
+const firstDoc = site.documents.find((document) => config.collections.some((collection) => collection.id === document.collection));
 const action = firstDoc ? { label: "Get started", href: firstDoc.route } : undefined;
 
 const columns = [
@@ -70,6 +70,7 @@ const columns = [
       command={config.site.installCommand}
       columns={columns}
       license={config.site.license}
+      version={site.version ? { label: `v${site.version}`, href: has("changelog") ? href("changelog/") : undefined } : undefined}
       credit={{ prefix: "Built with", label: "sitekit", href: "https://github.com/miguelcolmenares/sitekit" }}
     />
   </body>
