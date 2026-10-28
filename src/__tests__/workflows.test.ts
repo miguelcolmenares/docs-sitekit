@@ -60,6 +60,16 @@ describe("workflows and the action", () => {
     expect(action).toMatch(/default: "site"/);
   });
 
+  it("the action has what the Marketplace listing needs: a short description, a name and a branding icon", () => {
+    const action = read("action.yml");
+    const description = /^description: "(.+)"$/m.exec(action)?.[1];
+    // The Marketplace rejects a description of 125 characters or more.
+    expect(description).toBeDefined();
+    expect(description!.length).toBeLessThan(125);
+    expect(action).toMatch(/^name: ".+"$/m);
+    expect(action).toMatch(/^branding:\n\s+icon: "[a-z-]+"\n\s+color: "[a-z]+"/m);
+  });
+
   it("the action passes inputs to the shell through env, never by interpolating them into the script", () => {
     const scripts = read("action.yml")
       .split("\n")

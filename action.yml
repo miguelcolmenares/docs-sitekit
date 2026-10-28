@@ -1,7 +1,5 @@
 name: "sitekit docs build"
-description: >-
-  Install, build and check a documentation site made with sitekit, and upload it as the GitHub
-  Pages artifact. Deploying stays in the caller, in a job with its own permissions.
+description: "Install, build and check a sitekit documentation site, then upload it as the GitHub Pages artifact."
 author: "Miguel Colmenares"
 
 branding:
