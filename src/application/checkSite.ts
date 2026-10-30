@@ -1,6 +1,8 @@
 import { scanText } from "../domain";
 import type { Finding } from "../domain";
-import type { SiteConfig, SourceFile } from "../../template/src/domain";
+import { LLMS_FILE } from "../../template/src/domain";
+import type { Document, SiteConfig, SourceFile } from "../../template/src/domain";
+import { checkLlms } from "./checkLlms";
 import { joinPath } from "./paths";
 import type { Environment, FileSystem } from "./ports";
 
@@ -8,8 +10,12 @@ import type { Environment, FileSystem } from "./ports";
 export interface CheckDeps {
   fs: FileSystem;
   env: Environment;
-  /** Read the config and the markdown the site documents. */
-  loadContent: (siteAbs: string) => { config: SiteConfig; files: SourceFile[] };
+  /** Read the config, the markdown the site documents, and the pages built from them. */
+  loadContent: (siteAbs: string) => {
+    config: SiteConfig;
+    files: SourceFile[];
+    documents: Document[];
+  };
 }
 
 /** Where to look: the repository, the site folder inside it, and optionally a built site. */
@@ -27,7 +33,7 @@ export interface CheckReport {
   findings: Finding[];
 }
 
-const TEXT_FILE = /\.(html|js|mjs|css|json|txt|xml|svg|map|webmanifest)$/i;
+const TEXT_FILE = /\.(html|js|mjs|css|json|txt|xml|svg|map|webmanifest|md)$/i;
 
 const describe = (finding: Finding) =>
   `${finding.location}: ${finding.rule} (${finding.confidence}) "${finding.preview}"`;
@@ -36,7 +42,7 @@ const describe = (finding: Finding) =>
 export function checkSite(deps: CheckDeps, options: CheckOptions): CheckReport {
   const { fs, env } = deps;
   const report: CheckReport = { errors: [], warnings: [], findings: [] };
-  const { config, files } = deps.loadContent(joinPath(options.root, options.siteDir));
+  const { config, files, documents } = deps.loadContent(joinPath(options.root, options.siteDir));
   const scanOptions = {
     denyPatterns: config.anonymize.denyPatterns,
     allow: config.anonymize.allow,
@@ -78,10 +84,33 @@ export function checkSite(deps: CheckDeps, options: CheckOptions): CheckReport {
       report.errors.push(`${options.dist} does not exist. Build the site first.`);
     } else {
       const built = fs.listFiles(options.dist);
+      if (config.llms.enabled) {
+        // llms.txt is new text (the site name and description come from the config), so it gets the
+        // medium rules too. The Markdown copies repeat the content, which is scanned in full above.
+        if (!built.includes(LLMS_FILE)) {
+          report.errors.push(
+            `dist/${LLMS_FILE} is missing, but llms.enabled is on in sitekit.config.json.`,
+          );
+        } else {
+          report.errors.push(
+            ...checkLlms(fs.readText(joinPath(options.dist, LLMS_FILE)), {
+              origin: config.site.url,
+              base: config.site.base,
+              documents,
+              built,
+              markdownPages: config.llms.markdownPages,
+            }),
+          );
+        }
+      }
       for (const path of built.filter((candidate) => TEXT_FILE.test(candidate))) {
         const content = fs.readText(joinPath(options.dist, path));
         report.findings.push(
-          ...scanText(content, { ...scanOptions, location: `dist/${path}`, includeMedium: false }),
+          ...scanText(content, {
+            ...scanOptions,
+            location: `dist/${path}`,
+            includeMedium: path === LLMS_FILE,
+          }),
         );
         if (path.endsWith(".html") && !/<title>[^<]+<\/title>/.test(content))
           report.errors.push(`dist/${path} has no <title>.`);

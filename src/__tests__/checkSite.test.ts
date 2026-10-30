@@ -1,23 +1,30 @@
 import { checkSite } from "../application";
 import type { CheckDeps } from "../application";
 import { parseSiteConfig } from "../../template/src/domain";
-import type { SourceFile } from "../../template/src/domain";
+import type { Document, SourceFile } from "../../template/src/domain";
 import { fakeEnv, MemoryFileSystem } from "./support/memory";
 
 const ROOT = "/work/widget";
 const awsKey = ["AKIA", "IOSFODNN7EXAMPLE"].join("");
 
-const config = (deploy: Record<string, unknown> = {}, anonymize: Record<string, unknown> = {}) =>
+const config = (
+  deploy: Record<string, unknown> = {},
+  anonymize: Record<string, unknown> = {},
+  llms: Record<string, unknown> = {},
+  base = "/",
+) =>
   parseSiteConfig({
     site: {
       name: "W",
       description: "d",
       url: "https://me.github.io",
+      base,
       repository: "https://github.com/me/widget",
     },
     hero: { title: "W", lede: "l", primary: { label: "Go", href: "/" } },
     deploy,
     anonymize,
+    llms,
   });
 
 const doc = (path: string, content: string): SourceFile => ({
@@ -30,8 +37,11 @@ const doc = (path: string, content: string): SourceFile => ({
 
 function run(options: {
   files?: SourceFile[];
+  documents?: Document[];
   deploy?: Record<string, unknown>;
   anonymize?: Record<string, unknown>;
+  llms?: Record<string, unknown>;
+  base?: string;
   visibility?: "public" | "private" | "internal" | "unknown";
   dist?: Record<string, string>;
 }) {
@@ -44,8 +54,9 @@ function run(options: {
     fs,
     env: fakeEnv({ visibility: options.visibility ?? "public" }),
     loadContent: () => ({
-      config: config(options.deploy, options.anonymize),
+      config: config(options.deploy, options.anonymize, options.llms, options.base),
       files: options.files ?? [doc("docs/a.md", "# A\n\nFine.")],
+      documents: options.documents ?? [],
     }),
   };
   return checkSite(deps, { root: ROOT, siteDir: "site", dist: options.dist ? "/dist" : undefined });
@@ -126,7 +137,11 @@ describe("checkSite built output", () => {
   it("fails when the build folder is missing", () => {
     const fs = new MemoryFileSystem();
     const report = checkSite(
-      { fs, env: fakeEnv(), loadContent: () => ({ config: config(), files: [] }) },
+      {
+        fs,
+        env: fakeEnv(),
+        loadContent: () => ({ config: config(), files: [], documents: [] }),
+      },
       { root: ROOT, siteDir: "site", dist: "/nope" },
     );
     expect(report.errors.join()).toMatch(/does not exist/);
@@ -156,5 +171,141 @@ describe("checkSite built output", () => {
     expect(withKey.errors.join()).toMatch(/dist\/_astro\/app\.js: aws-access-key/);
     const withEmail = run({ dist: { ...goodDist, "_astro/app.js": 'const m="me@corp-team.dev"' } });
     expect(withEmail.errors).toEqual([]);
+  });
+});
+
+const pageOf = (path: string, route: string, title: string): Document => ({
+  collection: "docs",
+  path,
+  slug: route.split("/").filter(Boolean).pop()!,
+  route,
+  title,
+  description: "Fine.",
+  descriptionSource: "content",
+  order: null,
+  group: null,
+  body: "",
+});
+const twoPages = [pageOf("docs/a.md", "/docs/a/", "A"), pageOf("docs/b.md", "/docs/b/", "B")];
+const llmsOn = { enabled: true };
+const llmsText = (...links: string[]) => `# W\n\n> d\n\n## Docs\n\n${links.join("\n")}\n`;
+const goodLink = "- [A](https://me.github.io/docs/a/): Fine.";
+const goodDist2 = { ...goodDist, "llms.txt": llmsText(goodLink) };
+
+describe("checkSite llms.txt", () => {
+  it("passes a site whose llms.txt starts with an H1, links to built pages and lists every page", () => {
+    expect(
+      run({ dist: goodDist2, llms: llmsOn, documents: [pageOf("docs/a.md", "/docs/a/", "A")] })
+        .errors,
+    ).toEqual([]);
+  });
+
+  it("does not look at llms.txt when the option is off", () => {
+    expect(run({ dist: goodDist, documents: twoPages }).errors).toEqual([]);
+  });
+
+  it("fails when llms.txt is missing from the build", () => {
+    expect(run({ dist: goodDist, llms: llmsOn, documents: twoPages }).errors.join()).toMatch(
+      /dist\/llms\.txt is missing/,
+    );
+  });
+
+  it("fails when llms.txt does not start with an H1", () => {
+    const report = run({
+      dist: { ...goodDist, "llms.txt": llmsText(goodLink).replace(/^# W\n\n/, "") },
+      llms: llmsOn,
+      documents: [pageOf("docs/a.md", "/docs/a/", "A")],
+    });
+    expect(report.errors.join()).toMatch(/does not start with an H1/);
+  });
+
+  it("names a link to a page that is not in the build", () => {
+    const report = run({
+      dist: {
+        ...goodDist,
+        "llms.txt": llmsText(goodLink, "- [Gone](https://me.github.io/docs/gone/)"),
+      },
+      llms: llmsOn,
+      documents: [pageOf("docs/a.md", "/docs/a/", "A")],
+    });
+    expect(report.errors.join("\n")).toMatch(
+      /links to https:\/\/me\.github\.io\/docs\/gone\/, but dist\/docs\/gone\/index\.html does not exist/,
+    );
+  });
+
+  it("names a page of the site that llms.txt leaves out", () => {
+    const report = run({
+      dist: { ...goodDist, "docs/b/index.html": page("B"), "llms.txt": llmsText(goodLink) },
+      llms: llmsOn,
+      documents: twoPages,
+    });
+    expect(report.errors.join("\n")).toMatch(/does not list the page docs\/b\.md \(\/docs\/b\/\)/);
+  });
+
+  it("checks links and pages under a project base, and names a link outside the base", () => {
+    const dist = {
+      ...goodDist,
+      "llms.txt": llmsText("- [A](https://me.github.io/widget/docs/a/): Fine."),
+    };
+    expect(
+      run({
+        dist,
+        llms: llmsOn,
+        base: "/widget/",
+        documents: [pageOf("docs/a.md", "/widget/docs/a/", "A")],
+      }).errors,
+    ).toEqual([]);
+    const outside = run({
+      dist: { ...goodDist, "llms.txt": llmsText(goodLink) },
+      llms: llmsOn,
+      base: "/widget/",
+      documents: [pageOf("docs/a.md", "/widget/docs/a/", "A")],
+    });
+    expect(outside.errors.join()).toMatch(/not an address of this site/);
+  });
+
+  it("finds a credential in llms.txt, masked", () => {
+    const report = run({
+      dist: { ...goodDist, "llms.txt": llmsText(`${goodLink} key ${awsKey}`) },
+      llms: llmsOn,
+      documents: [pageOf("docs/a.md", "/docs/a/", "A")],
+    });
+    expect(report.errors.join("\n")).toMatch(/dist\/llms\.txt: aws-access-key/);
+    expect(report.errors.join("\n")).not.toContain(awsKey);
+  });
+
+  it("finds an internal host in llms.txt, which the site description can carry", () => {
+    const report = run({
+      dist: {
+        ...goodDist,
+        "llms.txt": "# W\n\n> Served from wiki.corp.internal.\n\n## Docs\n\n" + goodLink + "\n",
+      },
+      llms: llmsOn,
+      documents: [pageOf("docs/a.md", "/docs/a/", "A")],
+    });
+    expect(report.errors.join("\n")).toMatch(/dist\/llms\.txt: internal-hostname/);
+  });
+
+  it("fails a page without its Markdown copy when markdownPages is on, and names the page", () => {
+    const report = run({
+      dist: { ...goodDist2 },
+      llms: { enabled: true, markdownPages: true },
+      documents: [pageOf("docs/a.md", "/docs/a/", "A")],
+    });
+    expect(report.errors.join("\n")).toMatch(
+      /dist\/docs\/a\/index\.html\.md is missing, so the page docs\/a\.md/,
+    );
+  });
+
+  it("scans the Markdown copies for credentials", () => {
+    const report = run({
+      dist: {
+        ...goodDist2,
+        "docs/a/index.html.md": `# A\n\nkey ${awsKey}`,
+      },
+      llms: { enabled: true, markdownPages: true },
+      documents: [pageOf("docs/a.md", "/docs/a/", "A")],
+    });
+    expect(report.errors.join("\n")).toMatch(/dist\/docs\/a\/index\.html\.md: aws-access-key/);
   });
 });
