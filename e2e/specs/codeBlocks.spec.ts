@@ -4,8 +4,8 @@ import type { Locator, Page } from "@playwright/test";
 import { measureContrast } from "../support/contrast";
 
 // The page is written in markdown with a title, highlighted lines and diff lines, in the repository that
-// `verify:package` generates. These tests read the built site, the way a visitor does.
-const PAGE = "/widget/docs/code-blocks/";
+// `verify:package` generates, in the tutorials collection so the docs index keeps its four cards. These tests read the built site, the way a visitor does.
+const PAGE = "/widget/tutorials/code-blocks/";
 const block = (page: Page, text: string): Locator => page.locator(".code-block", { hasText: text });
 
 const overflow = (page: Page) =>

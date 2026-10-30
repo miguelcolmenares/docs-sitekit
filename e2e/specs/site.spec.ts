@@ -14,7 +14,7 @@ const ROUTES = [
   { path: `${BASE}examples/`, title: /Examples/ },
   { path: `${BASE}examples/basic/`, title: /Basic example/ },
   { path: `${BASE}changelog/`, title: /Changelog/ },
-  { path: `${BASE}docs/code-blocks/`, title: /Code blocks/ },
+  { path: `${BASE}tutorials/code-blocks/`, title: /Code blocks/ },
 ];
 
 /** Collect page errors and console errors, so a layout or hydration problem fails the test. */

@@ -266,7 +266,7 @@ write(
   ].join("\n"),
 );
 write(
-  join(REPO, "docs", "code-blocks.md"),
+  join(REPO, "docs", "tutorials", "code-blocks.md"),
   [
     "# Code blocks",
     "",
@@ -456,7 +456,7 @@ write(
 );
 config.collections[0].groups = [
   { name: "Start", tone: "brand", items: ["overview", "getting-started"] },
-  { name: "Use", tone: "success", items: ["guide", "callouts", "code-blocks"] },
+  { name: "Use", tone: "success", items: ["guide", "callouts"] },
 ];
 writeFileSync(configPath, JSON.stringify(config, null, 2));
 check("check fails on a page that no group lists, and says how to fix it", () => {
@@ -554,9 +554,9 @@ check("every document, example and the changelog became a page with its own titl
     "docs/getting-started/index.html": "Getting started",
     "docs/guide/index.html": "Guide",
     "docs/callouts/index.html": "Callouts",
-    "docs/code-blocks/index.html": "Code blocks",
     "docs/overview/index.html": "Widget documentation",
     "tutorials/first-steps/index.html": "First steps",
+    "tutorials/code-blocks/index.html": "Code blocks",
     "tutorials/index.html": "Tutorials",
     "examples/basic/index.html": "Basic example",
     "changelog/index.html": "Changelog",

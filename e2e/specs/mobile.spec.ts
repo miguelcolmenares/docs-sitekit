@@ -9,7 +9,7 @@ const ROUTES = [
   `${BASE}docs/getting-started/`,
   `${BASE}docs/guide/`,
   `${BASE}docs/callouts/`,
-  `${BASE}docs/code-blocks/`,
+  `${BASE}tutorials/code-blocks/`,
   `${BASE}docs/overview/`,
   `${BASE}tutorials/`,
   `${BASE}tutorials/first-steps/`,
