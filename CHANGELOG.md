@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **The project site announces `https://miguelcolmenares.com/docs-sitekit/` as its address**, in its canonical links, its sitemap and its `llms.txt`. The personal domain serves the site through a proxy, and GitHub Pages keeps answering at the old address. A site generated with `init` is not affected.
 - **The default accent is the VS Code blue**: `accent` `#4fc1ff`, `accent-strong` `#007acc` and `accent-contrast` `#ffffff`, in place of the purple. A site generated with `init` takes the blue from the kit it is generated with. A site generated earlier keeps its own `design/tokens.json`, so it stays purple until its owner changes that file.
+- **The Action's Marketplace icon is blue**, `branding.color` in `action.yml`, to match the new default accent. Blue is the closest color the Marketplace offers to the VS Code blue.
 
 ### Fixed
 

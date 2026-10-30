@@ -4,7 +4,7 @@ author: "Miguel Colmenares"
 
 branding:
   icon: "book-open"
-  color: "purple"
+  color: "blue"
 
 inputs:
   dir:
