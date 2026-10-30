@@ -91,6 +91,43 @@ describe("parseSiteConfig collections", () => {
   });
 });
 
+describe("parseSiteConfig llms", () => {
+  const collections = [{ id: "docs", label: "Docs", dir: "../docs" }];
+
+  it("is off when the key is missing, and sets no optional collections or Markdown pages", () => {
+    expect(parseSiteConfig(valid).llms).toEqual({
+      enabled: false,
+      optional: [],
+      markdownPages: false,
+    });
+  });
+
+  it("accepts the three fields", () => {
+    const config = parseSiteConfig({
+      ...valid,
+      collections,
+      llms: { enabled: true, optional: ["docs"], markdownPages: true },
+    });
+    expect(config.llms).toEqual({ enabled: true, optional: ["docs"], markdownPages: true });
+  });
+
+  it("accepts changelog as an optional collection, since it is a collection of every site", () => {
+    expect(
+      parseSiteConfig({ ...valid, llms: { enabled: true, optional: ["changelog"] } }).llms.optional,
+    ).toEqual(["changelog"]);
+  });
+
+  it("names the key and the id of an optional collection the site does not have", () => {
+    expect(() =>
+      parseSiteConfig({ ...valid, collections, llms: { enabled: true, optional: ["tutorials"] } }),
+    ).toThrow(/llms\.optional[\s\S]*"tutorials"/);
+  });
+
+  it("rejects an unknown key inside llms", () => {
+    expect(() => parseSiteConfig({ ...valid, llms: { enabled: true, extra: 1 } })).toThrow(/extra/);
+  });
+});
+
 describe("kebab", () => {
   it("makes a slug from a file name", () => {
     expect(kebab("Getting Started.md")).toBe("getting-started");

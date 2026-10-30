@@ -95,8 +95,28 @@ export const siteConfigSchema = z
         allow: z.array(z.string()).default([]),
       })
       .default({ excludePaths: [], replace: {}, denyPatterns: [], allow: [] }),
+    /** A llms.txt map of the site, and optionally a Markdown copy of each page. A site without the key gets neither. */
+    llms: z
+      .strictObject({
+        enabled: z.boolean().default(false),
+        /** Collection ids whose pages go under `## Optional`. `changelog` is accepted too. */
+        optional: z.array(z.string().min(1)).default([]),
+        markdownPages: z.boolean().default(false),
+      })
+      .default({ enabled: false, optional: [], markdownPages: false }),
   })
   .superRefine((config, context) => {
+    const known = new Set([...config.collections.map((entry) => entry.id), "changelog"]);
+    config.llms.optional.forEach((id, index) => {
+      if (!known.has(id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["llms", "optional", index],
+          message: `llms.optional names "${id}", which is not a collection of this site.`,
+        });
+      }
+    });
+
     const seen = new Set<string>();
     config.collections.forEach((entry, index) => {
       if (RESERVED_IDS.includes(entry.id)) {

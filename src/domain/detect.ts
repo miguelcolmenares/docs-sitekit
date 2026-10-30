@@ -78,5 +78,7 @@ export function deriveConfig(facts: RepositoryFacts): SiteConfig {
       label: collection.label,
       dir: `../${collection.dir}`,
     })),
+    // A new site gets its llms.txt. A site generated before the key existed does not change by itself.
+    llms: { enabled: true, optional: [], markdownPages: false },
   });
 }
