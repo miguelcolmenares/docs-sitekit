@@ -2,7 +2,7 @@
   "site": {
     "name": "sitekit",
     "description": "Design system and scaffold for documentation microsites on GitHub Pages.",
-    "url": "https://miguelcolmenares.github.io",
+    "url": "https://miguelcolmenares.com",
     "base": "/docs-sitekit/",
     "repository": "https://github.com/miguelcolmenares/docs-sitekit",
     "license": "MIT",
