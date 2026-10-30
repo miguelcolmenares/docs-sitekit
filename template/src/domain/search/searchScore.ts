@@ -13,6 +13,7 @@ export interface SearchSnippet {
 
 /** One result: a page, the section of it that matched, and a snippet of that section. */
 export interface SearchHit {
+  /** Address of the page, with `#anchor` added when the result is a section of it. */
   url: string;
   title: string;
   collection: string;
@@ -26,7 +27,8 @@ export interface SearchHit {
 
 /**
  * Weight of a word of the query, by where it is found. A word that starts a word of a title beats a word
- * inside a title, a title beats a heading, and a heading beats the body. Each place has a prefix and a substring weight.
+ * inside a title, a title beats a heading, a heading beats the description, and the description beats the body.
+ * Each place has a prefix and a substring weight.
  */
 const WEIGHT = {
   title: { prefix: 100, substring: 60 },
