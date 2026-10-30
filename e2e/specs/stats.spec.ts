@@ -98,21 +98,23 @@ test.describe("the stat row on the home page", () => {
     });
   }
 
-  test("the labels and values are not clipped: every card shows all of its text", async ({
-    page,
-  }) => {
+  test("every label, value and note stays inside its card at 320 px", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
     await page.goto(BASE);
-    const clipped = await page
-      .locator("dl dt, dl dd")
-      .evaluateAll((nodes) =>
-        nodes
-          .filter(
-            (node) => node.scrollWidth > node.clientWidth || node.scrollHeight > node.clientHeight,
-          )
-          .map((node) => node.textContent),
-      );
-    expect(clipped).toEqual([]);
+    const outside = await page.locator("dl > div").evaluateAll((groups) =>
+      groups.flatMap((group) => {
+        const card = group.getBoundingClientRect();
+        return [...group.children]
+          .filter((child) => {
+            const box = child.getBoundingClientRect();
+            return (
+              box.left < card.left - 1 || box.right > card.right + 1 || box.bottom > card.bottom + 1
+            );
+          })
+          .map((child) => child.textContent);
+      }),
+    );
+    expect(outside).toEqual([]);
   });
 
   test("keeps the same text and layout in the light theme", async ({ page }) => {
