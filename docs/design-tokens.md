@@ -14,13 +14,7 @@ The site has two color sets with the same names: the dark set is the top-level `
 
 ## Theme
 
-`theme.default` in `sitekit.config.json` sets the theme a visitor sees first:
-
-| Value            | Shown first                                                                                            |
-| ---------------- | ------------------------------------------------------------------------------------------------------ |
-| `dark` (default) | dark, the look of every site generated before the light theme                                          |
-| `light`          | light                                                                                                  |
-| `system`         | the light or dark theme that the operating system asks for, and it follows a change of that preference |
+`theme.default` in `sitekit.config.json` sets the theme a visitor sees first. Its values and its default are in the [configuration reference](./configuration.md#theme).
 
 The header has a switch. A visitor's choice is saved in the browser under the `theme` key and wins over the default on every page. A script in the head applies the theme before the first paint, so there is no flash.
 

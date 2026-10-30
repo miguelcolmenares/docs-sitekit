@@ -112,6 +112,11 @@
       ],
       "requires": ["catalog-filter"]
     },
+    "reference-table": {
+      "description": "A table for a reference: names in code, a type, a default, allowed values and a text, in a scrollable region.",
+      "files": ["src/presentation/components/site/ReferenceTable.tsx"],
+      "requires": []
+    },
     "flow-diagram": {
       "description": "Steps in a row that stack on small screens.",
       "files": ["src/presentation/components/site/FlowDiagram.tsx"],

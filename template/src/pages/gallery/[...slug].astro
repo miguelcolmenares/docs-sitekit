@@ -6,6 +6,7 @@ import { CommandTable } from "../../presentation/components/site/CommandTable";
 import { FeatureGrid } from "../../presentation/components/site/FeatureGrid";
 import { FlowDiagram } from "../../presentation/components/site/FlowDiagram";
 import { CardGrid, ItemCard } from "../../presentation/components/site/ItemCard";
+import { ReferenceTable } from "../../presentation/components/site/ReferenceTable";
 import { SectionHeader } from "../../presentation/components/site/SectionHeader";
 import { StatRow } from "../../presentation/components/site/StatRow";
 import { ToneBadge } from "../../presentation/components/site/ToneBadge";
@@ -59,6 +60,16 @@ export function getStaticPaths() {
           { value: "22+", label: "Node", note: "Astro 7 needs 22.23.4 or newer" },
           { value: "0", label: "Runtime requests", note: "Every number comes from props" },
           { value: "1,234,567,890,123", label: "A long value" },
+        ]}
+      />
+    </section>
+    <section data-gallery="reference">
+      <SectionHeader eyebrow="Reference" title="ReferenceTable" />
+      <ReferenceTable
+        label="Keys of the search group"
+        rows={[
+          { name: "search.enabled", type: "boolean", default: "true", allowed: "true, false", text: "Turn search on. Off, the site has no search button, no dialog and no index." },
+          { name: "search.averyveryveryveryverylongkeynamethatmustnotwidenthepage", type: "string", text: "A long name stays on one line inside the scrolling region." },
         ]}
       />
     </section>

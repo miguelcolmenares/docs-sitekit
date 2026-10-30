@@ -24,6 +24,7 @@ The design system is a set of React components, written in the shadcn style and 
 - **PageInfo**, the line at the foot of a page: an "Edit this page" link and the date of the last change. See [Edit this page](./edit-link.md).
 - **FlowDiagram**, steps in a row that stack on small screens.
 - **CommandTable**, a command and what it does.
+- **ReferenceTable**, a table of names in code with a type, a default, the values allowed and a text. See [ReferenceTable](#referencetable).
 - **Callout**, a note, a tip, an important point, a warning or a caution. The same five also come from markdown, see [Callouts](./callouts.md).
 - **ToneBadge**, the only place a status color is chosen.
 
@@ -45,6 +46,39 @@ A row of numbers for a project page: downloads, a version, the Node versions it 
 - The numbers come from props. The kit fetches nothing at run time, so the page decides where a number comes from.
 - The home page shows a row when `sitekit.config.json` has a `stats` key with the same items, as this site does. Without the key, nothing is shown.
 - `sitekit add stat-row` restores the file.
+
+## ReferenceTable
+
+A table for a reference page written in Astro: a column of code names, a type, a default, the values a name accepts and a text. The configuration reference of this project is markdown, see [Configuration reference](./configuration.md), and a markdown table already scrolls and takes focus. Use the component where a page is `.astro` and the rows are data.
+
+```tsx
+<ReferenceTable
+  label="Keys of the search group"
+  rows={[
+    {
+      name: "search.enabled",
+      type: "boolean",
+      default: "true",
+      allowed: "true, false",
+      text: "Turn search on.",
+    },
+    {
+      name: "site.url",
+      type: "string (URL)",
+      default: "required",
+      text: "The origin of the site.",
+    },
+  ]}
+/>
+```
+
+- **The wrapper scrolls, not the page.** The table is 40rem wide at least, so on a phone it scrolls sideways inside a region that has a border, and the page does not scroll with it.
+- **A keyboard user can scroll it.** The wrapper has `role="region"`, an `aria-label` from `label` and `tabindex="0"` in the HTML, so Tab reaches it and the arrow keys scroll it, with no JavaScript. The focus ring is the one of the rest of the site.
+- **It is a real table.** It has a caption, `scope="col"` headers and the name of each row as its `scope="row"` header, so a screen reader says the name with each cell.
+- **Names stay on one line**, so a long key scrolls instead of breaking in the middle. The description column wraps.
+- **`default` and `allowed` are optional.** A row without them shows a dash, never an empty cell.
+- The text uses the `fg`, `fg-muted` and `brand` tokens, which reach AA contrast in both themes, and it chooses no status color.
+- `sitekit add reference-table` restores the file.
 
 ## CatalogFilter
 

@@ -28,11 +28,7 @@ Add the `llms` key to `sitekit.config.json`:
 }
 ```
 
-| Field           | What it does                                                                                                                              |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`       | Writes `llms.txt` at the site base, and a discovery link in the head of every page. Off when the key is missing.                          |
-| `optional`      | Collection ids whose pages go under `## Optional`, the part a tool may skip when it needs a shorter context. `changelog` is accepted too. |
-| `markdownPages` | Writes the Markdown copy of every page, and links each page to its copy with `rel="alternate"`. Needs `enabled`.                          |
+Each field, its default and what it does are in the [configuration reference](./configuration.md#llms).
 
 `sitekit init` writes `enabled: true` for a new site. A site generated before this option existed has no `llms` key, so it
 does not change by itself until you add the key. An id in `optional` that is not a collection of the site fails the build, and

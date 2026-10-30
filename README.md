@@ -139,11 +139,13 @@ the last commit that changed that file. A new site has both on. See [docs/edit-l
 
 ## Theme
 
-The site is dark by default. A header switch lets the visitor pick the light theme, and the choice is remembered in the browser. Set `theme.default` in `sitekit.config.json` to `light`, or to `system` to follow the operating system, to change the first view. A site generated before this option was added keeps its own tokens file and has no light set, so it stays dark until it adds one (see `design/tokens.json` in the site).
+The site is dark by default. A header switch lets the visitor pick the light theme, and the choice is remembered in the browser. Set `theme.default` in `sitekit.config.json` to change the first view (see the [configuration reference](docs/configuration.md#theme)). A site generated before this option was added keeps its own tokens file and has no light set, so it stays dark until it adds one (see `design/tokens.json` in the site).
 
 ## Documentation
 
 The documentation site is built with this kit. Read it under `docs/`: getting started, components, design tokens, content, deploying.
+
+Every key of `sitekit.config.json`, with its type, default and allowed values, is in the [configuration reference](docs/configuration.md). It is generated from the schema, and a test fails when it is out of date.
 
 ## Development
 
@@ -152,6 +154,7 @@ npm run bootstrap      # installs the CLI and the template
 npm test               # unit and integration
 npm run test:e2e       # packs the package, generates a site, builds it, and drives it in a browser
 npm run build:tokens   # regenerate the CSS from template/design/tokens.json
+npm run build:docs     # regenerate docs/configuration.md from the config schema
 ```
 
 See [AGENTS.md](AGENTS.md) for the layout and the rules.

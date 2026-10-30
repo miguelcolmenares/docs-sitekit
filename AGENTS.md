@@ -25,7 +25,7 @@ template/                 the site that `init` copies. It has the same four laye
   design/tokens.json      the only source of colors, radius, fonts and layout
   registry.json           components, their files and what each requires
 e2e/                      Playwright against a site generated from the packed tarball
-scripts/                  build-tokens.mjs, verify-package.mjs
+scripts/                  build-tokens.mjs, build-docs.mjs (docs/configuration.md from the config schema), verify-package.mjs
 docs/, examples/          the documentation of this project, built with this kit
 ```
 
@@ -66,6 +66,8 @@ and measured in the browser on every route; the meter is itself tested against p
 - **Client directives exist only in `.astro` files.** A component with an interactive island is `.astro`.
 - **Astro 7 needs Node 22.23.4 or newer**, and `astro preview` goes to the background without a terminal: the e2e uses its own static
   server that behaves like GitHub Pages (`e2e/serve.mjs`).
+- Every key of the config schema needs a `.describe()`: `npm run build:docs` fails without one, and writes `docs/configuration.md`, which a test
+  compares with the schema. Run it after changing a key, and do not edit that page by hand.
 - Do not edit `template/src/styles/tokens.css`: change `design/tokens.json` and run `npm run build:tokens`.
 - Credential-shaped test values are built at run time, never written as literals.
 

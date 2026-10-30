@@ -29,12 +29,7 @@ Add the keys to `sitekit.config.json`:
 }
 ```
 
-| Field                 | What it does                                                                                                    |
-| --------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `editLink.enabled`    | Shows the "Edit this page" link. Off when the key is missing.                                                   |
-| `editLink.branch`     | The branch the link opens the file on. `main` when the key is missing.                                          |
-| `editLink.host`       | `github`, `gitlab` or `bitbucket`. Only for a repository on a domain of its own, because otherwise it is found. |
-| `lastUpdated.enabled` | Shows the date of the last commit that changed the file. Off when the key is missing.                           |
+Each field, its default and what it does are in the configuration reference: [`editLink`](./configuration.md#editlink) and [`lastUpdated`](./configuration.md#lastupdated).
 
 `sitekit init` writes both on for a new site. `editLink` is on when the repository is on GitHub, and `branch` is the branch that
 `origin` points at, else the branch that is checked out. A site generated before these options existed has no keys, so it does not

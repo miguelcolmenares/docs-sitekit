@@ -715,6 +715,31 @@ check("check does not warn about a full clone", () => {
 });
 
 console.log("4/6 Install and build the generated site");
+// A page of the owner's own that shows ReferenceTable, so the e2e measures the component in a real site.
+// One name is very long on purpose: it must stay on one line inside the scrolling region.
+write(
+  join(SITE, "src", "pages", "reference.astro"),
+  [
+    "---",
+    'import { ReferenceTable } from "../presentation/components/site/ReferenceTable";',
+    'import BaseLayout from "../presentation/layouts/BaseLayout.astro";',
+    "const rows = [",
+    '  { name: "search.enabled", type: "boolean", default: "true", allowed: "true, false", text: "Turn search on. Off, the site has no search button, no dialog and no index." },',
+    '  { name: "theme.default", type: "string", default: \'"dark"\', allowed: \'"dark", "light", "system"\', text: "The theme a visitor sees first." },',
+    '  { name: "site.url", type: "string (URL)", default: "required", text: "The origin of the published site." },',
+    '  { name: "deploy.repositoryVisibility", type: "string", allowed: \'"public", "private", "internal"\', text: "The visibility of the repository, for a runner where gh cannot tell." },',
+    '  { name: "averyveryveryveryveryverylongkeynamethatmustnotwidenthepage", type: "string", text: "A long name stays on one line inside the scrolling region." },',
+    "];",
+    "---",
+    '<BaseLayout title="Reference">',
+    '  <div class="mx-auto max-w-site px-5 py-14">',
+    '    <h1 class="mb-6 text-3xl font-semibold text-fg-bright">Reference</h1>',
+    '    <ReferenceTable label="Keys of the search group" rows={rows} />',
+    "  </div>",
+    "</BaseLayout>",
+    "",
+  ].join("\n"),
+);
 runLoud("npm", ["ci", "--no-audit", "--no-fund"], { cwd: SITE });
 const firstBuild = capture("npm", ["run", "build"], {
   cwd: SITE,

@@ -46,6 +46,7 @@
     "prepare": "husky",
     "build:tokens": "node scripts/build-tokens.mjs",
     "build:brands": "node scripts/build-brands.mjs",
+    "build:docs": "node scripts/build-docs.mjs",
     "bootstrap": "npm ci && npm ci --prefix template"
   },
   "keywords": [
