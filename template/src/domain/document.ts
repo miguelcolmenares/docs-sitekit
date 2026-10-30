@@ -1,4 +1,5 @@
 import type { ReusableIssue } from "./reusable";
+import type { SideCard } from "./sideCard";
 
 /** The four tones a group badge can have. They match the `ToneBadge` component. */
 export type Tone = "neutral" | "brand" | "success" | "warn";
@@ -34,7 +35,14 @@ export interface SourceFile {
 }
 
 /** The frontmatter keys the kit reads. Any other key is reported by `check`. */
-export const KNOWN_FRONTMATTER_KEYS = ["title", "description", "order", "tags"] as const;
+export const KNOWN_FRONTMATTER_KEYS = [
+  "title",
+  "description",
+  "order",
+  "tags",
+  "meta",
+  "links",
+] as const;
 
 /** A page of the site. */
 export interface Document {
@@ -54,6 +62,8 @@ export interface Document {
   tags: string[];
   /** The group of the page, or null when its collection has no groups. */
   group: DocumentGroup | null;
+  /** The side card of a detail page, from `meta`, `links` and `tags`. Absent when the page has none. */
+  card?: SideCard;
   /** Markdown body, without a leading heading that repeats the title. */
   body: string;
 }

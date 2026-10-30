@@ -13,6 +13,7 @@ const ROUTES = [
   { path: `${BASE}tutorials/first-steps/`, title: /First steps/ },
   { path: `${BASE}examples/`, title: /Examples/ },
   { path: `${BASE}examples/basic/`, title: /Basic example/ },
+  { path: `${BASE}examples/detail-card/`, title: /A widget with a side card/ },
   { path: `${BASE}changelog/`, title: /Changelog/ },
   { path: `${BASE}tutorials/code-blocks/`, title: /Code blocks/ },
 ];

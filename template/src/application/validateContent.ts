@@ -2,6 +2,7 @@ import {
   CALLOUT_KINDS,
   KNOWN_FRONTMATTER_KEYS,
   anchorHeadings,
+  cardProblemLine,
   dropLeadingTitle,
   explicitAnchors,
   extractHeadings,
@@ -12,6 +13,8 @@ import {
   maskInlineCode,
   nearest,
   proseLines,
+  readSideCard,
+  resolveCardLinks,
   resolveLink,
   resolveSeverities,
   unknownCalloutMarker,
@@ -54,7 +57,8 @@ function keyLine(file: SourceFile, key: string): number {
 /**
  * Read the markdown of every page as data and report what is wrong with it: links to files that do not
  * exist or are excluded, links to headings that are not there, images that do not exist, frontmatter the kit
- * does not read or cannot use, headings that make the same anchor, callout markers it does not know, and
+ * does not read or cannot use, a side card that the frontmatter got wrong (`meta`, `links`) and its links that lead
+ * nowhere, headings that make the same anchor, callout markers it does not know, and
  * variables and snippets that could not be expanded when the files were read.
  * Each finding has a severity (the default of its kind, or what `check` in the config says) and the file and
  * line where the problem is written. Code is never read: a fenced block and a code span hold no links, no
@@ -166,6 +170,18 @@ export function validateContent(
         file,
         keyLine(file, "order"),
         `Frontmatter "order" must be a number, and this is ${JSON.stringify(order)}. Write it without quotes, for example order: 2.`,
+      );
+    }
+
+    // The side card: an item the frontmatter got wrong, and a link that leads nowhere, each at the line of its key.
+    const read = readSideCard(file.frontmatter);
+    const unresolved = read.card ? resolveCardLinks(read.card, context).problems : [];
+    for (const problem of [...read.problems, ...unresolved]) {
+      report(
+        problem.kind,
+        file,
+        cardProblemLine(file.frontmatterText ?? "", problem),
+        problem.message,
       );
     }
 

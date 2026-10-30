@@ -175,7 +175,7 @@ describe("validateContent: frontmatter", () => {
     const found = run([withMatter("\ntitle: A\ntitel: B\n", { title: "A", titel: "B" })]);
     expect(summary(found)).toEqual(["docs/a.md:3 warning frontmatter"]);
     expect(found[0]!.message).toBe(
-      'Frontmatter key "titel" is not one the kit reads (title, description, order, tags). Did you mean "title"?',
+      'Frontmatter key "titel" is not one the kit reads (title, description, order, tags, meta, links). Did you mean "title"?',
     );
   });
 
@@ -198,6 +198,114 @@ describe("validateContent: frontmatter", () => {
   it("falls back to line 1 when it cannot find the key in the text", () => {
     const found = run([file("docs/a.md", "# A\n", { frontmatter: { oops: 1 } })]);
     expect(found[0]!.line).toBe(1);
+  });
+});
+
+describe("validateContent: side card", () => {
+  const matter = [
+    "",
+    "meta:",
+    "  - label: Version",
+    '    value: "1"',
+    "  - lable: License",
+    "    value: MIT",
+    "links:",
+    "  - label: Guide",
+    "    href: ./guide.md",
+    "  - label: Gone",
+    "    href: ./nope.md",
+    "  - label: Bad",
+    "    href: javascript:alert(1)",
+    "",
+  ].join("\n");
+  const frontmatter = {
+    meta: [
+      { label: "Version", value: "1" },
+      { lable: "License", value: "MIT" },
+    ],
+    links: [
+      { label: "Guide", href: "./guide.md" },
+      { label: "Gone", href: "./nope.md" },
+      { label: "Bad", href: "javascript:alert(1)" },
+    ],
+  };
+  const page = file("docs/a.md", "# A\n\ntext\n", {
+    frontmatter,
+    frontmatterText: matter,
+    contentLine: 15,
+  });
+
+  it("reports an unknown key under meta, an unsafe link and a missing target, each at its line in the file", () => {
+    const found = run([page, guide]);
+    expect(summary(found)).toEqual([
+      "docs/a.md:5 error card",
+      "docs/a.md:5 error card",
+      "docs/a.md:11 warning links",
+      "docs/a.md:13 error card",
+    ]);
+    expect(found[0]!.message).toBe(
+      'Item 2 of "meta" has the key "lable", which the card does not read. It takes "label" and "value".',
+    );
+    expect(found[1]!.message).toContain('needs "label" as text');
+    expect(found[2]!.message).toBe('Card link "Gone": Link "./nope.md" does not match any file');
+  });
+
+  it("does not report meta and links as frontmatter keys the kit does not read", () => {
+    const clean = file("docs/a.md", "# A\n", {
+      frontmatter: {
+        meta: [{ label: "A", value: "b" }],
+        links: [{ label: "G", href: "./guide.md" }],
+      },
+      frontmatterText:
+        "\nmeta:\n  - label: A\n    value: b\nlinks:\n  - label: G\n    href: ./guide.md\n",
+    });
+    expect(run([clean, guide])).toEqual([]);
+  });
+
+  it("reports a link of the card to an excluded file as excludedLinks, like the same link in the text", () => {
+    const withLink = file("docs/a.md", "# A\n", {
+      frontmatter: { links: [{ label: "Plan", href: "./internal/plan.md" }] },
+      frontmatterText: "\nlinks:\n  - label: Plan\n    href: ./internal/plan.md\n",
+    });
+    const found = run([withLink], {
+      exclude: ["docs/internal/**"],
+      existing: ["docs/internal/plan.md"],
+    });
+    expect(summary(found)).toEqual(["docs/a.md:4 warning excludedLinks"]);
+  });
+
+  it("reports a meta that is not a list at the line of the key", () => {
+    const flat = file("docs/a.md", "# A\n", {
+      frontmatter: { title: "A", meta: "Version: 1" },
+      frontmatterText: "\ntitle: A\nmeta: Version 1\n",
+    });
+    expect(summary(run([flat]))).toEqual(["docs/a.md:3 error card"]);
+  });
+
+  it("falls back to line 1 when the raw frontmatter is not there", () => {
+    const bare = file("docs/a.md", "# A\n", {
+      frontmatter: { meta: [{ lable: "A", value: "b" }] },
+    });
+    expect(run([bare]).map((item) => item.line)).toEqual([1, 1]);
+  });
+
+  it("follows check.card in the config: lowered to a warning, or not looked for when off", () => {
+    expect(
+      run([page, guide], { config: { check: { card: "warning" } } }).map((item) => item.severity),
+    ).toEqual(["warning", "warning", "warning", "warning"]);
+    expect(summary(run([page, guide], { config: { check: { card: "off" } } }))).toEqual([
+      "docs/a.md:11 warning links",
+    ]);
+  });
+
+  it("reports nothing for a page with a valid card", () => {
+    const valid = file("docs/a.md", "# A\n", {
+      frontmatter: {
+        meta: [{ label: "A", value: "b" }],
+        links: [{ label: "W", href: "https://example.com" }],
+      },
+    });
+    expect(run([valid])).toEqual([]);
   });
 });
 

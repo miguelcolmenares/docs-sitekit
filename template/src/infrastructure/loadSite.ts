@@ -1,5 +1,5 @@
 import { buildDocuments, buildPageMeta, publishedRoutes, validateContent } from "../application";
-import { matchesAny } from "../domain";
+import { matchesAny, resolveCardLinks } from "../domain";
 import type { BrandGlyph, ContentFinding, Document, LinkContext, SiteConfig } from "../domain";
 import type { PageMeta } from "../application";
 import { readCustomBrands } from "./customBrands";
@@ -36,12 +36,12 @@ export function loadSite(siteDir: string = process.cwd()): Site {
   if (cached) return cached;
   const config = loadSiteConfig(siteDir);
   const sources = readSources(siteDir, config);
-  const documents = buildDocuments(sources.files, {
+  const built = buildDocuments(sources.files, {
     base: config.site.base,
     collections: config.collections,
   });
-  const published = publishedRoutes(documents);
-  const findings = validateContent(sources.files, documents, {
+  const published = publishedRoutes(built);
+  const findings = validateContent(sources.files, built, {
     config,
     existing: sources.existing,
   });
@@ -54,6 +54,17 @@ export function loadSite(siteDir: string = process.cwd()): Site {
     existing: sources.existing,
     isExcluded: (path) => matchesAny(path, config.anonymize.excludePaths),
     repositoryUrl: config.site.repository,
+  });
+
+  // The links of a side card follow the same rules as the links in the text. A link that leads nowhere is left
+  // out here and reported by `validateContent`, with the rest of what the card's frontmatter got wrong.
+  const documents = built.map((document) => {
+    if (!document.card) return document;
+    const { card } = resolveCardLinks(document.card, contextFor(document));
+    const resolved: Document = { ...document };
+    if (card) resolved.card = card;
+    else delete resolved.card;
+    return resolved;
   });
 
   cached = {

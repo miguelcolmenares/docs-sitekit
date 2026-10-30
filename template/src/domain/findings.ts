@@ -13,6 +13,7 @@ export const FINDING_KINDS = [
   "callouts",
   "variables",
   "snippets",
+  "card",
 ] as const;
 
 /** One of the kinds of problem found in the content. */
@@ -24,7 +25,10 @@ export type Severity = "error" | "warning";
 /** The value of a `check.<kind>` key: a severity, or `off` to stop looking for that kind. */
 export type SeverityLevel = Severity | "off";
 
-/** What each kind is until the config says otherwise. A missing image breaks a page, the rest only misleads. */
+/**
+ * What each kind is until the config says otherwise. A missing image breaks a page, a card the frontmatter got
+ * wrong shows less than the author wrote, and the rest only misleads.
+ */
 export const DEFAULT_SEVERITY: Readonly<Record<FindingKind, Severity>> = {
   links: "warning",
   excludedLinks: "warning",
@@ -36,6 +40,7 @@ export const DEFAULT_SEVERITY: Readonly<Record<FindingKind, Severity>> = {
   callouts: "warning",
   variables: "warning",
   snippets: "error",
+  card: "error",
 };
 
 /** A problem in a markdown file, with where it is and how serious it is. */

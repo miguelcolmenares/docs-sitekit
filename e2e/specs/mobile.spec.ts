@@ -15,6 +15,7 @@ const ROUTES = [
   `${BASE}tutorials/first-steps/`,
   `${BASE}examples/`,
   `${BASE}examples/basic/`,
+  `${BASE}examples/detail-card/`,
   `${BASE}changelog/`,
   `${BASE}does-not-exist/`,
 ];

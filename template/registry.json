@@ -103,6 +103,15 @@
       "files": ["src/presentation/components/site/PageInfo.tsx"],
       "requires": []
     },
+    "side-card": {
+      "description": "A card of metadata, links and tags beside the text of a detail page, collapsed on a phone.",
+      "files": [
+        "src/presentation/components/site/SideCard.tsx",
+        "src/presentation/sideCard/sideCard.ts",
+        "src/domain/sideCard.ts"
+      ],
+      "requires": ["catalog-filter"]
+    },
     "flow-diagram": {
       "description": "Steps in a row that stack on small screens.",
       "files": ["src/presentation/components/site/FlowDiagram.tsx"],

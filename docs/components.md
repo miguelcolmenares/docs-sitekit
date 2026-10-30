@@ -19,6 +19,7 @@ The design system is a set of React components, written in the shadcn style and 
 - **ItemCard** and **CardGrid**, for catalogs. The grid has explicit tracks, so columns line up.
 - **FeatureGrid**, an icon, an eyebrow, a title and text. The icon can be a brand logo, see [Brand logos](./brand-logos.md).
 - **StatRow**, two to five numbers, each with a label and an optional note.
+- **SideCard**, metadata, links and tags in a card beside the text of a detail page. It builds on the tag rules of **CatalogFilter**, so `sitekit add side-card` restores that component too. A card the frontmatter got wrong is a `card` finding in `sitekit check`. See [A detail page with a side card](./detail-page.md).
 - **CatalogFilter**, a text field and tag buttons that narrow the cards of an index page. See [CatalogFilter](#catalogfilter).
 - **PageInfo**, the line at the foot of a page: an "Edit this page" link and the date of the last change. See [Edit this page](./edit-link.md).
 - **FlowDiagram**, steps in a row that stack on small screens.

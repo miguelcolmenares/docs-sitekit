@@ -377,6 +377,49 @@ write(
   ].join("\n"),
 );
 write(join(REPO, "examples", "basic", "README.md"), "# Basic example\n\nThe smallest example.\n");
+// A detail page: a card of metadata, links and tags beside the text. The checksum and one tag are long on
+// purpose, because they must wrap. One link points at a file that does not exist: it is left out, and `check`
+// warns about it. A key the card does not read is added by a check of its own, because it is an error.
+write(
+  join(REPO, "examples", "detail-card", "README.md"),
+  [
+    "---",
+    "meta:",
+    "  - label: Version",
+    '    value: "1.2.0"',
+    "  - label: License",
+    "    value: MIT",
+    "  - label: Runtime",
+    "    value: Node 22 or newer",
+    "  - label: Checksum",
+    "    value: 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+    "  - label: Download",
+    "    value: https://example.com/a/very/long/path/that/keeps/going/and/going/and/going/widget-1.2.0.tgz",
+    "links:",
+    "  - label: Repository",
+    "    href: https://github.com/demo/widget",
+    "  - label: Guide",
+    "    href: ../../docs/guide.md",
+    "  - label: License file",
+    "    href: ../../LICENSE",
+    "  - label: Missing page",
+    "    href: ./nope.md",
+    "tags: [Plugin, Forms, Averyveryveryveryveryveryveryveryveryveryverylongtagwithnospaces]",
+    "---",
+    "",
+    "# A widget with a side card",
+    "",
+    "The text of the page, with the card beside it.",
+    "",
+    "## Section",
+    "",
+    // Enough text to be much taller than the card, so a sticky card can be told from one that scrolls away.
+    ...Array.from({ length: 14 }, (_, index) => [
+      `Paragraph ${index + 1}. ${"Text that fills the page. ".repeat(16)}`,
+      "",
+    ]).flat(),
+  ].join("\n"),
+);
 write(
   join(REPO, "CHANGELOG.md"),
   "# Changelog\n\n## [1.2.3] - 2026-10-28\n\n### Added\n\n- Everything.\n",
@@ -591,8 +634,49 @@ check("check prints the warnings of the content with file and line, and still pa
     output.includes(`docs/callouts.md:${marker}: warning: "[!NOTES]" is not a callout marker`),
     `no warning for the unknown marker:\n${output}`,
   );
-  assert(/Content: 0 errors, 2 warnings\./.test(output), `no count:\n${output}`);
+  const card = lineOf(join(REPO, "examples", "detail-card", "README.md"), "href: ./nope.md");
+  assert(
+    output.includes(
+      `examples/detail-card/README.md:${card}: warning: Card link "Missing page": Link "./nope.md" does not match any file`,
+    ),
+    `no warning for the missing link of the card:\n${output}`,
+  );
+  assert(/Content: 0 errors, 3 warnings\./.test(output), `no count:\n${output}`);
 });
+check(
+  "check fails on a key the card does not read, at its line, and passes again once it is fixed",
+  () => {
+    const file = join(REPO, "examples", "detail-card", "README.md");
+    const original = readFileSync(file, "utf8");
+    const typo = original.replace("  - label: License\n", "  - lable: License\n");
+    assert(typo !== original, "the fixture has no License item to break");
+    writeFileSync(file, typo);
+    const line = lineOf(file, "lable: License");
+    const failed = capture("node", [CLI, "check"], { cwd: REPO });
+    const javascript = original.replace(
+      "    href: ./nope.md\n",
+      '    href: ./nope.md\n  - label: Script\n    href: "javascript:alert(1)"\n',
+    );
+    writeFileSync(file, javascript);
+    const unsafe = capture("node", [CLI, "check"], { cwd: REPO });
+    writeFileSync(file, original);
+    assert(failed.status === 1, `check exited with ${failed.status}, not 1`);
+    assert(
+      failed.stderr.includes(
+        `examples/detail-card/README.md:${line}: error: Item 2 of "meta" has the key "lable"`,
+      ),
+      `the key was not reported:\n${failed.stderr}`,
+    );
+    assert(unsafe.status === 1, "a link with a script scheme did not fail the check");
+    assert(
+      /examples\/detail-card\/README\.md:\d+: error: The link "Script" uses "javascript:alert\(1\)"/.test(
+        unsafe.stderr,
+      ),
+      `the script link was not reported:\n${unsafe.stderr}`,
+    );
+    assert(/Safe to publish/.test(sitekit(["check"])), "still failing after the fix");
+  },
+);
 check("check finds a credential in the docs, masked, and passes again once it is removed", () => {
   const file = join(REPO, "docs", "guide.md");
   const original = readFileSync(file, "utf8");
@@ -653,7 +737,7 @@ check(
       `the build did not print the missing link:\n${firstBuild.stderr}`,
     );
     assert(
-      /Content: 0 errors, 2 warnings\./.test(firstBuild.stderr),
+      /Content: 0 errors, 3 warnings\./.test(firstBuild.stderr),
       "the build did not count them",
     );
   },
@@ -669,6 +753,7 @@ check("every document, example and the changelog became a page with its own titl
     "tutorials/code-blocks/index.html": "Code blocks",
     "tutorials/index.html": "Tutorials",
     "examples/basic/index.html": "Basic example",
+    "examples/detail-card/index.html": "A widget with a side card",
     "changelog/index.html": "Changelog",
   };
   for (const [path, title] of Object.entries(expected)) {
@@ -788,6 +873,33 @@ check("the stat row is a description list on the home page, one term per stat", 
   assert((list[1].match(/<dt\b/g) ?? []).length === 4, "the <dl> does not have four terms");
   assert(list[1].includes("Downloads") && list[1].includes("Last 30 days"), "a stat is missing");
 });
+check(
+  "a detail page has its card as a description list, with real links and without the bad ones",
+  () => {
+    const html = read("examples/detail-card/index.html");
+    const card = /<aside aria-label="Details"[^>]*>([\s\S]*?)<\/aside>/.exec(html);
+    assert(card, "the page has no card");
+    assert((card[1].match(/<dt\b/g) ?? []).length === 5, "the card does not have five terms");
+    assert(
+      card[1].includes('href="https://github.com/demo/widget"'),
+      "the repository link is missing",
+    );
+    assert(
+      card[1].includes('href="/widget/docs/guide/"'),
+      "a link to a page was not turned into its route",
+    );
+    assert(
+      card[1].includes('href="https://github.com/demo/widget/blob/HEAD/LICENSE"'),
+      "a link to a repository file was not rewritten",
+    );
+    assert(!/nope|javascript:/.test(card[1]), "a link that must be left out is in the card");
+    assert(!/On this page/.test(html), "a detail page still has a table of contents");
+    assert(
+      !/<aside aria-label="Details"/.test(read("docs/guide/index.html")),
+      "a page without a card has one",
+    );
+  },
+);
 check("404.html is the not-found page, not a copy of index.html", () => {
   assert(read("404.html") !== read("index.html"), "404.html equals index.html");
   assert(/Page not found/.test(read("404.html")), "404.html is not the not-found page");

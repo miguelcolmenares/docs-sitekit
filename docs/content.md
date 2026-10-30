@@ -18,6 +18,10 @@ Pages sort by file name. Put `order: 1` in the frontmatter to move a page up. Th
 
 Put `tags` in the frontmatter, a list or one comma separated string, and the index page of the collection gets a filter bar with a button per tag. Tags are trimmed, and `UI` and `ui` are the same tag. See [CatalogFilter](./components.md#catalogfilter).
 
+## Side card
+
+A page with `meta` (a list of `label` and `value`) and `links` (a list of `label` and `href`) in its frontmatter shows a card of details beside its text. An unknown key in them is a `card` finding. A link of the card that leads to a file that is missing or excluded is a `links` or `excludedLinks` finding, like the same link in the text. See [A detail page with a side card](./detail-page.md).
+
 ## Links
 
 Write ordinary relative links, the ones that also work on GitHub.
@@ -37,20 +41,21 @@ Start a blockquote with `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]
 
 ## What check finds in the content
 
-`sitekit check` reads the markdown as data, and the build prints the same findings when it ends. Each finding is one line, `file:line: severity: message`, for example `docs/guide.md:42: warning: Link "./nope.md" does not match any file`. The line is the one that holds the link, the image, the heading or the frontmatter key. `check` prints the count and exits with 1 when any finding has the severity `error`. The build prints the findings and never fails on them, so `check` is the one that decides.
+`sitekit check` reads the markdown as data, and the build prints the same findings when it ends. Each finding is one line, `file:line: severity: message`, for example `docs/guide.md:42: warning: Link "./nope.md" does not match any file`. The line is the one that holds the link, the image, the heading or the frontmatter key, and for a side card the key inside its `meta` or `links` item. `check` prints the count and exits with 1 when any finding has the severity `error`. The build prints the findings and never fails on them, so `check` is the one that decides.
 
-| Kind (the key under `check`) | What it finds                                                                              | Default |
-| ---------------------------- | ------------------------------------------------------------------------------------------ | ------- |
-| `links`                      | A relative link to a file that does not exist, or that leaves the repository               | warning |
-| `excludedLinks`              | A link to a file you excluded, so only its text is kept                                    | warning |
-| `anchors`                    | A link to a heading that does not exist in the target page, or in the same page            | warning |
-| `images`                     | A relative image path that does not exist                                                  | error   |
-| `frontmatter`                | A frontmatter key the kit does not read (`titel`), with the key it looks like              | warning |
-| `order`                      | An `order` that is not a number                                                            | error   |
-| `duplicateHeadings`          | A second heading in a page that makes the same anchor as an earlier one                    | warning |
-| `callouts`                   | A callout marker that is not one of the five, such as `[!NOTES]`, so the quote stays plain | warning |
-| `variables`                  | A `{{ name }}` that is not declared under `vars`, so it stays as written                   | warning |
-| `snippets`                   | An include of a snippet that does not exist, or an include inside a snippet                | error   |
+| Kind (the key under `check`) | What it finds                                                                                                    | Default |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------- |
+| `links`                      | A relative link to a file that does not exist, or that leaves the repository                                     | warning |
+| `excludedLinks`              | A link to a file you excluded, so only its text is kept                                                          | warning |
+| `anchors`                    | A link to a heading that does not exist in the target page, or in the same page                                  | warning |
+| `images`                     | A relative image path that does not exist                                                                        | error   |
+| `frontmatter`                | A frontmatter key the kit does not read (`titel`), with the key it looks like                                    | warning |
+| `order`                      | An `order` that is not a number                                                                                  | error   |
+| `duplicateHeadings`          | A second heading in a page that makes the same anchor as an earlier one                                          | warning |
+| `callouts`                   | A callout marker that is not one of the five, such as `[!NOTES]`, so the quote stays plain                       | warning |
+| `variables`                  | A `{{ name }}` that is not declared under `vars`, so it stays as written                                         | warning |
+| `snippets`                   | An include of a snippet that does not exist, or an include inside a snippet                                      | error   |
+| `card`                       | A side card the frontmatter got wrong: an unknown key under `meta`, a missing text, a link with an unsafe scheme | error   |
 
 Set the severity of a kind in `sitekit.config.json` with `error`, `warning` or `off`. A kind you do not set keeps its default:
 
