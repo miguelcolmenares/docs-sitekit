@@ -166,8 +166,10 @@ for (const phone of PHONES) {
       await page.goto(PAGE);
       expect(await visibleTerms(page)).toEqual(["Version", "License", "Runtime"]);
       expect(await visibleTerms(page)).toHaveLength(VISIBLE_ROWS);
-      await expect(card(page).getByRole("link")).toHaveCount(3);
-      for (const link of await card(page).getByRole("link").all()) await expect(link).toBeHidden();
+      // A link that is hidden is out of the accessibility tree, so it is found by its tag, not its role.
+      await expect(card(page).getByRole("link")).toHaveCount(0);
+      await expect(card(page).locator("a")).toHaveCount(3);
+      for (const link of await card(page).locator("a").all()) await expect(link).toBeHidden();
       await expect(toggle(page)).toBeVisible();
       await expect(toggle(page)).toHaveAttribute("aria-expanded", "false");
     });
