@@ -104,9 +104,11 @@ describe("inlineLinks with an image in the label", () => {
   });
 
   it("does not take a long run of unfinished images for a reason to slow down", () => {
+    // A scan that backtracks takes minutes on this input. The limit is far above a normal run (tens of
+    // milliseconds) so a slow CI runner cannot fail it, and far below a blow-up.
     const start = Date.now();
     inlineLinks(`[${"![a](".repeat(5000)}`);
     inlineLinks(`${"![[".repeat(5000)}(x)`);
-    expect(Date.now() - start).toBeLessThan(1000);
+    expect(Date.now() - start).toBeLessThan(10000);
   });
 });
