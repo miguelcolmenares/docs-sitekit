@@ -151,6 +151,16 @@ export const siteConfigSchema = z
         }
       })
       .default({}),
+    /**
+     * Values a page can write as `{{ name }}` in prose. `version` is read from the package of the repository when
+     * it is not set here. A name starts with a letter and has letters, digits, `_` and `-`.
+     */
+    vars: z
+      .record(
+        z.string().regex(/^[A-Za-z][\w-]*$/, "a variable name starts with a letter"),
+        z.string(),
+      )
+      .default({}),
     /** A llms.txt map of the site, and optionally a Markdown copy of each page. A site without the key gets neither. */
     llms: z
       .strictObject({

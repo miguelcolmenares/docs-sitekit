@@ -11,6 +11,8 @@ export const FINDING_KINDS = [
   "order",
   "duplicateHeadings",
   "callouts",
+  "variables",
+  "snippets",
 ] as const;
 
 /** One of the kinds of problem found in the content. */
@@ -32,6 +34,8 @@ export const DEFAULT_SEVERITY: Readonly<Record<FindingKind, Severity>> = {
   order: "error",
   duplicateHeadings: "warning",
   callouts: "warning",
+  variables: "warning",
+  snippets: "error",
 };
 
 /** A problem in a markdown file, with where it is and how serious it is. */

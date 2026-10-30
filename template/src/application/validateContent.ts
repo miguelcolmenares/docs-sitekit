@@ -74,11 +74,25 @@ export function validateContent(
   const cache = new Map<string, PageAnchors>();
   const findings: ContentFinding[] = [];
 
-  const report = (kind: FindingKind, file: SourceFile, line: number, message: string) => {
+  const reportAt = (kind: FindingKind, path: string, line: number, message: string) => {
     const level = severities[kind];
     if (level === "off") return;
-    findings.push({ kind, severity: level, file: file.path, line, message });
+    findings.push({ kind, severity: level, file: path, line, message });
   };
+  const report = (kind: FindingKind, file: SourceFile, line: number, message: string) =>
+    reportAt(kind, file.path, line, message);
+
+  // Variables and snippets that could not be expanded when the files were read. A snippet is shared by pages, so
+  // the same problem in it is reported once, and its file is the snippet, not the page that includes it.
+  const reported = new Set<string>();
+  for (const file of files) {
+    for (const issue of file.reusableIssues ?? []) {
+      const key = `${issue.kind}\u0000${issue.file}\u0000${issue.line}\u0000${issue.message}`;
+      if (reported.has(key)) continue;
+      reported.add(key);
+      reportAt(issue.kind, issue.file, issue.line, issue.message);
+    }
+  }
 
   const contextFor = (file: SourceFile): LinkContext => ({
     file: file.path,
@@ -129,6 +143,8 @@ export function validateContent(
     const document = documentOf.get(file.path);
     if (!document) continue;
     const first = file.contentLine ?? 1;
+    // The line of a line of `content`. A snippet adds lines, so the file's own map is used when there is one.
+    const lineAt = (index: number) => file.contentLines?.[index] ?? first + index;
     const context = contextFor(file);
 
     // Frontmatter: a key the kit does not read, and an order it cannot use.
@@ -156,7 +172,7 @@ export function validateContent(
     const lines = proseLines(file.content);
     lines.forEach((line, position) => {
       if (line.fenced) return;
-      const at = first + line.index;
+      const at = lineAt(line.index);
 
       const checkImage = (href: string) => {
         if (href.includes("\u0000") || !isRelativeHref(href)) return;
@@ -226,13 +242,20 @@ export function validateContent(
         report(
           "duplicateHeadings",
           file,
-          first + heading.index,
-          `Heading "${heading.text}" makes the same anchor as the one on line ${first + heading.firstIndex}, so its link is #${heading.anchor}`,
+          lineAt(heading.index),
+          `Heading "${heading.text}" makes the same anchor as the one on line ${lineAt(heading.firstIndex)}, so its link is #${heading.anchor}`,
         );
       }
     }
   }
 
+  // Findings are in the order of the files, then by line. A snippet is not a file of the list, so it comes last.
   const position = new Map(files.map((file, index) => [file.path, index]));
-  return findings.sort((a, b) => position.get(a.file)! - position.get(b.file)! || a.line - b.line);
+  const rank = (path: string) => position.get(path) ?? files.length;
+  return findings.sort(
+    (a, b) =>
+      rank(a.file) - rank(b.file) ||
+      (a.file < b.file ? -1 : a.file > b.file ? 1 : 0) ||
+      a.line - b.line,
+  );
 }

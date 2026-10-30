@@ -349,6 +349,33 @@ write(
   join(REPO, "docs", "tutorials", "first-steps.md"),
   "# First steps\n\nA tutorial in its own collection.\n",
 );
+// Variables and snippets: `{{ version }}` comes from package.json, `{{ package }}` from `vars` in the config.
+write(
+  join(REPO, "snippets", "requirements.md"),
+  "{{ package }} {{ version }} needs Node 22 or newer.\n",
+);
+write(join(REPO, "snippets", "steps.md"), "1. Install the package.\n2. Run the build.\n");
+write(
+  join(REPO, "docs", "tutorials", "reusable-content.md"),
+  [
+    "# Using {{ package }} {{ version }}",
+    "",
+    "<!-- include: requirements.md -->",
+    "",
+    "## Install {{ package }}",
+    "",
+    "- Do these steps:",
+    "  <!-- include: steps.md -->",
+    "",
+    "Read [the {{ package }} guide](../guide.md) next. The source writes the version as `{{ version }}`.",
+    "",
+    "```md",
+    "Version {{ version }}",
+    "<!-- include: requirements.md -->",
+    "```",
+    "",
+  ].join("\n"),
+);
 write(join(REPO, "examples", "basic", "README.md"), "# Basic example\n\nThe smallest example.\n");
 write(
   join(REPO, "CHANGELOG.md"),
@@ -484,6 +511,8 @@ write(
   join(SITE, "brands", "mark.svg"),
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/></svg>\n',
 );
+// The reusable content page uses this variable. `version` is not set: it is read from package.json.
+config.vars = { package: "@demo/widget" };
 config.collections[0].groups = [
   { name: "Start", tone: "brand", items: ["overview", "getting-started"] },
   { name: "Use", tone: "success", items: ["guide", "callouts"] },
@@ -514,6 +543,36 @@ check("check fails on a group that names a page that does not exist", () => {
   }
   writeFileSync(configPath, original);
   assert(/lists "tpyo", which is not a page/.test(message), `got: ${message}`);
+});
+check("check fails on a missing snippet and names the file and line", () => {
+  const broken = join(REPO, "docs", "tutorials", "broken.md");
+  writeFileSync(broken, "# Broken\n\nText.\n\n<!-- include: nope.md -->\n");
+  let message = "";
+  try {
+    sitekit(["check"]);
+  } catch (error) {
+    message = error.stderr;
+  }
+  rmSync(broken);
+  assert(
+    /docs\/tutorials\/broken\.md:5: error: Snippet "nope\.md" was not found/.test(message),
+    `got: ${message}`,
+  );
+});
+check("check warns about an unknown variable with the file and line, and still passes", () => {
+  const warned = join(REPO, "docs", "tutorials", "warned.md");
+  writeFileSync(warned, "# Warned\n\nText.\n\nA {{ ghost }} here.\n");
+  let output;
+  try {
+    output = sitekit(["check"]);
+  } finally {
+    rmSync(warned);
+  }
+  assert(
+    /docs\/tutorials\/warned\.md:5: warning: Unknown variable "ghost"/.test(output),
+    `got: ${output}`,
+  );
+  assert(/Safe to publish/.test(output), "an unknown variable should be a warning");
 });
 check("check passes clean content", () => {
   assert(/Safe to publish/.test(sitekit(["check"])), "not safe");
@@ -620,6 +679,38 @@ check("every document, example and the changelog became a page with its own titl
     );
   }
 });
+check(
+  "variables and snippets are replaced in the page, its title, the search index, llms.txt and the Markdown copy",
+  () => {
+    const page = read("tutorials/reusable-content/index.html");
+    assert(/<title>[^<]*Using @demo\/widget 1\.2\.3[^<]*<\/title>/.test(page), "wrong title");
+    assert(page.includes("@demo/widget 1.2.3 needs Node 22 or newer."), "the snippet is missing");
+    assert(
+      /<li>Do these steps:\s*<ol>[\s\S]*Install the package\.[\s\S]*<\/ol>\s*<\/li>/.test(page),
+      "the snippet did not stay in its list item",
+    );
+    assert(page.includes("<code>{{ version }}</code>"), "a code span was replaced");
+    assert(!/<h[12][^>]*>[^<]*\{\{/.test(page), "a heading kept its variable");
+    assert(!page.includes("<!-- include"), "an include comment is in the HTML of the page");
+    const index = JSON.parse(read("search-index.json"));
+    const entry = index.pages.find(
+      (candidate) => candidate.url === "/widget/tutorials/reusable-content/",
+    );
+    assert(entry, "the page is not in the search index");
+    assert(entry.title === "Using @demo/widget 1.2.3", `index title: ${entry.title}`);
+    assert(entry.text.includes("needs Node 22 or newer"), "the index does not have the snippet");
+    assert(
+      read("llms.txt").includes(
+        "[Using @demo/widget 1.2.3](https://demo.github.io/widget/tutorials/reusable-content/): @demo/widget 1.2.3 needs Node 22 or newer.",
+      ),
+      "llms.txt does not have the replaced title and description",
+    );
+    assert(
+      read("tutorials/reusable-content/index.html.md").startsWith("# Using @demo/widget 1.2.3\n"),
+      "the Markdown copy has the old title",
+    );
+  },
+);
 check(
   "pages are grouped on the index and in the sidebar, and a nested collection is not repeated in its parent",
   () => {

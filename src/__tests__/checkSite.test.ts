@@ -2,7 +2,7 @@ import { checkSite, isSafeToPublish } from "../application";
 import type { CheckDeps } from "../application";
 import { buildDocuments } from "../../template/src/application";
 import { parseSiteConfig } from "../../template/src/domain";
-import type { Document, SourceFile } from "../../template/src/domain";
+import type { Document, ReusableIssue, SourceFile } from "../../template/src/domain";
 import { fakeEnv, MemoryFileSystem } from "./support/memory";
 
 const ROOT = "/work/widget";
@@ -94,6 +94,69 @@ const goodDist = {
   "docs/a/index.html": page("A"),
   "search-index.json": indexOf(["/docs/a/"]),
 };
+
+describe("checkSite variables and snippets", () => {
+  const withIssues = (issues: ReusableIssue[]): SourceFile => ({
+    ...doc("docs/a.md", "# A\n\nFine."),
+    reusableIssues: issues,
+  });
+  const unknown: ReusableIssue = {
+    kind: "variables",
+    file: "docs/a.md",
+    line: 3,
+    message: 'Unknown variable "ghost".',
+  };
+  const missing: ReusableIssue = {
+    kind: "snippets",
+    file: "docs/a.md",
+    line: 5,
+    message: 'Snippet "nope.md" was not found.',
+  };
+
+  it("reports an unknown variable as a warning and a missing snippet as an error, with file and line", () => {
+    const report = run({ files: [withIssues([unknown, missing])] });
+    expect(report.content).toEqual([
+      expect.objectContaining({
+        kind: "variables",
+        severity: "warning",
+        file: "docs/a.md",
+        line: 3,
+      }),
+      expect.objectContaining({ kind: "snippets", severity: "error", file: "docs/a.md", line: 5 }),
+    ]);
+    expect(isSafeToPublish(report)).toBe(false);
+  });
+
+  it("passes with a warning only, so an unknown variable does not stop the site", () => {
+    expect(isSafeToPublish(run({ files: [withIssues([unknown])] }))).toBe(true);
+  });
+
+  it("follows check.<kind> in the config, and does not look for a kind that is off", () => {
+    const check = { check: { variables: "off", snippets: "warning" } };
+    const report = run({ files: [withIssues([unknown, missing])], config: check });
+    expect(report.content.map((item) => [item.kind, item.severity])).toEqual([
+      ["snippets", "warning"],
+    ]);
+    expect(isSafeToPublish(report)).toBe(true);
+  });
+
+  it("reports a problem inside a snippet once, in the snippet, however many pages include it", () => {
+    const inSnippet: ReusableIssue = {
+      kind: "variables",
+      file: "snippets/requirements.md",
+      line: 2,
+      message: 'Unknown variable "ghost".',
+    };
+    const report = run({
+      files: [
+        withIssues([inSnippet]),
+        { ...doc("docs/b.md", "# B\n\nFine."), reusableIssues: [inSnippet] },
+      ],
+    });
+    expect(report.content).toHaveLength(1);
+    expect(report.content[0]).toMatchObject({ file: "snippets/requirements.md", line: 2 });
+  });
+});
 
 describe("checkSite content", () => {
   it("passes clean content", () => {

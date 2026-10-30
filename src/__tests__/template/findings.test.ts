@@ -25,10 +25,16 @@ const finding = (severity: "error" | "warning"): ContentFinding => ({
 });
 
 describe("the kinds of finding", () => {
-  it("have a default severity each: a missing image and a bad order are errors, the rest warnings", () => {
+  it("have a default severity each: a missing image, a bad order and a missing snippet are errors, the rest warnings", () => {
     expect(Object.keys(DEFAULT_SEVERITY).sort()).toEqual([...FINDING_KINDS].sort());
     expect(DEFAULT_SEVERITY.images).toBe("error");
     expect(DEFAULT_SEVERITY.order).toBe("error");
+    expect(DEFAULT_SEVERITY.snippets).toBe("error");
+    expect(FINDING_KINDS.filter((kind) => DEFAULT_SEVERITY[kind] === "error").sort()).toEqual([
+      "images",
+      "order",
+      "snippets",
+    ]);
     expect(FINDING_KINDS.filter((kind) => DEFAULT_SEVERITY[kind] === "warning").sort()).toEqual([
       "anchors",
       "callouts",
@@ -36,6 +42,7 @@ describe("the kinds of finding", () => {
       "excludedLinks",
       "frontmatter",
       "links",
+      "variables",
     ]);
   });
 

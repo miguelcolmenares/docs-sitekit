@@ -1,3 +1,5 @@
+import type { ReusableIssue } from "./reusable";
+
 /** The four tones a group badge can have. They match the `ToneBadge` component. */
 export type Tone = "neutral" | "brand" | "success" | "warn";
 
@@ -21,6 +23,14 @@ export interface SourceFile {
   contentLine?: number;
   /** The raw text between the `---` lines, to find the line of each key. Empty when there is none. */
   frontmatterText?: string;
+  /**
+   * The line of the file that each line of `content` came from, after the variables and the snippets were
+   * expanded. A snippet adds lines, so this is how a finding on a later line points at the file. Missing when
+   * the content was not expanded: line `contentLine + index` is then the line.
+   */
+  contentLines?: number[];
+  /** Variables and snippets that could not be expanded, with the file and line where each one is written. */
+  reusableIssues?: ReusableIssue[];
 }
 
 /** The frontmatter keys the kit reads. Any other key is reported by `check`. */
