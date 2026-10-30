@@ -233,7 +233,12 @@ test.describe("keyboard and touch", () => {
 
 test.describe("no layout shift", () => {
   test("showing the bar moves nothing, and filtering does not move the bar", async ({ page }) => {
-    // Layout shifts caused by the bar or the cards, from the first byte of the page.
+    // The web font swaps in when it arrives. On a cold cache and a slow runner that happens after the first
+    // paint and re-wraps the tag buttons (a shift of 0.066 in CI), and that is the font, not the bar. Keeping
+    // the fallback font for the whole page leaves nothing but what the bar and the cards do themselves.
+    await page.route("**/*.woff2", (route) => route.abort());
+    // Every layout shift of the page, from the first byte. The sources are not filtered: showing the bar late
+    // moves the footer and the wrappers around the cards, and those are not inside the bar or a card.
     await page.addInitScript(() => {
       const shifts: { value: number }[] = [];
       (window as unknown as { __shifts: typeof shifts }).__shifts = shifts;
@@ -241,16 +246,8 @@ test.describe("no layout shift", () => {
         for (const entry of list.getEntries() as unknown as {
           value: number;
           hadRecentInput: boolean;
-          sources?: { node: Node | null }[];
         }[]) {
-          const touched = (entry.sources ?? []).some((source) => {
-            const element =
-              source.node instanceof Element ? source.node : source.node?.parentElement;
-            return element?.closest(
-              "[data-catalog-filter], [data-filter-group], a[data-filter-item]",
-            );
-          });
-          if (touched && !entry.hadRecentInput) shifts.push({ value: entry.value });
+          if (!entry.hadRecentInput) shifts.push({ value: entry.value });
         }
       }).observe({ type: "layout-shift", buffered: true });
     });
