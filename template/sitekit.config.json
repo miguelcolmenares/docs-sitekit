@@ -76,7 +76,7 @@
         {
           "name": "Design system",
           "tone": "neutral",
-          "items": ["components", "brand-logos", "design-tokens", "detail-page"]
+          "items": ["components", "brand-logos", "design-tokens", "detail-page", "performance"]
         },
         {
           "name": "Content",
