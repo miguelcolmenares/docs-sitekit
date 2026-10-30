@@ -7,14 +7,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
+import { Icon } from "./Icon";
 
 /** The navigation as a sheet, shown only below the `md` breakpoint. It traps focus and returns it on close. */
 export function MobileMenu({
   links,
   action,
+  repository,
 }: {
   links: readonly { label: string; href: string }[];
   action?: { label: string; href: string };
+  /** The repository button of the header, which has no room in the bar on a phone. */
+  repository?: { href: string; name: string; icon: string };
 }) {
   return (
     <Sheet>
@@ -42,6 +46,18 @@ export function MobileMenu({
               </a>
             </SheetClose>
           ))}
+          {repository && (
+            <a
+              href={repository.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-repository-button
+              className="inline-flex min-h-11 items-center gap-2 rounded-md px-3 text-fg-muted hover:bg-surface-2 hover:text-fg-bright"
+            >
+              <Icon name={repository.icon} className="size-5" />
+              {repository.name}
+            </a>
+          )}
           {action && (
             <a
               href={action.href}

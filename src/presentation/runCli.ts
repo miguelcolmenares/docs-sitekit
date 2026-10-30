@@ -12,6 +12,7 @@ import type { UpgradeResult } from "../application";
 // Deep imports on purpose: the template infrastructure barrel also exports the markdown renderer,
 // which belongs to the generated site and must not end up in this CLI.
 import { buildDocuments } from "../../template/src/application/buildDocuments";
+import { readCustomBrands } from "../../template/src/infrastructure/customBrands";
 import { readSources } from "../../template/src/infrastructure/readSources";
 import { loadSiteConfig } from "../../template/src/infrastructure/siteConfig";
 import { nodeEnvironment, nodeFileSystem, packagedTemplate, sha256 } from "../infrastructure";
@@ -95,6 +96,8 @@ export function runCli(argv: string[], io: CliIo): number {
             loadContent: (siteAbs) => {
               const config = loadSiteConfig(siteAbs);
               const { files } = readSources(siteAbs, config);
+              // A custom logo with no file, or a file that is not a plain SVG, fails here and not only in the build.
+              readCustomBrands(siteAbs, config);
               // Builds the pages only to validate them: two files on one route, or a page in no group, throw here.
               const documents = buildDocuments(files, {
                 base: config.site.base,

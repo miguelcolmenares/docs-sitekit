@@ -51,8 +51,15 @@
       "requires": ["cn"]
     },
     "icon": {
-      "description": "A lucide icon by its kebab-case name.",
-      "files": ["src/presentation/components/site/Icon.tsx"],
+      "description": "A lucide icon by its kebab-case name, or a brand logo as brand:<slug>.",
+      "files": [
+        "src/presentation/components/site/Icon.tsx",
+        "src/domain/brands/index.ts",
+        "src/domain/brands/brand.ts",
+        "src/domain/brands/brandData.ts",
+        "src/domain/brands/icons.ts",
+        "src/domain/brands/customSvg.ts"
+      ],
       "requires": []
     },
     "section-header": {

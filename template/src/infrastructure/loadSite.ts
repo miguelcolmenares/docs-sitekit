@@ -1,6 +1,7 @@
 import { publishedRoutes, buildDocuments } from "../application";
 import { matchesAny } from "../domain";
-import type { Document, LinkContext, SiteConfig } from "../domain";
+import type { BrandGlyph, Document, LinkContext, SiteConfig } from "../domain";
+import { readCustomBrands } from "./customBrands";
 import { renderMarkdown } from "./renderMarkdown";
 import type { RenderedMarkdown } from "./renderMarkdown";
 import { readSources } from "./readSources";
@@ -13,6 +14,8 @@ export interface Site {
   /** The version to show: the one in the config if there is one, else the repository's own, read at build time. */
   version: string | undefined;
   documents: Document[];
+  /** The logos the author added to the brands folder, keyed by the icon value, for `Icon` to draw. */
+  customBrands: Record<string, BrandGlyph>;
   /** Problems found while reading links, to print once at the end of a build. */
   warnings: string[];
   /** Join a path to the site base: `href("docs/")` becomes `/repo/docs/`. */
@@ -48,6 +51,7 @@ export function loadSite(siteDir: string = process.cwd()): Site {
     config,
     version: config.site.version ?? readRepositoryVersion(sources.root),
     documents,
+    customBrands: readCustomBrands(siteDir, config),
     warnings,
     href: (path) => `${config.site.base}${path.replace(/^\//, "")}`,
     linkContext: contextFor,

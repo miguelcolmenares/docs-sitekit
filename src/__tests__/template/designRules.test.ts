@@ -150,4 +150,31 @@ describe("design rules, enforced", () => {
     }
     expect(missing).toEqual([]);
   });
+  it("brand logos come from the module in the repository: no package, no CDN and no host in any source", () => {
+    const manifest = read(join(SRC, "..", "package.json"));
+    expect(manifest).not.toMatch(/simple-icons|simpleicons|iconify|devicon|svgl/i);
+    const sources = files(SRC, /\.(tsx?|astro|css)$/).filter(
+      (file) => !file.endsWith("brandData.ts"),
+    );
+    const offenders = sources.filter((file) =>
+      /from\s+["']simple-icons|cdn\.simpleicons|simpleicons\.org\/icons|cdn\.jsdelivr|unpkg\.com|cdnjs|api\.iconify|raw\.githubusercontent/i.test(
+        read(file),
+      ),
+    );
+    expect(offenders.map(name)).toEqual([]);
+  });
+
+  it("the repository button and the footer link are 44px targets on a phone", () => {
+    const header = read(join(SRC, "presentation", "components", "site", "SiteHeader.astro"));
+    const menu = read(join(SRC, "presentation", "components", "site", "MobileMenu.tsx"));
+    const footer = read(join(SRC, "presentation", "components", "site", "SiteFooter.tsx"));
+    for (const [source, anchor] of [
+      [header, "data-repository-button"],
+      [menu, "data-repository-button"],
+    ] as const) {
+      const tag = source.slice(source.indexOf(anchor), source.indexOf(anchor) + 400);
+      expect(tag).toMatch(/\bmin-h-11\b/);
+    }
+    expect(footer).toMatch(/min-h-11[^"]*md:min-h-8/);
+  });
 });

@@ -1,5 +1,5 @@
 ---
-import { Box, GitBranch, Search } from "lucide-react";
+import { Box, Search } from "lucide-react";
 import { buttonVariants } from "../ui/button";
 import { Icon } from "./Icon";
 import { MobileMenu } from "./MobileMenu";
@@ -8,7 +8,8 @@ interface Props {
   name: string;
   home: string;
   links: readonly { label: string; href: string }[];
-  repositoryUrl?: string;
+  /** The repository button: where it goes, its name and its icon (`brand:github` for a GitHub repository). */
+  repository?: { href: string; name: string; icon: string };
   action?: { label: string; href: string };
   /** Pathname of the page being shown, to mark the current link. */
   current?: string;
@@ -17,7 +18,7 @@ interface Props {
   /** The configured theme default, to name the switch before its script runs. */
   themeDefault?: "dark" | "light" | "system";
 }
-const { name, home, links, repositoryUrl, action, current, search, themeDefault = "dark" } = Astro.props;
+const { name, home, links, repository, action, current, search, themeDefault = "dark" } = Astro.props;
 const isCurrent = (href: string) => Boolean(current) && (current === href || (href !== home && current!.startsWith(href)));
 ---
 
@@ -42,15 +43,17 @@ const isCurrent = (href: string) => Boolean(current) && (current === href || (hr
     </nav>
     <div class="ml-auto flex items-center gap-2">
       {
-        repositoryUrl && (
+        repository && (
           <a
-            href={repositoryUrl}
+            href={repository.href}
             target="_blank"
             rel="noopener noreferrer"
-            class="hidden items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-fg-muted hover:text-fg-bright sm:inline-flex"
+            data-repository-button
+            title={`${repository.name} repository`}
+            class="hidden min-h-11 items-center gap-1.5 rounded-md px-2.5 text-sm text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg-bright sm:inline-flex"
           >
-            <GitBranch className="size-4" aria-hidden="true" />
-            GitHub
+            <Icon name={repository.icon} className="size-5" />
+            {repository.name}
           </a>
         )
       }
@@ -89,7 +92,7 @@ const isCurrent = (href: string) => Boolean(current) && (current === href || (hr
         <span class="theme-icon-sun inline-flex"><Icon name="sun" className="size-5" /></span>
         <span class="theme-icon-moon inline-flex"><Icon name="moon" className="size-5" /></span>
       </button>
-      <MobileMenu links={links} action={action} client:load />
+      <MobileMenu links={links} action={action} repository={repository} client:load />
     </div>
   </div>
 </header>

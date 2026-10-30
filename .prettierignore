@@ -7,3 +7,4 @@ template/.astro
 template/dist
 e2e/.build
 template/src/styles/tokens.css
+template/src/domain/brands/brandData.ts

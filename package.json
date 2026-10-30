@@ -45,6 +45,7 @@
     "verify:package": "node scripts/verify-package.mjs",
     "prepare": "husky",
     "build:tokens": "node scripts/build-tokens.mjs",
+    "build:brands": "node scripts/build-brands.mjs",
     "bootstrap": "npm ci && npm ci --prefix template"
   },
   "keywords": [
@@ -82,6 +83,7 @@
     "husky": "^9.1.7",
     "jest": "^30.5.2",
     "prettier": "^3.9.10",
+    "simple-icons": "16.36.0",
     "tsdown": "^0.23.3",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.72.1"

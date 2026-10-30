@@ -1,13 +1,23 @@
 import { z } from "zod";
+import { iconProblem } from "./brands";
 
 const link = z.strictObject({
   label: z.string().min(1),
   href: z.string().min(1),
 });
 
+/**
+ * An icon: the name of a lucide icon in kebab-case (`shield-check`), a brand logo that ships with the
+ * kit (`brand:github`), or a logo the author added to the brands folder (`brand:custom/my-logo`).
+ * An unknown brand fails with its slug and the closest ones.
+ */
+export const iconName = z.string().superRefine((value, context) => {
+  const problem = iconProblem(value);
+  if (problem) context.addIssue({ code: "custom", message: problem });
+});
+
 const feature = z.strictObject({
-  /** Name of a lucide icon, in kebab-case, for example `shield-check`. */
-  icon: z.string().regex(/^[a-z0-9-]+$/),
+  icon: iconName,
   eyebrow: z.string().min(1),
   title: z.string().min(1),
   text: z.string().min(1),

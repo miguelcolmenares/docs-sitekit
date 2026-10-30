@@ -44,7 +44,7 @@ const resolve = (link: { label: string; href: string }) => ({ ...link, href: lin
     config.features.length > 0 && (
       <section class="mx-auto max-w-site px-5 py-20">
         <SectionHeader eyebrow="01 · Why" title={`Why ${config.site.name}`} />
-        <FeatureGrid features={config.features} />
+        <FeatureGrid features={config.features} brands={site.customBrands} />
       </section>
     )
   }

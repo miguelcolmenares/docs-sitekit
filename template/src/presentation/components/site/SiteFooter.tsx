@@ -1,9 +1,11 @@
 import { ArrowUpRight, Box } from "lucide-react";
+import { Icon } from "./Icon";
 
 /** A titled column of footer links. */
 export interface FooterColumn {
   title: string;
-  links: readonly { label: string; href: string; external?: boolean }[];
+  /** `icon` is a lucide name or `brand:<slug>`, drawn before the label. */
+  links: readonly { label: string; href: string; external?: boolean; icon?: string }[];
 }
 
 /** The brand, link columns and a legal line, one grid track per column. */
@@ -58,8 +60,9 @@ export function SiteFooter({
                     <a
                       href={link.href}
                       {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                      className="inline-flex min-h-11 items-center gap-1 text-sm text-fg-muted transition-colors hover:text-fg-bright md:min-h-8"
+                      className="inline-flex min-h-11 items-center gap-1.5 text-sm text-fg-muted transition-colors hover:text-fg-bright md:min-h-8"
                     >
+                      {link.icon && <Icon name={link.icon} className="size-4" />}
                       {link.label}
                       {link.external && <ArrowUpRight className="size-3.5" aria-hidden="true" />}
                     </a>
