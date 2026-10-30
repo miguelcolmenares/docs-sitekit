@@ -212,39 +212,54 @@ for (const phone of PHONES) {
 }
 
 test.describe("contrast measured in the browser", () => {
+  // Every route, in both themes, at the phone widths and a desktop.
   const VIEWPORTS = [
+    { name: "320 wide", width: 320, height: 640 },
+    { name: "360 wide", width: 360, height: 740 },
+    { name: "390 wide", width: 390, height: 844 },
     { name: "desktop", width: 1440, height: 900 },
-    { name: "phone", width: 360, height: 740 },
   ];
-  for (const viewport of VIEWPORTS) {
-    for (const route of ROUTES) {
-      test(`${route} at ${viewport.name}: every text reaches WCAG AA`, async ({ page }) => {
-        await page.setViewportSize({ width: viewport.width, height: viewport.height });
-        await page.goto(route);
-        const { offenders, checked } = await measureContrast(page);
-        expect(checked).toBeGreaterThan(5); // the measurement really looked at text
-        expect(offenders).toEqual([]);
+  for (const theme of ["dark", "light"] as const) {
+    test.describe(`${theme} theme`, () => {
+      test.beforeEach(async ({ page }) => {
+        await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
       });
-    }
+      for (const viewport of VIEWPORTS) {
+        for (const route of ROUTES) {
+          test(`${route} at ${viewport.name}: every text reaches WCAG AA`, async ({ page }) => {
+            await page.setViewportSize({ width: viewport.width, height: viewport.height });
+            await page.goto(route);
+            expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe(theme);
+            const { offenders, checked } = await measureContrast(page);
+            expect(checked).toBeGreaterThan(5); // the measurement really looked at text
+            expect(offenders).toEqual([]);
+          });
+        }
+
+        test(`highlighted code at ${viewport.name} reaches AA`, async ({ page }) => {
+          await page.setViewportSize({ width: viewport.width, height: viewport.height });
+          await page.goto(DOC);
+          const { offenders, checked } = await measureContrast(page);
+          const count = await page.locator("pre code span").count();
+          expect(count).toBeGreaterThan(5);
+          expect(checked).toBeGreaterThan(count / 2);
+          expect(offenders.filter((offender) => offender.element.startsWith("span"))).toEqual([]);
+        });
+
+        // The menu button is hidden from md up, so the open menu only exists at the phone widths.
+        if (viewport.width < 768) {
+          test(`the open mobile menu at ${viewport.name} reaches AA`, async ({ page }) => {
+            await page.setViewportSize({ width: viewport.width, height: viewport.height });
+            await page.goto(BASE);
+            await page.getByRole("button", { name: "Open menu" }).click();
+            await expect(page.getByRole("dialog")).toBeVisible();
+            const { offenders } = await measureContrast(page);
+            expect(offenders).toEqual([]);
+          });
+        }
+      }
+    });
   }
-
-  test("text inside highlighted code reaches AA too", async ({ page }) => {
-    await page.goto(DOC);
-    const { offenders, checked } = await measureContrast(page);
-    const count = await page.locator("pre code span").count();
-    expect(count).toBeGreaterThan(5);
-    expect(checked).toBeGreaterThan(count / 2);
-    expect(offenders.filter((offender) => offender.element.startsWith("span"))).toEqual([]);
-  });
-
-  test("the open mobile menu reaches AA", async ({ page }) => {
-    await page.setViewportSize({ width: 360, height: 740 });
-    await page.goto(BASE);
-    await page.getByRole("button", { name: "Open menu" }).click();
-    await expect(page.getByRole("dialog")).toBeVisible();
-    const { offenders } = await measureContrast(page);
-    expect(offenders).toEqual([]);
-  });
 
   test("hover and focus states keep the contrast: a hovered card still reaches AA", async ({
     page,

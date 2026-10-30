@@ -271,16 +271,22 @@ test.describe("accessibility", () => {
     ).toEqual([]);
   });
 
-  test("the marks, the selected result and the key hint reach AA contrast", async ({ page }) => {
-    await page.goto(`${BASE}docs/getting-started/`);
-    await openSearch(page);
-    await page.keyboard.type("widget");
-    await expect(page.locator("[role=option] mark").first()).toBeVisible();
-    await expect(dialog(page)).toContainText("Esc");
-    const { offenders, checked } = await measureContrast(page);
-    expect(checked).toBeGreaterThan(5);
-    expect(offenders).toEqual([]);
-  });
+  for (const theme of ["dark", "light"] as const) {
+    test(`the marks, the selected result and the key hint reach AA contrast in the ${theme} theme`, async ({
+      page,
+    }) => {
+      await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+      await page.goto(`${BASE}docs/getting-started/`);
+      expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe(theme);
+      await openSearch(page);
+      await page.keyboard.type("widget");
+      await expect(page.locator("[role=option] mark").first()).toBeVisible();
+      await expect(dialog(page)).toContainText("Esc");
+      const { offenders, checked } = await measureContrast(page);
+      expect(checked).toBeGreaterThan(5);
+      expect(offenders).toEqual([]);
+    });
+  }
 
   test("the input is a combobox that names the list it controls", async ({ page }) => {
     await page.goto(`${BASE}docs/getting-started/`);

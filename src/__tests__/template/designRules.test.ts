@@ -36,6 +36,15 @@ describe("design rules, enforced", () => {
     expect(offenders.map(name)).toEqual([]);
   });
 
+  it("accent-strong is never a text color: it fills, rings and borders only (4.41:1 on the page)", () => {
+    const strongAsText =
+      /\btext-(brand-strong|ring)\b|\btext-\(--sk-accent-strong\)|\btext-\[var\(--sk-accent-strong\)\]|\bcolor\s*:\s*var\(--sk-accent-strong\)/;
+    const offenders = files(SRC, /\.(tsx|astro|css)$/).filter((file) =>
+      strongAsText.test(read(file)),
+    );
+    expect(offenders.map(name)).toEqual([]);
+  });
+
   it("status colors are chosen only in ToneBadge and Callout", () => {
     const allowed = new Set(["ToneBadge.tsx", "Callout.tsx"]);
     const offenders = siteFiles.filter(

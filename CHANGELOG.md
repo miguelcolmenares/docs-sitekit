@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Search.** A header button, Ctrl K or Cmd K, and the slash key open a dialog that searches the title, headings and text of every page, and opens the section that matched. The search code and the index load on first use, and `search.enabled` in the config turns it off. `sitekit check` verifies that the index lists every page. Typo tolerance is not in this version.
+- **A light theme, with a switch in the header.** The site stays dark by default. `theme.default` in `sitekit.config.json` takes `dark`, `light` or `system`, and an invalid value fails the build with the key named. A visitor's choice is saved in the browser and wins over the default, and the theme is applied before the first paint. The light set is a second set of colors in `design/tokens.json`, with the same keys as the dark one, and a test fails when the keys differ. Code blocks have a light highlighter theme. A site generated with an earlier version keeps its own `design/tokens.json`, which has no light set, so it stays dark until it adds one.
+
+### Changed
+
+- **The default accent is the VS Code blue**: `accent` `#4fc1ff`, `accent-strong` `#007acc` and `accent-contrast` `#ffffff`, in place of the purple. A site generated with `init` takes the blue from the kit it is generated with. A site generated earlier keeps its own `design/tokens.json`, so it stays purple until its owner changes that file.
+
+### Fixed
+
+- **The name of the tool is `docs-sitekit` everywhere a reader sees it.** The footer of every generated site, the Action address, its name, the issue forms, the contributing steps and the help text used the old short name. The `sitekit` command and the file names do not change. A test reads these texts and fails on the old name. The Action address in the 0.1.0 notes is corrected too.
 
 ## [0.1.1] - 2026-10-28
 
@@ -26,7 +35,7 @@ First release. The package is `docs-sitekit` and the action is `miguelcolmenares
 
 - `sitekit init`, `check`, `list` and `add`. `init` reads `package.json` and the git remote, finds `docs/`, `docs/tutorials/`, `docs/examples/` and `examples/`, writes the site and a GitHub Pages workflow, and refuses a folder that already has files.
 - **Collections and groups.** A site has any number of collections (Docs, Tutorials, Examples). A page belongs to the collection with the deepest folder, so `docs/tutorials/` can sit inside `docs/`. Pages can be put in groups with a tone, and a page that is in no group, or a group that names a page that does not exist, fails the build instead of being skipped.
-- **A reusable GitHub Action** (`miguelcolmenares/sitekit`) that installs, builds and checks a site and uploads it as the Pages artifact. The workflow `init` writes uses it and rebuilds the site when a release is published. Deploying stays in a separate job.
+- **A reusable GitHub Action** (`miguelcolmenares/docs-sitekit`) that installs, builds and checks a site and uploads it as the Pages artifact. The workflow `init` writes uses it and rebuilds the site when a release is published. Deploying stays in a separate job.
 - A dark design system on Astro, Tailwind, shadcn/ui and lucide-react: tokens, header, hero, section headers, cards, feature grid, flow diagram, command table, callouts, footer, doc layout with table of contents, and copy buttons. Tokens come from one file, and contrast is tested on them.
 - A content pipeline that turns markdown into pages, derives titles and descriptions without being fooled by badges, tables or code fences, rewrites relative links, and fails on two files that would get the same route.
 - The version in the footer is read from the repository's `package.json` on every build, so a site rebuilt for a release shows the release.

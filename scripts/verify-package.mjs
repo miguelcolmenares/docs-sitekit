@@ -254,7 +254,7 @@ check("init found docs, tutorials (inside docs/) and examples, each as its own c
   );
 });
 check(
-  "the generated workflow calls the sitekit action at the version that wrote it, and rebuilds on a release",
+  "the generated workflow calls the docs-sitekit action at the version that wrote it, and rebuilds on a release",
   () => {
     const { version } = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
     const workflow = readFileSync(join(REPO, ".github", "workflows", "docs.yml"), "utf8");
