@@ -54,7 +54,8 @@ function keyLine(file: SourceFile, key: string): number {
 /**
  * Read the markdown of every page as data and report what is wrong with it: links to files that do not
  * exist or are excluded, links to headings that are not there, images that do not exist, frontmatter the kit
- * does not read or cannot use, headings that make the same anchor, and callout markers it does not know.
+ * does not read or cannot use, headings that make the same anchor, callout markers it does not know, and
+ * variables and snippets that could not be expanded when the files were read.
  * Each finding has a severity (the default of its kind, or what `check` in the config says) and the file and
  * line where the problem is written. Code is never read: a fenced block and a code span hold no links, no
  * headings and no markers. A kind set to `off` is not looked for. Anchors are checked only against pages that
