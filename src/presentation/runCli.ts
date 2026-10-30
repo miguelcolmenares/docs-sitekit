@@ -87,8 +87,11 @@ export function runCli(argv: string[], io: CliIo): number {
               const config = loadSiteConfig(siteAbs);
               const { files } = readSources(siteAbs, config);
               // Builds the pages only to validate them: two files on one route, or a page in no group, throw here.
-              buildDocuments(files, { base: config.site.base, collections: config.collections });
-              return { config, files };
+              const documents = buildDocuments(files, {
+                base: config.site.base,
+                collections: config.collections,
+              });
+              return { config, files, routes: documents.map((document) => document.route) };
             },
           },
           { root, siteDir, dist: values.dist ? resolve(io.cwd, values.dist) : undefined },
