@@ -34,3 +34,14 @@ export function parseCalloutMarker(text: string): CalloutMarker | null {
   if (!(CALLOUT_KINDS as readonly string[]).includes(kind)) return null;
   return { kind: kind as CalloutKind, rest: text.slice(match[0].length) };
 }
+
+/**
+ * The name in a marker line that looks like a callout marker but is not one of the five kinds,
+ * for example `[!NOTES]`. Returns null for a known name and for text that is not a marker line.
+ * That blockquote stays a plain one, so the author should hear about it.
+ */
+export function unknownCalloutMarker(text: string): string | null {
+  const match = MARKER.exec(text);
+  if (!match) return null;
+  return (CALLOUT_KINDS as readonly string[]).includes(match[1]!.toLowerCase()) ? null : match[1]!;
+}

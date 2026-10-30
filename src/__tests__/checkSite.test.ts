@@ -1,5 +1,6 @@
-import { checkSite } from "../application";
+import { checkSite, isSafeToPublish } from "../application";
 import type { CheckDeps } from "../application";
+import { buildDocuments } from "../../template/src/application";
 import { parseSiteConfig } from "../../template/src/domain";
 import type { Document, SourceFile } from "../../template/src/domain";
 import { fakeEnv, MemoryFileSystem } from "./support/memory";
@@ -48,6 +49,7 @@ function run(options: {
   dist?: Record<string, string>;
   search?: boolean;
   routes?: string[];
+  existing?: string[];
 }) {
   const fs = new MemoryFileSystem(
     options.dist
@@ -68,6 +70,7 @@ function run(options: {
       files: options.files ?? [doc("docs/a.md", "# A\n\nFine.")],
       documents: options.documents ?? [],
       routes: options.routes ?? ["/docs/a/"],
+      existing: new Set(options.existing ?? []),
     }),
   };
   return checkSite(deps, { root: ROOT, siteDir: "site", dist: options.dist ? "/dist" : undefined });
@@ -157,7 +160,13 @@ describe("checkSite built output", () => {
       {
         fs,
         env: fakeEnv(),
-        loadContent: () => ({ config: config(), files: [], documents: [], routes: [] }),
+        loadContent: () => ({
+          config: config(),
+          files: [],
+          documents: [],
+          routes: [],
+          existing: new Set<string>(),
+        }),
       },
       { root: ROOT, siteDir: "site", dist: "/nope" },
     );
@@ -384,5 +393,39 @@ describe("checkSite search index", () => {
     });
     expect(report.errors.join("\n")).toMatch(/dist\/search-index\.json: aws-access-key/);
     expect(report.errors.join("\n")).not.toContain(awsKey);
+  });
+});
+
+describe("checkSite content findings", () => {
+  const broken = doc("docs/a.md", "# A\n\n[gone](./gone.md)\n\n![flow](./flow.png)\n");
+
+  const runContent = (files: SourceFile[], existing: string[] = []) =>
+    run({ files, documents: buildDocuments(files, { base: "/" }), existing });
+
+  it("collects the findings of the markdown, each with its file and line", () => {
+    const { content } = runContent([broken]);
+    expect(
+      content.map((item) => `${item.file}:${item.line} ${item.severity} ${item.kind}`),
+    ).toEqual(["docs/a.md:3 warning links", "docs/a.md:5 error images"]);
+  });
+
+  it("is not safe to publish with an error severity finding, though `errors` stays empty", () => {
+    const report = runContent([broken]);
+    expect(report.errors).toEqual([]);
+    expect(isSafeToPublish(report)).toBe(false);
+  });
+
+  it("is safe to publish with warnings only", () => {
+    const report = runContent([doc("docs/a.md", "[gone](./gone.md)\n")]);
+    expect(report.content).toHaveLength(1);
+    expect(isSafeToPublish(report)).toBe(true);
+  });
+
+  it("is not safe to publish when an existing check fails, with clean content", () => {
+    expect(isSafeToPublish(run({ visibility: "unknown" }))).toBe(false);
+  });
+
+  it("finds an image that exists in the repository", () => {
+    expect(runContent([broken], ["docs/flow.png"]).content).toHaveLength(1);
   });
 });

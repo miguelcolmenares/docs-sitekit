@@ -7,3 +7,4 @@ export * from "./remarkRewriteLinks";
 export * from "./siteConfig";
 export * from "./renderMarkdown";
 export * from "./loadSite";
+export * from "./reportFindings";

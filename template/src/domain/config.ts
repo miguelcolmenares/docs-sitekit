@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { iconProblem } from "./brands";
+import { FINDING_KINDS, isFindingKind } from "./findings";
 
 const link = z.strictObject({
   label: z.string().min(1),
@@ -131,6 +132,24 @@ export const siteConfigSchema = z
         allow: z.array(z.string()).default([]),
       })
       .default({ excludePaths: [], replace: {}, denyPatterns: [], allow: [] }),
+    /**
+     * How serious each kind of content finding is: `error`, `warning`, or `off`. A kind that is not set
+     * keeps its default. A name that is not a kind fails with the name in the message.
+     */
+    check: z
+      .record(z.string(), z.enum(["error", "warning", "off"]))
+      .superRefine((kinds, context) => {
+        for (const name of Object.keys(kinds)) {
+          if (!isFindingKind(name)) {
+            context.addIssue({
+              code: "custom",
+              path: [name],
+              message: `"${name}" is not a kind of finding. The kinds are ${FINDING_KINDS.join(", ")}.`,
+            });
+          }
+        }
+      })
+      .default({}),
     /** A llms.txt map of the site, and optionally a Markdown copy of each page. A site without the key gets neither. */
     llms: z
       .strictObject({

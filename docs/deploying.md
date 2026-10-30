@@ -22,4 +22,4 @@ separate job deploys it. The workflow runs when the docs change and when a relea
 npx docs-sitekit check --dist dist
 ```
 
-It rebuilds the content, scans it and the built files for credentials and internal hosts, and checks the repository visibility. A private repository's Pages site is public, so the check fails until you say that is intended.
+It rebuilds the content, scans it and the built files for credentials and internal hosts, reports broken links, missing images and other problems of the markdown with their file and line (see [Content](./content.md)), and checks the repository visibility. A private repository's Pages site is public, so the check fails until you say that is intended.

@@ -1,11 +1,7 @@
 import { resolveLink } from "./links";
 import type { LinkContext } from "./links";
 import type { Document } from "./document";
-
-/** A markdown link `[label](href "optional title")`. An image starts with `!` and is matched too, so it can be skipped. */
-const LINK = /(!?)\[([^\]]*)\]\(([^)\s]+)((?:\s+"[^"]*")?)\)/g;
-const FENCE = /^\s*(```+|~~~+)/;
-const INLINE_CODE = /(`[^`]*`)/;
+import { proseLines, replaceInlineLinks, splitInlineCode } from "./markdownScan";
 
 /** What the Markdown copy of a page needs: the link rules of the page, and the address of the page itself. */
 export interface MarkdownPageOptions {
@@ -27,8 +23,8 @@ function absolute(target: string, options: MarkdownPageOptions): string {
 
 /** Rewrite the links of one piece of prose. Each link is decided by `resolveLink`, the rule the HTML uses. */
 function rewriteProse(text: string, options: MarkdownPageOptions): string {
-  return text.replace(LINK, (whole, bang: string, label: string, href: string, title: string) => {
-    if (bang) return whole;
+  return replaceInlineLinks(text, ({ image, label, href, title }, whole) => {
+    if (image) return whole;
     const resolution = resolveLink(href, options.context);
     // A link to an excluded file keeps its words and loses the address, as it does on the page.
     if (resolution.kind === "text-only") return label;
@@ -43,27 +39,13 @@ function rewriteProse(text: string, options: MarkdownPageOptions): string {
  * address. Fenced code and inline code are never touched.
  */
 export function renderMarkdownPage(document: Document, options: MarkdownPageOptions): string {
-  let fence: string | null = null;
-  const lines = document.body
-    .replace(/\r\n/g, "\n")
-    .split("\n")
-    .map((line) => {
-      const match = FENCE.exec(line);
-      if (fence !== null) {
-        if (match && match[1]!.startsWith(fence[0]!) && match[1]!.length >= fence.length)
-          fence = null;
-        return line;
-      }
-      if (match) {
-        fence = match[1]!;
-        return line;
-      }
-      // Odd parts of a split on inline code are the code spans themselves.
-      return line
-        .split(INLINE_CODE)
-        .map((part, index) => (index % 2 === 0 ? rewriteProse(part, options) : part))
-        .join("");
-    });
+  const lines = proseLines(document.body).map(({ text, fenced }) =>
+    fenced
+      ? text
+      : splitInlineCode(text)
+          .map((part) => (part.code ? part.text : rewriteProse(part.text, options)))
+          .join(""),
+  );
 
   const body = lines.join("\n").replace(/^\s+/, "").trimEnd();
   return `${[`# ${document.title}`, body].filter((part) => part !== "").join("\n\n")}\n`;

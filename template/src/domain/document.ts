@@ -17,7 +17,14 @@ export interface SourceFile {
   collectionPath: string;
   frontmatter: Record<string, unknown>;
   content: string;
+  /** Line of the file where `content` begins, starting at 1. It is 1 for a file with no frontmatter. */
+  contentLine?: number;
+  /** The raw text between the `---` lines, to find the line of each key. Empty when there is none. */
+  frontmatterText?: string;
 }
+
+/** The frontmatter keys the kit reads. Any other key is reported by `check`. */
+export const KNOWN_FRONTMATTER_KEYS = ["title", "description", "order"] as const;
 
 /** A page of the site. */
 export interface Document {

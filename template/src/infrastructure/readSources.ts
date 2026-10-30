@@ -20,7 +20,6 @@ function walk(directory: string): string[] {
 }
 
 /** The markdown read from a repository, and the paths of every file in it. */
-/** The markdown read from a repository, and the paths of every file in it. */
 export interface RepositorySources {
   /** Absolute path of the repository root. */
   root: string;
@@ -58,7 +57,12 @@ export function readSources(siteDir: string, config: SiteConfig): RepositorySour
   ): SourceFile | null => {
     const path = toRepoPath(absolute);
     if (matchesAny(path, excludePaths)) return null;
-    const parsed = matter(readFileSync(absolute, "utf8"));
+    const raw = readFileSync(absolute, "utf8");
+    const parsed = matter(raw);
+    // The content is the end of the file, so the lines before it are the frontmatter and its fences.
+    const before = raw.endsWith(parsed.content)
+      ? raw.slice(0, raw.length - parsed.content.length)
+      : "";
     return {
       path,
       collection,
@@ -68,6 +72,8 @@ export function readSources(siteDir: string, config: SiteConfig): RepositorySour
         unknown
       >,
       content: applyReplacements(parsed.content, replace),
+      contentLine: 1 + (before.match(/\n/g)?.length ?? 0),
+      frontmatterText: parsed.matter,
     };
   };
 

@@ -1,6 +1,6 @@
-import { publishedRoutes, buildDocuments } from "../application";
+import { publishedRoutes, buildDocuments, validateContent } from "../application";
 import { matchesAny } from "../domain";
-import type { BrandGlyph, Document, LinkContext, SiteConfig } from "../domain";
+import type { BrandGlyph, ContentFinding, Document, LinkContext, SiteConfig } from "../domain";
 import { readCustomBrands } from "./customBrands";
 import { renderMarkdown } from "./renderMarkdown";
 import type { RenderedMarkdown } from "./renderMarkdown";
@@ -16,8 +16,8 @@ export interface Site {
   documents: Document[];
   /** The logos the author added to the brands folder, keyed by the icon value, for `Icon` to draw. */
   customBrands: Record<string, BrandGlyph>;
-  /** Problems found while reading links, to print once at the end of a build. */
-  warnings: string[];
+  /** Problems found in the markdown, each with a severity, a file and a line, to print once at the end of a build. */
+  findings: ContentFinding[];
   /** Join a path to the site base: `href("docs/")` becomes `/repo/docs/`. */
   href: (path: string) => string;
   render: (document: Document) => Promise<RenderedMarkdown>;
@@ -37,7 +37,10 @@ export function loadSite(siteDir: string = process.cwd()): Site {
     collections: config.collections,
   });
   const published = publishedRoutes(documents);
-  const warnings: string[] = [];
+  const findings = validateContent(sources.files, documents, {
+    config,
+    existing: sources.existing,
+  });
 
   const contextFor = (document: Document): LinkContext => ({
     file: document.path,
@@ -52,14 +55,13 @@ export function loadSite(siteDir: string = process.cwd()): Site {
     version: config.site.version ?? readRepositoryVersion(sources.root),
     documents,
     customBrands: readCustomBrands(siteDir, config),
-    warnings,
+    findings,
     href: (path) => `${config.site.base}${path.replace(/^\//, "")}`,
     linkContext: contextFor,
     render: (document) =>
       renderMarkdown(document.body, {
         context: contextFor(document),
         base: config.site.base,
-        onWarning: (message) => warnings.push(message),
       }),
   };
   return cached;

@@ -4,7 +4,7 @@
 // and asserts on the result. A problem only a consumer would see (a file missing from the tarball,
 // a wrong path, server code in the browser bundle) fails here, before publish.
 
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
@@ -56,6 +56,21 @@ function listFiles(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
     entry.isDirectory() ? listFiles(join(dir, entry.name)) : [join(dir, entry.name)],
   );
+}
+
+// Line of the first line of a file that holds `needle`, starting at 1.
+function lineOf(path, needle) {
+  const index = readFileSync(path, "utf8")
+    .split("\n")
+    .findIndex((line) => line.includes(needle));
+  assert(index !== -1, `${path} has no line with ${needle}`);
+  return index + 1;
+}
+
+// Run a command and keep both streams, because the findings go to stderr and a failure must not throw.
+function capture(command, args, options = {}) {
+  const result = spawnSync(command, args, { encoding: "utf8", ...options });
+  return { status: result.status, stdout: result.stdout ?? "", stderr: result.stderr ?? "" };
 }
 
 function write(path, content) {
@@ -413,6 +428,22 @@ check("check fails on a group that names a page that does not exist", () => {
 check("check passes clean content", () => {
   assert(/Safe to publish/.test(sitekit(["check"])), "not safe");
 });
+check("check prints the warnings of the content with file and line, and still passes", () => {
+  const output = sitekit(["check"]);
+  const missing = lineOf(join(REPO, "docs", "getting-started.md"), "[missing page](./nope.md)");
+  const marker = lineOf(join(REPO, "docs", "callouts.md"), "> [!NOTES]");
+  assert(
+    output.includes(
+      `docs/getting-started.md:${missing}: warning: Link "./nope.md" does not match any file`,
+    ),
+    `no warning for the missing page:\n${output}`,
+  );
+  assert(
+    output.includes(`docs/callouts.md:${marker}: warning: "[!NOTES]" is not a callout marker`),
+    `no warning for the unknown marker:\n${output}`,
+  );
+  assert(/Content: 0 errors, 2 warnings\./.test(output), `no count:\n${output}`);
+});
 check("check finds a credential in the docs, masked, and passes again once it is removed", () => {
   const file = join(REPO, "docs", "guide.md");
   const original = readFileSync(file, "utf8");
@@ -431,13 +462,32 @@ check("check finds a credential in the docs, masked, and passes again once it is
 
 console.log("4/6 Install and build the generated site");
 runLoud("npm", ["ci", "--no-audit", "--no-fund"], { cwd: SITE });
-runLoud("npm", ["run", "build"], {
+const firstBuild = capture("npm", ["run", "build"], {
   cwd: SITE,
   env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" },
 });
+process.stdout.write(firstBuild.stdout);
+process.stderr.write(firstBuild.stderr);
+assert(firstBuild.status === 0, "the build of the generated site failed");
 const dist = join(SITE, "dist");
 const read = (path) => readFileSync(join(dist, path), "utf8");
 
+check(
+  "the build prints the findings of the markdown with file and line, and does not fail on them",
+  () => {
+    const missing = lineOf(join(REPO, "docs", "getting-started.md"), "[missing page](./nope.md)");
+    assert(
+      firstBuild.stderr.includes(
+        `docs/getting-started.md:${missing}: warning: Link "./nope.md" does not match any file`,
+      ),
+      `the build did not print the missing link:\n${firstBuild.stderr}`,
+    );
+    assert(
+      /Content: 0 errors, 2 warnings\./.test(firstBuild.stderr),
+      "the build did not count them",
+    );
+  },
+);
 check("every document, example and the changelog became a page with its own title", () => {
   const expected = {
     "index.html": "widget",
@@ -561,6 +611,65 @@ check(
 check("the built site has no credentials and passes check --dist", () => {
   assert(/Safe to publish/.test(sitekit(["check", "--dist", "site/dist"])), "check --dist failed");
 });
+
+// The Action builds, then runs exactly this: `check --dir <site> --dist <site>/dist`.
+check(
+  "a broken image fails the Action's check, at its line, and passes again once it is fixed",
+  () => {
+    const file = join(REPO, "docs", "guide.md");
+    const original = readFileSync(file, "utf8");
+    writeFileSync(file, `${original}\n![diagram](./img/missing.png)\n`);
+    const line = lineOf(file, "![diagram]");
+    const failed = capture("node", [CLI, "check", "--dir", "site", "--dist", "site/dist"], {
+      cwd: REPO,
+    });
+    writeFileSync(file, original);
+    assert(failed.status === 1, `check exited with ${failed.status}, not 1`);
+    assert(
+      failed.stderr.includes(
+        `docs/guide.md:${line}: error: Image "./img/missing.png" does not exist`,
+      ),
+      `the image was not reported:\n${failed.stderr}`,
+    );
+    assert(/1 problem\(s\)\. Not safe to publish/.test(failed.stdout), "no verdict");
+    assert(
+      /Safe to publish/.test(sitekit(["check", "--dir", "site", "--dist", "site/dist"])),
+      "still failing after the fix",
+    );
+  },
+);
+check(
+  "check.images in the config lowers the broken image to a warning, and an unknown kind is refused",
+  () => {
+    const file = join(REPO, "docs", "guide.md");
+    const original = readFileSync(file, "utf8");
+    const saved = readFileSync(configPath, "utf8");
+    writeFileSync(file, `${original}\n![diagram](./img/missing.png)\n`);
+    try {
+      writeFileSync(
+        configPath,
+        JSON.stringify({ ...JSON.parse(saved), check: { images: "warning" } }),
+      );
+      const lowered = capture("node", [CLI, "check"], { cwd: REPO });
+      assert(lowered.status === 0, `check exited with ${lowered.status}:\n${lowered.stderr}`);
+      assert(
+        /docs\/guide\.md:\d+: warning: Image "\.\/img\/missing\.png"/.test(lowered.stdout),
+        "not a warning",
+      );
+
+      writeFileSync(
+        configPath,
+        JSON.stringify({ ...JSON.parse(saved), check: { imagez: "error" } }),
+      );
+      const unknown = capture("node", [CLI, "check"], { cwd: REPO });
+      assert(unknown.status === 1, "an unknown kind did not fail");
+      assert(/"imagez" is not a kind of finding/.test(unknown.stderr), `got: ${unknown.stderr}`);
+    } finally {
+      writeFileSync(configPath, saved);
+      writeFileSync(file, original);
+    }
+  },
+);
 
 console.log("5/6 Components");
 check("list shows the registry", () => {

@@ -4,11 +4,13 @@ import {
   addComponent,
   checkSite,
   initSite,
+  isSafeToPublish,
   listComponents,
   NEW_VERSION_SUFFIX,
   upgradeSite,
 } from "../application";
 import type { UpgradeResult } from "../application";
+import { countFindings, formatFinding, summarizeFindings } from "../../template/src/domain";
 // Deep imports on purpose: the template infrastructure barrel also exports the markdown renderer,
 // which belongs to the generated site and must not end up in this CLI.
 import { buildDocuments } from "../../template/src/application/buildDocuments";
@@ -95,7 +97,7 @@ export function runCli(argv: string[], io: CliIo): number {
             env: nodeEnvironment,
             loadContent: (siteAbs) => {
               const config = loadSiteConfig(siteAbs);
-              const { files } = readSources(siteAbs, config);
+              const { files, existing } = readSources(siteAbs, config);
               // A custom logo with no file, or a file that is not a plain SVG, fails here and not only in the build.
               readCustomBrands(siteAbs, config);
               // Builds the pages only to validate them: two files on one route, or a page in no group, throw here.
@@ -108,19 +110,25 @@ export function runCli(argv: string[], io: CliIo): number {
                 files,
                 documents,
                 routes: documents.map((document) => document.route),
+                existing,
               };
             },
           },
           { root, siteDir, dist: values.dist ? resolve(io.cwd, values.dist) : undefined },
         );
+        // Content findings first, as `docs/guide.md:42: warning: ...`: errors on stderr, warnings on stdout.
+        for (const item of report.content)
+          (item.severity === "error" ? io.err : io.out)(`${formatFinding(item)}\n`);
         for (const warning of report.warnings) io.out(`warning: ${warning}\n`);
         for (const error of report.errors) io.err(`error: ${error}\n`);
+        if (report.content.length > 0) io.out(`\nContent: ${summarizeFindings(report.content)}.\n`);
+        const problems = report.errors.length + countFindings(report.content).errors;
         io.out(
-          report.errors.length === 0
+          problems === 0
             ? "Safe to publish.\n"
-            : `\n${report.errors.length} problem(s). Not safe to publish.\n`,
+            : `\n${problems} problem(s). Not safe to publish.\n`,
         );
-        return report.errors.length === 0 ? 0 : 1;
+        return isSafeToPublish(report) ? 0 : 1;
       }
       case "list": {
         for (const component of listComponents(template.registry()))

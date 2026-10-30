@@ -61,7 +61,7 @@ runs:
       working-directory: ${{ inputs.dir }}
       run: npm run build
 
-    # Rebuilds the content, scans it and the built files, and checks the repository visibility.
+    # Rebuilds the content, scans it and the built files, reports broken links and images, and checks the repository visibility.
     - name: Check that it is safe to publish
       if: ${{ inputs.check == 'true' }}
       shell: bash

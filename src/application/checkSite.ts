@@ -1,7 +1,8 @@
 import { scanText } from "../domain";
 import type { Finding } from "../domain";
 import { LLMS_FILE } from "../../template/src/domain";
-import type { Document, SiteConfig, SourceFile } from "../../template/src/domain";
+import type { ContentFinding, Document, SiteConfig, SourceFile } from "../../template/src/domain";
+import { validateContent } from "../../template/src/application";
 import { checkLlms } from "./checkLlms";
 import { joinPath } from "./paths";
 import type { Environment, FileSystem } from "./ports";
@@ -16,6 +17,8 @@ export interface CheckDeps {
     files: SourceFile[];
     documents: Document[];
     routes: string[];
+    /** Every file of the repository, as repository-relative paths, to check links and images. */
+    existing: ReadonlySet<string>;
   };
 }
 
@@ -27,11 +30,22 @@ export interface CheckOptions {
   dist?: string;
 }
 
-/** What a check found. Any entry in `errors` means the site is not safe to publish. */
+/**
+ * What a check found. Any entry in `errors` means the site is not safe to publish, and so does any
+ * entry of `content` whose severity is `error`: use `isSafeToPublish` and do not read `errors` alone.
+ */
 export interface CheckReport {
   errors: string[];
   warnings: string[];
+  /** Credential-shaped text and internal details, found by the scan. */
   findings: Finding[];
+  /** Problems in the markdown, each with a severity, a file and a line. */
+  content: ContentFinding[];
+}
+
+/** True when nothing in the report is an error: no failed check and no content finding with an `error` severity. */
+export function isSafeToPublish(report: CheckReport): boolean {
+  return report.errors.length === 0 && report.content.every((item) => item.severity !== "error");
 }
 
 const TEXT_FILE = /\.(html|js|mjs|css|json|txt|xml|svg|map|webmanifest|md)$/i;
@@ -87,8 +101,8 @@ function checkSearchIndex(
 /** Check that a site is safe to publish: its content, the repository visibility and the built output. */
 export function checkSite(deps: CheckDeps, options: CheckOptions): CheckReport {
   const { fs, env } = deps;
-  const report: CheckReport = { errors: [], warnings: [], findings: [] };
-  const { config, files, documents, routes } = deps.loadContent(
+  const report: CheckReport = { errors: [], warnings: [], findings: [], content: [] };
+  const { config, files, documents, routes, existing } = deps.loadContent(
     joinPath(options.root, options.siteDir),
   );
   const scanOptions = {
@@ -103,6 +117,9 @@ export function checkSite(deps: CheckDeps, options: CheckOptions): CheckReport {
       ...scanText(text, { ...scanOptions, location: file.path, includeMedium: true }),
     );
   }
+
+  // The same findings the build prints: links, images, anchors, frontmatter, headings and callout markers.
+  report.content.push(...validateContent(files, documents, { config, existing }));
 
   // 2. Visibility: a private repository's Pages site is public.
   if (config.deploy.target === "github-pages") {
