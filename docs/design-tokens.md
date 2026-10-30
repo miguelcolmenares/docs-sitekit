@@ -16,7 +16,7 @@ The default accent is the blue of the VS Code editor: `color.accent` is `#4fc1ff
 
 `accent` is the text color for links, labels and highlights. It reaches 9.86:1 on the page background.
 
-`accent-strong` is for fills, rings and borders only. Never use it as text on the dark ground: it reaches 4.41:1 there, below the 4.5:1 that text needs. A test fails when a template file uses it as a text color. Buttons and badges use it as a fill with `accent-contrast` as the text, which reaches 4.51:1.
+`accent-strong` is for fills, rings and borders only. Never use it as text on the dark ground: it reaches 4.41:1 there, below the 4.5:1 that text needs. A test fails when a template file uses it as a text color. The template uses it for the focus ring, the text selection, the glow behind the hero and the quote border. `accent-contrast` is the text for a fill in that color, such as a button, and reaches 4.51:1 on it.
 
 ## Change the accent
 
