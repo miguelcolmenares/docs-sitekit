@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import type { Page, Request } from "@playwright/test";
+import { measureContrast } from "../support/contrast";
 
 const BASE = "/widget/";
 const GUIDE_ADVANCED = `${BASE}docs/guide/#advanced`;
@@ -261,6 +262,17 @@ test.describe("accessibility", () => {
           `${violation.id}: ${violation.nodes.length} node(s), e.g. ${violation.nodes[0]?.target.join(" ")}`,
       ),
     ).toEqual([]);
+  });
+
+  test("the marks, the selected result and the key hint reach AA contrast", async ({ page }) => {
+    await page.goto(`${BASE}docs/getting-started/`);
+    await openSearch(page);
+    await page.keyboard.type("widget");
+    await expect(page.locator("[role=option] mark").first()).toBeVisible();
+    await expect(dialog(page)).toContainText("Esc");
+    const { offenders, checked } = await measureContrast(page);
+    expect(checked).toBeGreaterThan(5);
+    expect(offenders).toEqual([]);
   });
 
   test("the input is a combobox that names the list it controls", async ({ page }) => {

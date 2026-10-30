@@ -10,6 +10,7 @@ const { href } = loadSite();
   data-search-dialog
   data-index-url={href("search-index.json")}
   aria-label="Search the docs"
+  aria-modal="true"
   class="m-auto max-h-[min(40rem,calc(100dvh-4rem))] w-[min(40rem,calc(100vw-2rem))] max-w-none flex-col overflow-hidden rounded-lg border border-border bg-surface p-0 text-fg backdrop:bg-background/80 max-sm:inset-0 max-sm:m-0 max-sm:h-dvh max-sm:max-h-none max-sm:w-screen max-sm:rounded-none max-sm:border-0 open:flex"
 >
   <div class="flex items-center gap-2 border-b border-border p-3">
@@ -38,6 +39,9 @@ const { href } = loadSite();
   </div>
   <p data-search-status role="status" class="px-4 py-2 text-sm text-fg-muted">Type to search the docs.</p>
   <div id="search-results" role="listbox" aria-label="Results" data-search-results class="min-h-0 flex-1 overflow-y-auto p-2"></div>
+  <p class="border-t border-border px-4 py-2 text-xs text-fg-dim">
+    <kbd class="font-mono">↑</kbd> <kbd class="font-mono">↓</kbd> move · <kbd class="font-mono">Enter</kbd> open · <kbd class="font-mono">Esc</kbd> close
+  </p>
 </dialog>
 
 <script>

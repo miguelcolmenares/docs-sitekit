@@ -24,6 +24,7 @@ describe("buildSearchIndex", () => {
       {
         url: "/docs/install/",
         title: "Install",
+        description: "Run npm ci.",
         collection: "docs",
         headings: [expect.objectContaining({ text: "Options", id: "options" })],
         text: "Run npm ci.\nOptions\nSet enabled.",

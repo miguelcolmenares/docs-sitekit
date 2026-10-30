@@ -21,7 +21,7 @@ function page(
     }
     text += `${line}\n`;
   }
-  return { url, title, collection: "docs", headings: found, text: text.trimEnd() };
+  return { url, title, description: "", collection: "docs", headings: found, text: text.trimEnd() };
 }
 
 const index = (pages: SearchPage[]): SearchIndex => ({ collections: { docs: "Docs" }, pages });
@@ -186,5 +186,23 @@ describe("searchPages clusters", () => {
       "where the content comes from",
     );
     expect(hit!.snippet.text).toContain("Where the content");
+  });
+});
+
+describe("searchPages descriptions", () => {
+  it("finds a page by its description, below the headings and above the body", () => {
+    const described = {
+      ...page("Setup", "Unrelated words here."),
+      description: "How to configure the proxy.",
+    };
+    const hits = searchPages(
+      index([page("Body", "The proxy is mentioned here."), described]),
+      "proxy",
+    );
+    expect(hits.map((hit) => hit.title)).toEqual(["Setup", "Body"]);
+    const [setup] = searchPages(index([described]), "configure");
+    expect(setup).toMatchObject({ url: "/docs/setup/", heading: "" });
+    expect(setup!.snippet.text).toContain("configure");
+    expect(setup!.snippet.marks.length).toBe(1);
   });
 });

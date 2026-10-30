@@ -28,6 +28,7 @@ export function buildSearchIndex(
     return {
       url: document.route,
       title: document.title,
+      description: document.description,
       collection: document.collection,
       headings,
       text,

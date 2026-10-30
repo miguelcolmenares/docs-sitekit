@@ -8,6 +8,8 @@ export interface SearchPage {
   /** Address of the page, with the site base, with a trailing slash. */
   url: string;
   title: string;
+  /** The description of the page, from its frontmatter or its first paragraph, or "". */
+  description: string;
   /** Id of the collection the page belongs to, for example `docs`. */
   collection: string;
   /** Headings in page order. `offset` is where the heading text starts inside `text`. */

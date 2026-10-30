@@ -31,6 +31,7 @@ export interface SearchHit {
 const WEIGHT = {
   title: { prefix: 100, substring: 60 },
   heading: { prefix: 50, substring: 30 },
+  description: { prefix: 25, substring: 12 },
   body: { prefix: 10, substring: 5 },
 } as const;
 
@@ -175,6 +176,9 @@ function scorePage(page: SearchPage, words: readonly string[]): SearchHit | null
       best = Math.max(best, match.score);
     }
 
+    const described = fieldMatch(page.description, word, WEIGHT.description);
+    if (described) best = Math.max(best, described.score);
+
     const body = fieldMatch(page.text, word, WEIGHT.body);
     if (body) best = Math.max(best, body.score);
 
@@ -183,16 +187,22 @@ function scorePage(page: SearchPage, words: readonly string[]): SearchHit | null
   }
 
   const bodyAt = clusterAt(page.text, words);
+  const descriptionAt = clusterAt(page.description, words);
 
-  // The section to show: where the words cluster in the body, else the heading that matched, else the top of the page.
+  // The section to show: where the words cluster in the body, else the heading that matched, else the
+  // description, else the top of the page.
   let position = 0;
   let section: SearchPage["headings"][number] | undefined;
+  let source = page.text;
   if (bodyAt !== undefined) {
     position = bodyAt;
     section = sectionAt(page, bodyAt);
   } else if (bestHeading) {
     section = bestHeading.section;
     position = section.offset;
+  } else if (descriptionAt !== undefined) {
+    position = descriptionAt;
+    source = page.description;
   }
 
   return {
@@ -201,7 +211,7 @@ function scorePage(page: SearchPage, words: readonly string[]): SearchHit | null
     collection: page.collection,
     heading: section?.text ?? "",
     anchor: section?.id ?? "",
-    snippet: snippetAround(page.text, position, words),
+    snippet: snippetAround(source, position, words),
     score,
   };
 }
