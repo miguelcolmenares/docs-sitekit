@@ -24,7 +24,7 @@ export interface SourceFile {
 }
 
 /** The frontmatter keys the kit reads. Any other key is reported by `check`. */
-export const KNOWN_FRONTMATTER_KEYS = ["title", "description", "order"] as const;
+export const KNOWN_FRONTMATTER_KEYS = ["title", "description", "order", "tags"] as const;
 
 /** A page of the site. */
 export interface Document {

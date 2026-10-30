@@ -175,7 +175,7 @@ describe("validateContent: frontmatter", () => {
     const found = run([withMatter("\ntitle: A\ntitel: B\n", { title: "A", titel: "B" })]);
     expect(summary(found)).toEqual(["docs/a.md:3 warning frontmatter"]);
     expect(found[0]!.message).toBe(
-      'Frontmatter key "titel" is not one the kit reads (title, description, order). Did you mean "title"?',
+      'Frontmatter key "titel" is not one the kit reads (title, description, order, tags). Did you mean "title"?',
     );
   });
 

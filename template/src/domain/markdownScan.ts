@@ -50,7 +50,7 @@ export function proseLines(markdown: string): ProseLine[] {
 
 /**
  * Split one line into prose and code spans. A span opens with a run of backticks and closes at the next
- * run of the same length, so ``` `` a ` b `` ``` is one span. A run with no partner is plain text.
+ * run of the same length, so a span written with two backticks can hold a single backtick. A run with no partner is plain text.
  */
 export function splitInlineCode(line: string): InlinePart[] {
   const parts: InlinePart[] = [];
@@ -93,7 +93,7 @@ export function splitInlineCode(line: string): InlinePart[] {
 
 /**
  * The line with every code span replaced by the same number of `\u0000` characters. A link whose label
- * holds code, like ``[`run`](./cli.md)``, can still be read, a link written inside code cannot, and
+ * holds code, such as one with a code word in its text, can still be read, a link written inside code cannot, and
  * every other character keeps its position.
  */
 export function maskInlineCode(line: string): string {
