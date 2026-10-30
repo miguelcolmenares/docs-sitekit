@@ -3,6 +3,7 @@ import "../../styles/global.css";
 import { loadSite } from "../../infrastructure";
 import { SiteFooter } from "../components/site/SiteFooter";
 import SiteHeader from "../components/site/SiteHeader.astro";
+import tokens from "../../../design/tokens.json";
 
 interface Props {
   title?: string;
@@ -14,6 +15,12 @@ const { config, href } = site;
 const { title, description = config.site.description } = Astro.props;
 const pageTitle = title ? `${title} · ${config.site.name}` : `${config.site.name}: ${config.site.description}`;
 const canonical = new URL(Astro.url.pathname, config.site.url).toString();
+
+// The theme a page is drawn with before any script runs. `system` has no answer until a script reads the OS
+// preference, so the page then has no attribute and the CSS media query picks the light set.
+const themeDefault = config.theme.default;
+const startTheme = themeDefault === "system" ? undefined : themeDefault;
+const themeColors = { dark: tokens.color.bg, light: tokens.themes.light.color.bg };
 
 const has = (collection: string) => site.documents.some((document) => document.collection === collection);
 // One menu entry per collection that has pages, in the order of the config, then the changelog.
@@ -39,13 +46,13 @@ const columns = [
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en" data-theme={startTheme}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#09090b" />
+    <meta name="theme-color" content={themeColors[startTheme ?? "dark"]} />
     <link rel="canonical" href={canonical} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
@@ -55,12 +62,51 @@ const columns = [
     <meta name="twitter:card" content="summary" />
     <link rel="icon" href={href("favicon.svg")} type="image/svg+xml" />
     <link rel="sitemap" href={href("sitemap-index.xml")} />
+    <!-- Runs before the first paint: picks the theme from the saved choice, the default, or the OS (for system). -->
+    <script is:inline define:vars={{ defaultTheme: themeDefault, colors: themeColors }}>
+      (function () {
+        var root = document.documentElement;
+        var query = window.matchMedia("(prefers-color-scheme: light)");
+        var chosen = null;
+        function stored() {
+          try {
+            var value = localStorage.getItem("theme");
+            return value === "light" || value === "dark" ? value : null;
+          } catch (error) {
+            return null;
+          }
+        }
+        function apply() {
+          var theme =
+            chosen ||
+            stored() ||
+            (defaultTheme === "system" ? (query.matches ? "light" : "dark") : defaultTheme);
+          root.dataset.theme = theme;
+          root.style.colorScheme = theme;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", colors[theme]);
+          window.dispatchEvent(new Event("themechange"));
+        }
+        // The header switch asks for a theme. The choice is kept for this page even if storage is blocked.
+        window.addEventListener("sitekit:theme", function (event) {
+          chosen = event.detail;
+          try {
+            localStorage.setItem("theme", chosen);
+          } catch (error) {
+            // Storage is blocked: the choice still holds for this page.
+          }
+          apply();
+        });
+        apply();
+        query.addEventListener("change", apply);
+      })();
+    </script>
   </head>
   <body>
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground">
       Skip to content
     </a>
-    <SiteHeader name={config.site.name} home={href("")} links={nav} repositoryUrl={config.site.repository} action={action} current={Astro.url.pathname} />
+    <SiteHeader name={config.site.name} home={href("")} links={nav} repositoryUrl={config.site.repository} action={action} current={Astro.url.pathname} themeDefault={themeDefault} />
     <main id="main">
       <slot />
     </main>

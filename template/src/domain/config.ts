@@ -68,6 +68,13 @@ export const siteConfigSchema = z
     features: z.array(feature).default([]),
     nav: z.array(link).default([]),
     footer: z.strictObject({ links: z.array(link).default([]) }).default({ links: [] }),
+    /** The color theme a visitor sees first. A visitor's own choice, saved in the browser, wins over it. */
+    theme: z
+      .strictObject({
+        /** `dark` (the default), `light`, or `system`, which follows the operating system. */
+        default: z.enum(["dark", "light", "system"]).default("dark"),
+      })
+      .default({ default: "dark" }),
     /** Where the repository is, relative to the site folder, and its changelog. */
     sources: z
       .strictObject({
@@ -123,6 +130,8 @@ export type SiteConfig = z.infer<typeof siteConfigSchema>;
 export type CollectionConfig = z.infer<typeof collection>;
 /** A labelled link, used in the navigation and the footer. */
 export type NavLink = z.infer<typeof link>;
+/** The color theme a site starts with. */
+export type ThemeDefault = SiteConfig["theme"]["default"];
 /** One card of the home page features section. */
 export type Feature = z.infer<typeof feature>;
 

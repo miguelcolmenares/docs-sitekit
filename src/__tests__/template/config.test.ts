@@ -5,6 +5,28 @@ const valid = {
   hero: { title: "Demo", lede: "Lede", primary: { label: "Start", href: "/docs/" } },
 };
 
+describe("parseSiteConfig theme", () => {
+  it("starts dark when the config has no theme key, so existing sites do not change", () => {
+    expect(parseSiteConfig(valid).theme.default).toBe("dark");
+  });
+
+  it.each(["dark", "light", "system"])("accepts %s as the default theme", (value) => {
+    expect(parseSiteConfig({ ...valid, theme: { default: value } }).theme.default).toBe(value);
+  });
+
+  it("names the key when the default theme is not one of the three", () => {
+    expect(() => parseSiteConfig({ ...valid, theme: { default: "sepia" } })).toThrow(
+      /theme\.default/,
+    );
+  });
+
+  it("rejects a key under theme that is not declared", () => {
+    expect(() => parseSiteConfig({ ...valid, theme: { default: "light", accent: "red" } })).toThrow(
+      /accent/,
+    );
+  });
+});
+
 describe("parseSiteConfig", () => {
   it("accepts a minimal config and fills the defaults", () => {
     const config = parseSiteConfig(valid);
