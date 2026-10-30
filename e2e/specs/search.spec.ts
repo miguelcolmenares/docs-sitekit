@@ -193,7 +193,9 @@ for (const phone of PHONES) {
     test("each result row is at least 44 px high", async ({ page }) => {
       await page.goto(`${BASE}docs/getting-started/`);
       await trigger(page).tap();
+      await expect(dialog(page)).toBeVisible();
       await page.keyboard.type("widget");
+      await expect(page.locator("[data-search-status]")).toHaveText(/result/);
       const heights = await page
         .locator("[role=option]")
         .evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().height));
@@ -224,10 +226,15 @@ test.describe("loading", () => {
     expect(seen.filter((url) => url.includes("searchDialog"))).toHaveLength(1);
   });
 
-  test("the first focus of the button loads it, before any click", async ({ page }) => {
+  test("the first focus of the button loads the code, and the index waits for the open", async ({
+    page,
+  }) => {
     const seen = searchRequests(page);
     await page.goto(`${BASE}docs/getting-started/`, { waitUntil: "networkidle" });
     await trigger(page).focus();
+    await expect.poll(() => seen.some((url) => url.includes("searchDialog"))).toBe(true);
+    expect(seen.some((url) => url.endsWith("search-index.json"))).toBe(false);
+    await trigger(page).click();
     await expect.poll(() => seen.some((url) => url.endsWith("search-index.json"))).toBe(true);
   });
 
