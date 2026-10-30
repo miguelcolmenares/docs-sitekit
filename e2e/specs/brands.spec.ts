@@ -77,9 +77,10 @@ test.describe("brand logos on the desktop", () => {
   test("the footer repository link has the logo too", async ({ page }) => {
     await page.goto(BASE);
     const link = page.locator("footer nav a", { hasText: "GitHub" });
-    await expect(link.locator("svg")).toHaveCount(1);
-    await expect(link.locator("svg")).toHaveAttribute("aria-hidden", "true");
-    await expect(link.locator("svg")).toHaveAttribute("fill", "currentColor");
+    // The other svg of the link is the arrow of an external link, which is not filled.
+    const logo = link.locator('svg[fill="currentColor"]');
+    await expect(logo).toHaveCount(1);
+    await expect(logo).toHaveAttribute("aria-hidden", "true");
   });
 
   test("a feature with brand:github draws the logo inline", async ({ page }) => {
@@ -171,7 +172,7 @@ for (const phone of PHONES) {
       const link = page.locator("footer nav a", { hasText: "GitHub" });
       const box = (await link.boundingBox())!;
       expect(box.height).toBeGreaterThanOrEqual(44);
-      await expect(link.locator("svg")).toBeVisible();
+      await expect(link.locator('svg[fill="currentColor"]')).toBeVisible();
     });
   });
 }
