@@ -13,6 +13,12 @@ const feature = z.strictObject({
   text: z.string().min(1),
 });
 
+const stat = z.strictObject({
+  value: z.string().min(1),
+  label: z.string().min(1),
+  note: z.string().min(1).optional(),
+});
+
 const tone = z.enum(["neutral", "brand", "success", "warn"]);
 
 const group = z.strictObject({
@@ -66,6 +72,13 @@ export const siteConfigSchema = z
       secondary: link.optional(),
     }),
     features: z.array(feature).default([]),
+    /** Two to five numbers under the hero, each with a label. Written by hand: the kit fetches nothing. */
+    stats: z
+      .array(stat)
+      .refine((stats) => stats.length === 0 || (stats.length >= 2 && stats.length <= 5), {
+        message: "stats takes two to five items, or none",
+      })
+      .default([]),
     nav: z.array(link).default([]),
     footer: z.strictObject({ links: z.array(link).default([]) }).default({ links: [] }),
     /** The color theme a visitor sees first. A visitor's own choice, saved in the browser, wins over it. */
@@ -160,6 +173,8 @@ export type NavLink = z.infer<typeof link>;
 export type ThemeDefault = SiteConfig["theme"]["default"];
 /** One card of the home page features section. */
 export type Feature = z.infer<typeof feature>;
+/** One number of the home page stat row. */
+export type Stat = z.infer<typeof stat>;
 
 /** Validate a parsed `sitekit.config.json`. Throws a readable error listing every problem. */
 export function parseSiteConfig(input: unknown): SiteConfig {

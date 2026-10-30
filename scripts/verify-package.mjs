@@ -357,6 +357,13 @@ config.deploy.repositoryVisibility = "public";
 config.anonymize.excludePaths = ["docs/internal/**"];
 // The generated site writes llms.txt and a Markdown copy of each page, so the check and the e2e spec cover them.
 config.llms = { enabled: true, optional: ["examples"], markdownPages: true };
+// The home page shows a stat row, so the e2e measures it. One value is long on purpose: it must wrap.
+config.stats = [
+  { value: "1.2k", label: "Downloads", note: "Last 30 days" },
+  { value: "v1.2.3", label: "Version" },
+  { value: "22.23.4+", label: "Node", note: "To build the site" },
+  { value: "9".repeat(48), label: "A very long value", note: "It wraps inside its card" },
+];
 config.collections[0].groups = [
   { name: "Start", tone: "brand", items: ["overview", "getting-started"] },
   { name: "Use", tone: "success", items: ["guide", "callouts"] },
@@ -469,6 +476,13 @@ check("relative links were rewritten, and code was left alone", () => {
   );
   assert(html.includes("./nope.md"), "a missing target should stay as written");
   assert(html.includes("[guide](./guide.md)"), "link text inside code was changed");
+});
+check("the stat row is a description list on the home page, one term per stat", () => {
+  const home = read("index.html");
+  const list = /<dl\b[^>]*>([\s\S]*?)<\/dl>/.exec(home);
+  assert(list, "the home page has no <dl>");
+  assert((list[1].match(/<dt\b/g) ?? []).length === 4, "the <dl> does not have four terms");
+  assert(list[1].includes("Downloads") && list[1].includes("Last 30 days"), "a stat is missing");
 });
 check("404.html is the not-found page, not a copy of index.html", () => {
   assert(read("404.html") !== read("index.html"), "404.html equals index.html");

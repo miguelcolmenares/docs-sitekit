@@ -170,3 +170,42 @@ describe("parseSiteConfig search", () => {
     expect(() => parseSiteConfig({ ...valid, search: { enabled: "yes" } })).toThrow(/enabled/);
   });
 });
+
+describe("parseSiteConfig stats", () => {
+  const stat = (n: number) => ({ value: String(n), label: `Label ${n}` });
+  const stats = (count: number) => Array.from({ length: count }, (_, index) => stat(index + 1));
+
+  it("has no stats when the key is missing, so existing sites do not change", () => {
+    expect(parseSiteConfig(valid).stats).toEqual([]);
+  });
+
+  it.each([2, 3, 4, 5])("accepts %i stats, with an optional note", (count) => {
+    const input = stats(count);
+    input[0] = { ...input[0]!, note: "A note" } as (typeof input)[number];
+    expect(parseSiteConfig({ ...valid, stats: input }).stats).toEqual(input);
+  });
+
+  it.each([1, 6])("rejects %i stats and says how many are allowed", (count) => {
+    expect(() => parseSiteConfig({ ...valid, stats: stats(count) })).toThrow(
+      /stats: stats takes two to five items, or none/,
+    );
+  });
+
+  it("names the key when a stat has no label or an empty value", () => {
+    expect(() =>
+      parseSiteConfig({ ...valid, stats: [{ value: "1" }, { value: "", label: "x" }] }),
+    ).toThrow(/stats\.0\.label[\s\S]*stats\.1\.value/);
+  });
+
+  it("rejects a key under a stat that is not declared", () => {
+    expect(() =>
+      parseSiteConfig({
+        ...valid,
+        stats: [
+          { value: "1", label: "a", color: "red" },
+          { value: "2", label: "b" },
+        ],
+      }),
+    ).toThrow(/color/);
+  });
+});

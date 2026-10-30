@@ -5,6 +5,7 @@ import { FeatureGrid } from "../presentation/components/site/FeatureGrid";
 import Hero from "../presentation/components/site/Hero.astro";
 import { CardGrid, ItemCard } from "../presentation/components/site/ItemCard";
 import { SectionHeader } from "../presentation/components/site/SectionHeader";
+import { StatRow } from "../presentation/components/site/StatRow";
 import BaseLayout from "../presentation/layouts/BaseLayout.astro";
 
 const site = loadSite();
@@ -30,6 +31,14 @@ const resolve = (link: { label: string; href: string }) => ({ ...link, href: lin
     primary={resolve(config.hero.primary)}
     secondary={config.hero.secondary && resolve(config.hero.secondary)}
   />
+
+  {
+    config.stats.length > 0 && (
+      <section data-stats class="mx-auto max-w-site px-5 pt-14">
+        <StatRow stats={config.stats} />
+      </section>
+    )
+  }
 
   {
     config.features.length > 0 && (

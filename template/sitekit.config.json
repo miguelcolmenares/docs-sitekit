@@ -21,6 +21,16 @@
       "href": "/docs/components/"
     }
   },
+  "stats": [
+    { "value": "2", "label": "Themes", "note": "Dark and light, with a switch in the header." },
+    { "value": "3", "label": "Phone widths tested", "note": "320, 360 and 390 px, plus desktop." },
+    {
+      "value": "4",
+      "label": "Layers",
+      "note": "Domain, application, infrastructure and presentation."
+    },
+    { "value": "MIT", "label": "License", "note": "Written from scratch." }
+  ],
   "features": [
     {
       "icon": "layers",

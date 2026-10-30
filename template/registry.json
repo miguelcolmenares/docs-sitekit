@@ -75,6 +75,11 @@
       "files": ["src/presentation/components/site/FeatureGrid.tsx"],
       "requires": ["icon"]
     },
+    "stat-row": {
+      "description": "Two to five numbers, each with a label and a note.",
+      "files": ["src/presentation/components/site/StatRow.tsx"],
+      "requires": []
+    },
     "flow-diagram": {
       "description": "Steps in a row that stack on small screens.",
       "files": ["src/presentation/components/site/FlowDiagram.tsx"],

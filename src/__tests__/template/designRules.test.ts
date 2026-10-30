@@ -63,6 +63,19 @@ describe("design rules, enforced", () => {
     expect(offenders.map(name)).toEqual([]);
   });
 
+  it("grids have explicit tracks: no auto-fit or auto-fill in site components", () => {
+    const offenders = siteFiles.filter((file) =>
+      /grid-cols-\[[^\]]*auto-(fit|fill)|repeat\(\s*auto-(fit|fill)/.test(read(file)),
+    );
+    expect(offenders.map(name)).toEqual([]);
+  });
+
+  it("the stat row is a description list, and it chooses no status color", () => {
+    const source = read(join(SRC, "presentation", "components", "site", "StatRow.tsx"));
+    expect(source).toMatch(/<dl\b/);
+    expect(source).not.toMatch(/\b(text|bg|border)-(success|warn|danger|destructive)\b/);
+  });
+
   it("interactive controls are sized for touch: no h-6 or smaller buttons in site components", () => {
     const offenders = siteFiles.filter((file) =>
       /<button[^>]*className="[^"]*\b(size|h)-(4|5|6)\b/.test(read(file)),
