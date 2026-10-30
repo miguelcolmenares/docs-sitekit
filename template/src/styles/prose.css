@@ -94,6 +94,25 @@
   padding: 0;
   color: inherit;
 }
+/* Highlighted tokens take their color from the Shiki variable of the active theme. */
+.prose-site pre code span {
+  color: var(--shiki-dark);
+  font-style: var(--shiki-dark-font-style, normal);
+  font-weight: var(--shiki-dark-font-weight, normal);
+}
+:root[data-theme="light"] .prose-site pre code span {
+  color: var(--shiki-light);
+  font-style: var(--shiki-light-font-style, normal);
+  font-weight: var(--shiki-light-font-weight, normal);
+}
+/* A page without the attribute (no JavaScript, theme.default "system") follows the OS. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .prose-site pre code span {
+    color: var(--shiki-light);
+    font-style: var(--shiki-light-font-style, normal);
+    font-weight: var(--shiki-light-font-weight, normal);
+  }
+}
 .prose-site blockquote {
   border-left: 2px solid var(--sk-accent-strong);
   padding: 0.25rem 1rem;

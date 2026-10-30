@@ -1,5 +1,5 @@
 name: Feature request
-description: Something sitekit should do, or a component it should have.
+description: Something docs-sitekit should do, or a component it should have.
 labels: [enhancement]
 body:
   - type: textarea

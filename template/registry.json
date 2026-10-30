@@ -103,7 +103,7 @@
     "site-header": {
       "description": "Sticky translucent header.",
       "files": ["src/presentation/components/site/SiteHeader.astro"],
-      "requires": ["button", "mobile-menu"]
+      "requires": ["button", "icon", "mobile-menu"]
     },
     "hero": {
       "description": "Badge, headline, lede, command and actions.",

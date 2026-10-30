@@ -11,7 +11,7 @@
   "hero": {
     "badge": "Astro \u00b7 Tailwind \u00b7 shadcn/ui \u00b7 lucide",
     "title": "Documentation sites that look like a product.",
-    "lede": "A dark design system, a content pipeline that reads your repository, and a scaffold that publishes to GitHub Pages. MIT licensed.",
+    "lede": "A design system with a light and a dark theme, a content pipeline that reads your repository, and a scaffold that publishes to GitHub Pages. MIT licensed.",
     "primary": {
       "label": "Get started",
       "href": "/docs/getting-started/"
@@ -44,7 +44,7 @@
       "icon": "zap",
       "eyebrow": "Fast by default",
       "title": "Static HTML, almost no JavaScript",
-      "text": "Every route is a real HTML file with its own title. Only the copy buttons and the mobile menu ship JavaScript."
+      "text": "Every route is a real HTML file with its own title. Only the copy buttons, the mobile menu and search (loaded on demand) ship JavaScript."
     }
   ],
   "sources": {
@@ -71,7 +71,7 @@
         {
           "name": "Content",
           "tone": "success",
-          "items": ["content", "deploying", "llms"]
+          "items": ["content", "deploying", "search", "llms"]
         }
       ]
     },
@@ -82,6 +82,9 @@
       "lede": "Working examples you can copy and adapt."
     }
   ],
+  "search": {
+    "enabled": true
+  },
   "deploy": {
     "target": "github-pages",
     "acknowledgePublicPages": false,

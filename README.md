@@ -1,6 +1,6 @@
 # docs-sitekit
 
-Documentation sites that look like a product, published to GitHub Pages. A dark design system, a content
+Documentation sites that look like a product, published to GitHub Pages. A design system with a light and a dark theme, a content
 pipeline that reads your repository, and a scaffold you run once with `npx`.
 
 - **Design system**: tokens and components built on Astro, Tailwind, shadcn/ui and lucide-react. The components are
@@ -11,7 +11,7 @@ pipeline that reads your repository, and a scaffold you run once with `npx`.
 - **Safe to publish**: a closed config contract, and a check that scans the content and the built files for
   credentials and internal hosts, and for a private repository whose Pages site would be public.
 - **No token, no private registry**: a generated site builds with public packages only, and does not depend on this CLI.
-- **Static and fast**: every route is a real HTML file with its own title. Only the copy buttons and the mobile menu ship JavaScript.
+- **Static and fast**: every route is a real HTML file with its own title. Only the copy buttons, the mobile menu and search (loaded on demand) ship JavaScript.
 - MIT licensed.
 
 ## Start
@@ -45,7 +45,7 @@ rebuild the site on every release.
 - uses: actions/checkout@v7
 - uses: miguelcolmenares/docs-sitekit@v0.1.1
   with:
-    version: 0.1.1 # the sitekit CLI that runs `check`
+    version: 0.1.1 # the docs-sitekit CLI that runs `check`
 ```
 
 The action installs the site, builds it, runs `sitekit check` on the result, and uploads it as the GitHub Pages artifact. **Deploying stays in
@@ -132,6 +132,10 @@ HTML and code are skipped). `order: 1` in the frontmatter moves a page up.
 With the `llms` key in `sitekit.config.json`, the site also writes an `llms.txt` map of its pages and a Markdown copy of each
 one, for assistants and developer tools. It is a community proposal, not a search feature: Google Search does not use it.
 See [docs/llms.md](docs/llms.md).
+
+## Theme
+
+The site is dark by default. A header switch lets the visitor pick the light theme, and the choice is remembered in the browser. Set `theme.default` in `sitekit.config.json` to `light`, or to `system` to follow the operating system, to change the first view. A site generated before this option was added keeps its own tokens file and has no light set, so it stays dark until it adds one (see `design/tokens.json` in the site).
 
 ## Documentation
 

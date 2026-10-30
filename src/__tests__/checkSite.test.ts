@@ -12,6 +12,7 @@ const config = (
   anonymize: Record<string, unknown> = {},
   llms: Record<string, unknown> = {},
   base = "/",
+  search: boolean = true,
 ) =>
   parseSiteConfig({
     site: {
@@ -25,6 +26,7 @@ const config = (
     deploy,
     anonymize,
     llms,
+    search: { enabled: search },
   });
 
 const doc = (path: string, content: string): SourceFile => ({
@@ -44,6 +46,8 @@ function run(options: {
   base?: string;
   visibility?: "public" | "private" | "internal" | "unknown";
   dist?: Record<string, string>;
+  search?: boolean;
+  routes?: string[];
 }) {
   const fs = new MemoryFileSystem(
     options.dist
@@ -54,9 +58,16 @@ function run(options: {
     fs,
     env: fakeEnv({ visibility: options.visibility ?? "public" }),
     loadContent: () => ({
-      config: config(options.deploy, options.anonymize, options.llms, options.base),
+      config: config(
+        options.deploy,
+        options.anonymize,
+        options.llms,
+        options.base,
+        options.search ?? true,
+      ),
       files: options.files ?? [doc("docs/a.md", "# A\n\nFine.")],
       documents: options.documents ?? [],
+      routes: options.routes ?? ["/docs/a/"],
     }),
   };
   return checkSite(deps, { root: ROOT, siteDir: "site", dist: options.dist ? "/dist" : undefined });
@@ -64,10 +75,16 @@ function run(options: {
 
 const page = (title = "Home") =>
   `<html lang="en"><head><title>${title}</title></head><body>${title}</body></html>`;
+const indexOf = (urls: string[], text = "Fine.") =>
+  JSON.stringify({
+    collections: { docs: "Docs" },
+    pages: urls.map((url) => ({ url, title: "A", collection: "docs", headings: [], text })),
+  });
 const goodDist = {
   "index.html": page("Home"),
   "404.html": page("Not found"),
   "docs/a/index.html": page("A"),
+  "search-index.json": indexOf(["/docs/a/"]),
 };
 
 describe("checkSite content", () => {
@@ -140,7 +157,7 @@ describe("checkSite built output", () => {
       {
         fs,
         env: fakeEnv(),
-        loadContent: () => ({ config: config(), files: [], documents: [] }),
+        loadContent: () => ({ config: config(), files: [], documents: [], routes: [] }),
       },
       { root: ROOT, siteDir: "site", dist: "/nope" },
     );
@@ -251,6 +268,7 @@ describe("checkSite llms.txt", () => {
       run({
         dist,
         llms: llmsOn,
+        search: false,
         base: "/widget/",
         documents: [pageOf("docs/a.md", "/widget/docs/a/", "A")],
       }).errors,
@@ -258,6 +276,7 @@ describe("checkSite llms.txt", () => {
     const outside = run({
       dist: { ...goodDist, "llms.txt": llmsText(goodLink) },
       llms: llmsOn,
+      search: false,
       base: "/widget/",
       documents: [pageOf("docs/a.md", "/widget/docs/a/", "A")],
     });
@@ -307,5 +326,62 @@ describe("checkSite llms.txt", () => {
       documents: [pageOf("docs/a.md", "/docs/a/", "A")],
     });
     expect(report.errors.join("\n")).toMatch(/dist\/docs\/a\/index\.html\.md: aws-access-key/);
+  });
+});
+
+describe("checkSite search index", () => {
+  it("fails when search is on and the build has no index, and says so", () => {
+    const withoutIndex = Object.fromEntries(
+      Object.entries(goodDist).filter(([path]) => path !== "search-index.json"),
+    );
+    expect(run({ dist: withoutIndex }).errors.join()).toMatch(
+      /dist\/search-index\.json is missing/,
+    );
+  });
+
+  it("does not ask for an index when search is off", () => {
+    const withoutIndex = Object.fromEntries(
+      Object.entries(goodDist).filter(([path]) => path !== "search-index.json"),
+    );
+    expect(run({ dist: withoutIndex, search: false }).errors).toEqual([]);
+  });
+
+  it("names a page that has no entry in the index", () => {
+    const report = run({
+      dist: { ...goodDist, "docs/b/index.html": page("B") },
+      routes: ["/docs/a/", "/docs/b/"],
+    });
+    expect(report.errors.join()).toMatch(/no entry for the page \/docs\/b\//);
+  });
+
+  it("names an entry that is not a page, and an entry whose page was not built", () => {
+    expect(
+      run({
+        dist: { ...goodDist, "search-index.json": indexOf(["/docs/a/", "/docs/gone/"]) },
+      }).errors.join(),
+    ).toMatch(/lists \/docs\/gone\/, which is not a page/);
+    expect(
+      run({
+        dist: { ...goodDist, "search-index.json": indexOf(["/docs/a/", "/docs/c/"]) },
+        routes: ["/docs/a/", "/docs/c/"],
+      }).errors.join(),
+    ).toMatch(/\/docs\/c\/ is in the search index, but it was not built/);
+  });
+
+  it("fails an index that is not JSON, or has no pages list", () => {
+    expect(run({ dist: { ...goodDist, "search-index.json": "{" } }).errors.join()).toMatch(
+      /not a search index/,
+    );
+    expect(run({ dist: { ...goodDist, "search-index.json": "{}" } }).errors.join()).toMatch(
+      /not a search index/,
+    );
+  });
+
+  it("scans the index like any built file, so a credential in a page body is found there", () => {
+    const report = run({
+      dist: { ...goodDist, "search-index.json": indexOf(["/docs/a/"], `key ${awsKey}`) },
+    });
+    expect(report.errors.join("\n")).toMatch(/dist\/search-index\.json: aws-access-key/);
+    expect(report.errors.join("\n")).not.toContain(awsKey);
   });
 });

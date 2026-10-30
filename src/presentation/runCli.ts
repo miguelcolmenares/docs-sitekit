@@ -17,7 +17,7 @@ export interface CliIo {
   templateRoot: string;
 }
 
-const HELP = `sitekit: documentation sites for GitHub Pages
+const HELP = `docs-sitekit: documentation sites for GitHub Pages
 
 Usage
   sitekit init    [--dir site] [--name <text>] [--description <text>] [--force] [--dry-run]
@@ -86,12 +86,17 @@ export function runCli(argv: string[], io: CliIo): number {
             loadContent: (siteAbs) => {
               const config = loadSiteConfig(siteAbs);
               const { files } = readSources(siteAbs, config);
-              // Builds the pages: two files on one route, or a page in no group, throw here.
+              // Builds the pages only to validate them: two files on one route, or a page in no group, throw here.
               const documents = buildDocuments(files, {
                 base: config.site.base,
                 collections: config.collections,
               });
-              return { config, files, documents };
+              return {
+                config,
+                files,
+                documents,
+                routes: documents.map((document) => document.route),
+              };
             },
           },
           { root, siteDir, dist: values.dist ? resolve(io.cwd, values.dist) : undefined },

@@ -39,6 +39,14 @@ describe("initSite", () => {
     );
   });
 
+  it("writes the search key, on, so a new site has search and says so in its config", () => {
+    const { fs, run } = setup();
+    run();
+    expect(JSON.parse(fs.readText(`${ROOT}/site/sitekit.config.json`)).search).toEqual({
+      enabled: true,
+    });
+  });
+
   it("derives the config from the repository", () => {
     const { fs, run } = setup();
     const { config } = run();

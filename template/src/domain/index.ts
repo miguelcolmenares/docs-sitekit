@@ -7,3 +7,4 @@ export * from "./glob";
 export * from "./groups";
 export * from "./llms";
 export * from "./markdownPage";
+export * from "./search";

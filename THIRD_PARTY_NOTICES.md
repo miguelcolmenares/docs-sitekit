@@ -1,6 +1,6 @@
 # Third-party notices
 
-sitekit is MIT licensed. Parts of the template are built on the work of others, listed here with what they are used for and under which license.
+docs-sitekit is MIT licensed. Parts of the template are built on the work of others, listed here with what they are used for and under which license.
 
 ## Code that is copied into this repository
 
