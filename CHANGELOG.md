@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The default accent is the VS Code blue**: `accent` `#4fc1ff`, `accent-strong` `#007acc` and `accent-contrast` `#ffffff`, in place of the purple. A site generated with `init` takes the blue from the kit it is generated with. A site generated earlier keeps its own `design/tokens.json`, so it stays purple until its owner changes that file.
+
 ## [0.1.1] - 2026-10-28
 
 ### Fixed
