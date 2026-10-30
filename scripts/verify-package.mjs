@@ -306,6 +306,8 @@ const configPath = join(SITE, "sitekit.config.json");
 const config = JSON.parse(readFileSync(configPath, "utf8"));
 config.deploy.repositoryVisibility = "public";
 config.anonymize.excludePaths = ["docs/internal/**"];
+// The generated site writes llms.txt and a Markdown copy of each page, so the check and the e2e spec cover them.
+config.llms = { enabled: true, optional: ["examples"], markdownPages: true };
 config.collections[0].groups = [
   { name: "Start", tone: "brand", items: ["overview", "getting-started"] },
   { name: "Use", tone: "success", items: ["guide"] },

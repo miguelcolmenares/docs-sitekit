@@ -129,6 +129,10 @@ A source that does not exist makes no page and no menu entry. The title is the f
 else the file name. The description is the frontmatter `description`, else the first paragraph of prose (badges, tables, quotes,
 HTML and code are skipped). `order: 1` in the frontmatter moves a page up.
 
+With the `llms` key in `sitekit.config.json`, the site also writes an `llms.txt` map of its pages and a Markdown copy of each
+one, for assistants and developer tools. It is a community proposal, not a search feature: Google Search does not use it.
+See [docs/llms.md](docs/llms.md).
+
 ## Documentation
 
 The documentation site is built with this kit. Read it under `docs/`: getting started, components, design tokens, content, deploying.

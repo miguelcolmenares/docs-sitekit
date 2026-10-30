@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **An `llms` key for `llms.txt`.** With `enabled`, the site writes `llms.txt` at its base: an H1 with the name, the description, one H2 per collection with absolute links and descriptions, and `## Optional` for the collections listed in `optional`. With `markdownPages`, each page also has a Markdown copy at its address with `index.html.md` after it, and the page links to it. `sitekit init` turns it on for a new site, and a site without the key does not change. It is a community proposal, not a search feature. See `docs/llms.md`.
+- `sitekit check` verifies `llms.txt` when it is on: the H1, every link, every page listed, the Markdown copies, and the credential and internal host scan.
+
 ## [0.1.1] - 2026-10-28
 
 ### Fixed
