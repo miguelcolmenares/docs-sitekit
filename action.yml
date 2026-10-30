@@ -1,5 +1,5 @@
-name: "sitekit docs build"
-description: "Install, build and check a sitekit documentation site, then upload it as the GitHub Pages artifact."
+name: "docs-sitekit docs build"
+description: "Install, build and check a docs-sitekit documentation site, then upload it as the GitHub Pages artifact."
 author: "Miguel Colmenares"
 
 branding:

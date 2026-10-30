@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The name of the tool is `docs-sitekit` everywhere a reader sees it.** The footer of every generated site said "Built with sitekit", and the Action address, its name, the issue forms, the contributing steps and the help text used the old name. The `sitekit` command and the file names do not change. A test reads these texts and fails on the old name. The Action address in the 0.1.0 notes is corrected too.
+
 ## [0.1.1] - 2026-10-28
 
 ### Fixed
@@ -22,7 +26,7 @@ First release. The package is `docs-sitekit` and the action is `miguelcolmenares
 
 - `sitekit init`, `check`, `list` and `add`. `init` reads `package.json` and the git remote, finds `docs/`, `docs/tutorials/`, `docs/examples/` and `examples/`, writes the site and a GitHub Pages workflow, and refuses a folder that already has files.
 - **Collections and groups.** A site has any number of collections (Docs, Tutorials, Examples). A page belongs to the collection with the deepest folder, so `docs/tutorials/` can sit inside `docs/`. Pages can be put in groups with a tone, and a page that is in no group, or a group that names a page that does not exist, fails the build instead of being skipped.
-- **A reusable GitHub Action** (`miguelcolmenares/sitekit`) that installs, builds and checks a site and uploads it as the Pages artifact. The workflow `init` writes uses it and rebuilds the site when a release is published. Deploying stays in a separate job.
+- **A reusable GitHub Action** (`miguelcolmenares/docs-sitekit`) that installs, builds and checks a site and uploads it as the Pages artifact. The workflow `init` writes uses it and rebuilds the site when a release is published. Deploying stays in a separate job.
 - A dark design system on Astro, Tailwind, shadcn/ui and lucide-react: tokens, header, hero, section headers, cards, feature grid, flow diagram, command table, callouts, footer, doc layout with table of contents, and copy buttons. Tokens come from one file, and contrast is tested on them.
 - A content pipeline that turns markdown into pages, derives titles and descriptions without being fooled by badges, tables or code fences, rewrites relative links, and fails on two files that would get the same route.
 - The version in the footer is read from the repository's `package.json` on every build, so a site rebuilt for a release shows the release.

@@ -17,7 +17,7 @@ export interface CliIo {
   templateRoot: string;
 }
 
-const HELP = `sitekit: documentation sites for GitHub Pages
+const HELP = `docs-sitekit: documentation sites for GitHub Pages
 
 Usage
   sitekit init    [--dir site] [--name <text>] [--description <text>] [--force] [--dry-run]

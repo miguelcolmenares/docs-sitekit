@@ -18,7 +18,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: sitekit version
+      label: docs-sitekit version
       placeholder: "0.1.0"
     validations:
       required: true
