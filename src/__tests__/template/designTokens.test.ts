@@ -51,6 +51,12 @@ describe("design tokens, WCAG contrast", () => {
     expect(contrast(tokens.color.bg!, tokens.color["fg-bright"]!)).toBeGreaterThanOrEqual(4.5);
   });
 
+  it("the text on the strong accent (accent-contrast on accent-strong) reaches 4.5:1", () => {
+    expect(
+      contrast(tokens.color["accent-contrast"]!, tokens.color["accent-strong"]!),
+    ).toBeGreaterThanOrEqual(4.5);
+  });
+
   it("the focus ring color reaches 3:1 on every ground, as a non-text indicator", () => {
     for (const ground of GROUNDS)
       expect(
