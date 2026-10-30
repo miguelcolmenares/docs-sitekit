@@ -32,6 +32,7 @@ export function getStaticPaths() {
   return paths;
 }
 
+/** Serves the text that `getStaticPaths` prepared for this file, as plain text. */
 export function GET({ props }: { props: { body: string } }) {
   return new Response(props.body, {
     headers: { "Content-Type": "text/plain; charset=utf-8" },
