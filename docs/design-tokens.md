@@ -24,9 +24,21 @@ The site has two color sets with the same names: the dark set is the top-level `
 
 The header has a switch. A visitor's choice is saved in the browser under the `theme` key and wins over the default on every page. A script in the head applies the theme before the first paint, so there is no flash.
 
+## The accent
+
+The default accent is the blue of the VS Code editor: `color.accent` is `#4fc1ff`, `color.accent-strong` is `#007acc`, and `color.accent-contrast` is `#ffffff`, the text on the strong accent.
+
+`accent` is the text color for links, labels and highlights. In the dark set it reaches 9.86:1 on the page background, and the light set has its own `accent`, listed below.
+
+`accent-strong` is for fills, rings and borders only. Never use it as text on the dark ground: it reaches 4.41:1 there, below the 4.5:1 that text needs. A test fails when a template file uses it as a text color. The template uses it for the focus ring of buttons and tabs (`ring`), the text selection, the glow behind the hero and the quote border. Other focused elements get an outline in `accent`. `accent-contrast` is the text for a fill in that color, such as a button, and reaches 4.51:1 on it.
+
 ## Change the accent
 
-Edit `color.accent` and `color.accent-strong` in `design/tokens.json`, then regenerate. Edit the light values under `themes.light.color` as well, so the accent is right in both themes. Everything that uses the brand color follows.
+Edit `color.accent`, `color.accent-strong` and, if the fill needs another text color, `color.accent-contrast` in `design/tokens.json`, then run `npm run build:tokens`. Edit the light values under `themes.light.color` as well, so the accent is right in both themes. Everything that uses the brand color follows.
+
+A new accent must keep the contrast of the default. The token tests check `accent` on every surface it sits on, `accent-contrast` on `accent-strong`, and the focus ring on every ground, so a color that fails them fails `npm test`.
+
+A site generated with `init` keeps its own `design/tokens.json`, so changing the kit does not change a site that already exists.
 
 ## Light set and measured contrast
 

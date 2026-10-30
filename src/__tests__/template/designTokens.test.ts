@@ -79,6 +79,12 @@ describe.each(Object.keys(THEMES))("design tokens, WCAG contrast, %s theme", (th
     expect(contrast(set["accent-contrast"]!, set["accent-strong"]!)).toBeGreaterThanOrEqual(4.5);
   });
 
+  it("the text on the strong accent (accent-contrast on accent-strong) reaches 4.5:1", () => {
+    expect(
+      contrast(tokens.color["accent-contrast"]!, tokens.color["accent-strong"]!),
+    ).toBeGreaterThanOrEqual(4.5);
+  });
+
   it("the focus ring color reaches 3:1 on every ground, as a non-text indicator", () => {
     for (const ground of GROUNDS)
       expect(contrast(set["accent-strong"]!, set[ground]!)).toBeGreaterThanOrEqual(3);
