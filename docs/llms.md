@@ -66,5 +66,6 @@ link to a file that is not on the site points at the repository. Fenced code is 
 - a page of the site is not listed in it,
 - with `markdownPages`, a page has no Markdown copy in the build.
 
-Each message names the link or the page. The credential and internal host scan also reads `llms.txt` and the Markdown copies,
-so a secret in a description cannot reach the file unnoticed.
+Each message names the link or the page. The credential and internal host scan also reads `llms.txt`, and it finds a secret
+or an internal host in a description there, because the site name and description come from the config. The Markdown copies
+are scanned for credentials, and their text was already scanned as the page content.
