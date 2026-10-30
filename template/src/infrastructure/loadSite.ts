@@ -18,6 +18,8 @@ export interface Site {
   /** Join a path to the site base: `href("docs/")` becomes `/repo/docs/`. */
   href: (path: string) => string;
   render: (document: Document) => Promise<RenderedMarkdown>;
+  /** The link rules for one page, the same ones the page HTML and its Markdown copy use. */
+  linkContext: (document: Document) => LinkContext;
 }
 
 let cached: Site | undefined;
@@ -48,6 +50,7 @@ export function loadSite(siteDir: string = process.cwd()): Site {
     documents,
     warnings,
     href: (path) => `${config.site.base}${path.replace(/^\//, "")}`,
+    linkContext: contextFor,
     render: (document) =>
       renderMarkdown(document.body, {
         context: contextFor(document),

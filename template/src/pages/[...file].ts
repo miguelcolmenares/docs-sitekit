@@ -1,20 +1,35 @@
 import { buildLlmsText } from "../application";
-import { LLMS_FILE } from "../domain";
+import { absoluteUrl, LLMS_FILE, markdownPath, renderMarkdownPage } from "../domain";
 import { loadSite } from "../infrastructure";
 
 /**
- * Files the build writes at the root of the output, from the site content. Each route is a path
- * that the site adds to its own pages. With `llms.enabled` off there are no paths, so nothing is written.
+ * Text files the build writes next to the pages, from the site content: llms.txt, and with
+ * `llms.markdownPages` the Markdown copy of every page. With `llms.enabled` off there are no
+ * paths, so nothing is written.
  */
 export function getStaticPaths() {
   const site = loadSite();
-  if (!site.config.llms.enabled) return [];
-  return [
-    {
-      params: { file: LLMS_FILE },
-      props: { body: buildLlmsText(site.config, site.documents) },
-    },
+  const { config } = site;
+  if (!config.llms.enabled) return [];
+
+  const paths: { params: { file: string }; props: { body: string } }[] = [
+    { params: { file: LLMS_FILE }, props: { body: buildLlmsText(config, site.documents) } },
   ];
+  if (config.llms.markdownPages) {
+    for (const document of site.documents) {
+      paths.push({
+        params: { file: markdownPath(document.route, config.site.base) },
+        props: {
+          body: renderMarkdownPage(document, {
+            context: site.linkContext(document),
+            origin: config.site.url,
+            pageUrl: absoluteUrl(config.site.url, document.route),
+          }),
+        },
+      });
+    }
+  }
+  return paths;
 }
 
 export function GET({ props }: { props: { body: string } }) {
