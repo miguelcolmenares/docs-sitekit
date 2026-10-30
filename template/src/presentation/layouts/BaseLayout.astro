@@ -1,5 +1,6 @@
 ---
 import "../../styles/global.css";
+import { llmsUrl } from "../../domain";
 import { loadSite } from "../../infrastructure";
 import { SiteFooter } from "../components/site/SiteFooter";
 import SiteHeader from "../components/site/SiteHeader.astro";
@@ -11,6 +12,8 @@ interface Props {
 
 const site = loadSite();
 const { config, href } = site;
+// Only a site that has llms.txt points at it. A missing key means no file and no link.
+const describedBy = config.llms.enabled ? llmsUrl(config.site.url, config.site.base) : undefined;
 const { title, description = config.site.description } = Astro.props;
 const pageTitle = title ? `${title} · ${config.site.name}` : `${config.site.name}: ${config.site.description}`;
 const canonical = new URL(Astro.url.pathname, config.site.url).toString();
@@ -55,6 +58,7 @@ const columns = [
     <meta name="twitter:card" content="summary" />
     <link rel="icon" href={href("favicon.svg")} type="image/svg+xml" />
     <link rel="sitemap" href={href("sitemap-index.xml")} />
+    {describedBy && <link rel="describedby" href={describedBy} />}
   </head>
   <body>
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground">
