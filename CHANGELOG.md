@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A light theme, with a switch in the header.** The site stays dark by default. `theme.default` in `sitekit.config.json` takes `dark`, `light` or `system`, and an invalid value fails the build with the key named. A visitor's choice is saved in the browser and wins over the default, and the theme is applied before the first paint. The light set is a second set of colors in `design/tokens.json`, with the same keys as the dark one, and a test fails when the keys differ. Code blocks have a light highlighter theme. A site generated with an earlier version keeps its own `design/tokens.json`, which has no light set, so it stays dark until it adds one.
+
 ## [0.1.1] - 2026-10-28
 
 ### Fixed

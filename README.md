@@ -1,6 +1,6 @@
 # docs-sitekit
 
-Documentation sites that look like a product, published to GitHub Pages. A dark design system, a content
+Documentation sites that look like a product, published to GitHub Pages. A design system with a light and a dark theme, a content
 pipeline that reads your repository, and a scaffold you run once with `npx`.
 
 - **Design system**: tokens and components built on Astro, Tailwind, shadcn/ui and lucide-react. The components are
@@ -128,6 +128,10 @@ all it takes. For a package that publishes from a tag, add the same two jobs aft
 A source that does not exist makes no page and no menu entry. The title is the frontmatter `title`, else the first `#` heading,
 else the file name. The description is the frontmatter `description`, else the first paragraph of prose (badges, tables, quotes,
 HTML and code are skipped). `order: 1` in the frontmatter moves a page up.
+
+## Theme
+
+The site is dark by default. A header switch lets the visitor pick the light theme, and the choice is remembered in the browser. Set `theme.default` in `sitekit.config.json` to `light`, or to `system` to follow the operating system, to change the first view. A site generated before this option was added keeps its own tokens file and has no light set, so it stays dark until it adds one (see `design/tokens.json` in the site).
 
 ## Documentation
 
