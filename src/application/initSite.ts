@@ -3,6 +3,7 @@ import type { SiteConfig } from "../../template/src/domain";
 import { deriveConfig } from "../domain";
 import type { RepositoryFacts } from "../domain";
 import { baseName, joinPath } from "./paths";
+import { identityFor, renderTemplateFile } from "./templateFile";
 import type { Environment, FileSystem, TemplateSource } from "./ports";
 
 /** What `initSite` needs from outside: files, the host, the packaged template and a content hash. */
@@ -82,14 +83,6 @@ function collectFacts(deps: InitDeps, root: string): RepositoryFacts {
   };
 }
 
-const packageName = (siteName: string) =>
-  `${
-    siteName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "") || "site"
-  }-docs`;
-
 /**
  * Create a documentation site inside a repository. It writes into `siteDir` and never guesses
  * another place, and it refuses a folder that already has files unless `force` is set.
@@ -123,6 +116,7 @@ export function initSite(deps: InitDeps, options: InitOptions): InitResult {
     },
   });
 
+  const identity = identityFor(config.site.name);
   const written: string[] = [];
   const skipped: string[] = [];
   const lock: SiteLock = { sitekit: template.version(), files: {} };
@@ -139,19 +133,7 @@ export function initSite(deps: InitDeps, options: InitOptions): InitResult {
   };
 
   for (const file of template.files()) {
-    let content = file.content;
-    if (file.path === "package.json") {
-      const pkg = JSON.parse(content) as Record<string, unknown>;
-      content = `${JSON.stringify({ ...pkg, name: packageName(config.site.name), description: `Documentation site for ${config.site.name}.` }, null, 2)}\n`;
-    } else if (file.path === "package-lock.json") {
-      const lockJson = JSON.parse(content) as {
-        name?: string;
-        packages?: Record<string, { name?: string }>;
-      };
-      lockJson.name = packageName(config.site.name);
-      if (lockJson.packages?.[""]) lockJson.packages[""].name = lockJson.name;
-      content = `${JSON.stringify(lockJson, null, 2)}\n`;
-    }
+    const content = renderTemplateFile(file, identity);
     write(file.path, content, siteAbs, true);
   }
 

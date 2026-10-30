@@ -47,11 +47,16 @@ export class MemoryFileSystem implements FileSystem {
 export const sha = (content: string) => createHash("sha256").update(content).digest("hex");
 
 export function fakeEnv(
-  options: { remoteUrl?: string; visibility?: RepositoryVisibility } = {},
+  options: {
+    remoteUrl?: string;
+    visibility?: RepositoryVisibility;
+    uncommittedChanges?: boolean;
+  } = {},
 ): Environment {
   return {
     remoteUrl: () => options.remoteUrl,
     repositoryVisibility: () => options.visibility ?? "public",
+    hasUncommittedChanges: () => options.uncommittedChanges,
   };
 }
 

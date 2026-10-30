@@ -29,12 +29,13 @@ and `--dry-run` shows what it would write.
 
 ## Commands
 
-| Command                                 | What it does                                                                |
-| --------------------------------------- | --------------------------------------------------------------------------- |
-| `sitekit init [--dir site] [--dry-run]` | Create the site, its config and the deploy workflow.                        |
-| `sitekit check [--dist site/dist]`      | Scan the content and the built site, and check the repository's visibility. |
-| `sitekit list`                          | List the components.                                                        |
-| `sitekit add <component> [--force]`     | Copy a component and what it needs. A file you edited is kept.              |
+| Command                                 | What it does                                                                  |
+| --------------------------------------- | ----------------------------------------------------------------------------- |
+| `sitekit init [--dir site] [--dry-run]` | Create the site, its config and the deploy workflow.                          |
+| `sitekit check [--dist site/dist]`      | Scan the content and the built site, and check the repository's visibility.   |
+| `sitekit list`                          | List the components.                                                          |
+| `sitekit add <component> [--force]`     | Copy a component and what it needs. A file you edited is kept.                |
+| `sitekit upgrade [--dry-run] [--apply]` | Bring a site up to the installed kit. A file you edited is never overwritten. |
 
 ## GitHub Action
 

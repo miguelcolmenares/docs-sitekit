@@ -71,7 +71,7 @@
         {
           "name": "Start",
           "tone": "brand",
-          "items": ["getting-started"]
+          "items": ["getting-started", "upgrading"]
         },
         {
           "name": "Design system",

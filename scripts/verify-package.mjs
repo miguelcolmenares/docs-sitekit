@@ -580,6 +580,154 @@ check("add rejects an unknown component with a way forward", () => {
   assert(/Unknown component "nope".*sitekit list/.test(message), `got: ${message}`);
 });
 
+console.log("5b/6 Upgrade a site made by the published 0.1.0");
+// The real 0.1.0 from the registry makes a site, and this build upgrades it. Nothing here is a copy:
+// a site made by an older release has to come out building and passing `check`.
+const OLD_TOOLS = join(WORK, "tools-0.1.0");
+const OLD_REPO = join(WORK, "repo-0.1.0");
+const OLD_SITE = join(OLD_REPO, "site");
+mkdirSync(OLD_TOOLS, { recursive: true });
+write(join(OLD_TOOLS, "package.json"), JSON.stringify({ name: "tools-old", private: true }));
+runLoud("npm", ["install", "--no-audit", "--no-fund", `${PACKAGE}@0.1.0`], { cwd: OLD_TOOLS });
+const OLD_CLI = join(OLD_TOOLS, "node_modules", PACKAGE, "dist", "cli.js");
+const oldKit = (args) => run("node", [OLD_CLI, ...args], { cwd: OLD_REPO });
+const upgrade = (args = []) => run("node", [CLI, "upgrade", ...args], { cwd: OLD_REPO });
+const gitOld = (...args) =>
+  run(
+    "git",
+    [
+      "-c",
+      "user.name=Test",
+      "-c",
+      "user.email=test@example.com",
+      "-c",
+      "commit.gpgsign=false",
+      ...args,
+    ],
+    { cwd: OLD_REPO },
+  );
+/** Every file of the old repository with its text, outside .git and node_modules. */
+const snapshotOld = () =>
+  Object.fromEntries(
+    listFiles(OLD_REPO)
+      .filter((file) => !/[\\/](\.git|node_modules|dist|\.astro)[\\/]/.test(file))
+      .map((file) => [file.slice(OLD_REPO.length + 1), readFileSync(file, "utf8")]),
+  );
+const siteFile = (path) => join(OLD_SITE, path);
+
+mkdirSync(OLD_REPO, { recursive: true });
+run("git", ["init", "-q", "-b", "main"], { cwd: OLD_REPO });
+run("git", ["remote", "add", "origin", "https://github.com/demo/widget.git"], { cwd: OLD_REPO });
+write(
+  join(OLD_REPO, "package.json"),
+  JSON.stringify({
+    name: "@demo/widget",
+    version: "1.2.3",
+    description: "A widget.",
+    license: "MIT",
+  }),
+);
+write(join(OLD_REPO, "README.md"), "# Widget\n\nA widget that does widget things.\n");
+write(join(OLD_REPO, "LICENSE"), "MIT License\n");
+write(join(OLD_REPO, "docs", "getting-started.md"), "# Getting started\n\nInstall the widget.\n");
+write(join(OLD_REPO, "CHANGELOG.md"), "# Changelog\n\n## [1.2.3] - 2026-10-28\n\n- Everything.\n");
+oldKit(["init"]);
+
+// The owner's edits: one file the kit has not changed since 0.1.0, and one it has.
+const KEPT = "src/domain/glob.ts";
+const CONFLICT = "src/styles/prose.css";
+const REPLACED = "src/domain/describe.ts";
+const CURRENT_TEMPLATE = join(ROOT, "template");
+const templateText = (path) => readFileSync(join(CURRENT_TEMPLATE, path), "utf8");
+const oldConfig = JSON.parse(readFileSync(siteFile("sitekit.config.json"), "utf8"));
+oldConfig.deploy.repositoryVisibility = "public";
+writeFileSync(siteFile("sitekit.config.json"), JSON.stringify(oldConfig, null, 2));
+const keptText = `${readFileSync(siteFile(KEPT), "utf8")}// my own change\n`;
+const conflictText = `${readFileSync(siteFile(CONFLICT), "utf8")}\n/* my own styles */\n`;
+writeFileSync(siteFile(KEPT), keptText);
+writeFileSync(siteFile(CONFLICT), conflictText);
+
+check("the site made by 0.1.0 has a lock at 0.1.0 and none of the newer options", () => {
+  const lock = JSON.parse(readFileSync(siteFile(".sitekit.json"), "utf8"));
+  assert(lock.sitekit === "0.1.0", `the lock says ${lock.sitekit}`);
+  assert(!("search" in oldConfig) && !("theme" in oldConfig), "the old config has the new keys");
+});
+check("with uncommitted changes the upgrade is a dry run by default, and writes nothing", () => {
+  const before = snapshotOld();
+  const output = upgrade();
+  assert(/uncommitted changes/.test(output) && /dry run/i.test(output), `got: ${output}`);
+  assert(
+    JSON.stringify(snapshotOld()) === JSON.stringify(before),
+    "the dry run by default changed files",
+  );
+});
+gitOld("add", "-A");
+gitOld("commit", "-q", "-m", "A site made by 0.1.0");
+check("--dry-run reports the four cases and writes nothing", () => {
+  const before = snapshotOld();
+  const output = upgrade(["--dry-run"]);
+  assert(JSON.stringify(snapshotOld()) === JSON.stringify(before), "--dry-run changed files");
+  assert(output.includes(`site/${REPLACED} (would be replaced)`), `got: ${output}`);
+  assert(output.includes(`site/${KEPT} (you changed it, the kit did not, kept)`), `got: ${output}`);
+  assert(output.includes(`! site/${CONFLICT}`), `got: ${output}`);
+  assert(/\+ site\/src\/domain\/llms\.ts \(would be added\)/.test(output), `got: ${output}`);
+});
+check("the upgrade replaces, keeps, adds and leaves the conflict for the owner to merge", () => {
+  const before = snapshotOld();
+  const output = upgrade();
+  assert(/Upgrading site\/ from 0\.1\.0 to /.test(output), `got: ${output}`);
+  assert(readFileSync(siteFile(REPLACED), "utf8") === templateText(REPLACED), "not replaced");
+  assert(readFileSync(siteFile(KEPT), "utf8") === keptText, "the owner's file was changed");
+  assert(readFileSync(siteFile(CONFLICT), "utf8") === conflictText, "the owner's file was lost");
+  assert(
+    readFileSync(siteFile(`${CONFLICT}.sitekit-new`), "utf8") === templateText(CONFLICT),
+    "the new version is not next to the owner's file",
+  );
+  assert(existsSync(siteFile("src/domain/llms.ts")), "a new file was not added");
+  const after = snapshotOld();
+  const touched = Object.keys({ ...before, ...after }).filter(
+    (path) => before[path] !== after[path],
+  );
+  const outside = touched.filter((path) => !path.startsWith("site/"));
+  assert(outside.length === 0, `changed outside the site: ${outside.join(", ")}`);
+  assert(
+    before["docs/getting-started.md"] === after["docs/getting-started.md"] &&
+      before["CHANGELOG.md"] === after["CHANGELOG.md"],
+    "content changed",
+  );
+});
+check("the lock moved to this version, and the options keep the site as it was", () => {
+  const { version } = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+  const lock = JSON.parse(readFileSync(siteFile(".sitekit.json"), "utf8"));
+  assert(lock.sitekit === version, `the lock says ${lock.sitekit}`);
+  const config = JSON.parse(readFileSync(siteFile("sitekit.config.json"), "utf8"));
+  assert(config.search?.enabled === false && config.llms?.enabled === false, "options not set off");
+  assert(config.theme?.default === "dark", "the theme is not dark");
+});
+check("a second upgrade has nothing left to replace or add", () => {
+  const output = upgrade(["--apply"]);
+  assert(/0 replaced, 0 added/.test(output), `got: ${output}`);
+  assert(output.includes(`! site/${CONFLICT}`), "the conflict is gone before it was merged");
+});
+runLoud("npm", ["ci", "--no-audit", "--no-fund"], { cwd: OLD_SITE });
+runLoud("npm", ["run", "build"], {
+  cwd: OLD_SITE,
+  env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" },
+});
+check("the upgraded site builds, is still without search and llms.txt, and passes check", () => {
+  assert(existsSync(join(OLD_SITE, "dist", "index.html")), "no index.html");
+  assert(
+    !existsSync(join(OLD_SITE, "dist", "search-index.json")),
+    "the site gained a search index",
+  );
+  assert(!existsSync(join(OLD_SITE, "dist", "llms.txt")), "the site gained llms.txt");
+  assert(
+    /Safe to publish/.test(run("node", [CLI, "check", "--dist", "site/dist"], { cwd: OLD_REPO })),
+    "check --dist failed",
+  );
+  assert(/Safe to publish/.test(run("node", [CLI, "check"], { cwd: OLD_REPO })), "check failed");
+});
+
 console.log("6/6 Done");
 console.log(`\n${passed} passed, ${failures.length} failed`);
 process.exit(failures.length === 0 ? 0 : 1);

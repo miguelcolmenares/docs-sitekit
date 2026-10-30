@@ -24,9 +24,9 @@ const FILES = [
 
 // The tool is `docs-sitekit`. The command it installs is `sitekit`, so `sitekit check` and its siblings are right,
 // and so are the phrase "the `sitekit` command", `sitekit.config.json`, `sitekit-site` and variables such as
-// SITEKIT_VERSION, and the browser event `sitekit:theme`. Any other bare "sitekit" is the old name of the tool.
+// SITEKIT_VERSION, and the browser event `sitekit:theme`, and file names that start with a dot such as `.sitekit.json`. Any other bare "sitekit" is the old name of the tool.
 const OLD_NAME =
-  /(?<![-\w])sitekit(?!\.config|-site|\w| (?:check|list|add|init)\b|` command|:theme\b)/gi;
+  /(?<![-.\w])sitekit(?!\.config|-site|\w| (?:check|list|add|init|upgrade)\b|` command|:theme\b)/gi;
 
 describe("the name of the tool", () => {
   it("is docs-sitekit wherever a reader sees it", () => {
