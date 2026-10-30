@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **The name of the tool is `docs-sitekit` everywhere a reader sees it.** The footer of every generated site said "Built with sitekit", and the Action address, its name, the issue forms, the contributing steps and the help text used the old name. The `sitekit` command and the file names do not change. A test reads these texts and fails on the old name. The Action address in the 0.1.0 notes is corrected too.
+- **The name of the tool is `docs-sitekit` everywhere a reader sees it.** The footer of every generated site, the Action address, its name, the issue forms, the contributing steps and the help text used the old short name. The `sitekit` command and the file names do not change. A test reads these texts and fails on the old name. The Action address in the 0.1.0 notes is corrected too.
 
 ## [0.1.1] - 2026-10-28
 
