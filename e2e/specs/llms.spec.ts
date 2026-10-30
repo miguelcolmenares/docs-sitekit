@@ -45,7 +45,7 @@ test.describe("llms.txt", () => {
     // A relative link to a page of the site, with its anchor.
     expect(text).toContain(`[the guide](${ORIGIN}${BASE}docs/guide/#advanced)`);
     // A link to a repository file that is not on the site.
-    expect(text).toContain("[the license](https://github.com/demo/widget/blob/HEAD/LICENSE)");
+    expect(text).toContain("[license](https://github.com/demo/widget/blob/HEAD/LICENSE)");
     // Inline code is not a link, so it is left as written.
     expect(text).toContain("Code stays as written: `[guide](./guide.md)`.");
   });
