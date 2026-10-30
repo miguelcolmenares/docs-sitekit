@@ -145,7 +145,7 @@ The site is dark by default. A header switch lets the visitor pick the light the
 
 The documentation site is built with this kit. Read it under `docs/`: getting started, components, design tokens, content, deploying.
 
-Every key of `sitekit.config.json`, with its type, default and allowed values, is in the [configuration reference](docs/configuration.md). It is generated from the schema, and a test fails when it is out of date.
+Every key of `sitekit.config.json`, with its type, default and allowed values, is in the [configuration reference](docs/configuration.md). It is generated from the schema, and a test fails when it is out of date. The same keys sorted by topic, with examples, are in [Options by topic](docs/options.md).
 
 ## Development
 

@@ -18,7 +18,7 @@ Run this in the root of the repository you want to document:
 npx docs-sitekit init
 ```
 
-It writes `sitekit.config.json` and a `site/` folder, reading the name, description, license and repository from your `package.json` and git remote. Every key you can set in that file is in the [configuration reference](./configuration.md).
+It writes `sitekit.config.json` and a `site/` folder, reading the name, description, license and repository from your `package.json` and git remote. Every key you can set in that file is in the [configuration reference](./configuration.md), and [Options by topic](./options.md) shows them in groups, with examples.
 
 ## Run it
 

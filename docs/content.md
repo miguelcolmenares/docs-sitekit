@@ -43,21 +43,9 @@ Start a blockquote with `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]
 
 `sitekit check` reads the markdown as data, and the build prints the same findings when it ends. Each finding is one line, `file:line: severity: message`, for example `docs/guide.md:42: warning: Link "./nope.md" does not match any file`. The line is the one that holds the link, the image, the heading or the frontmatter key, and for a side card the key inside its `meta` or `links` item. `check` prints the count and exits with 1 when any finding has the severity `error`. The build prints the findings and never fails on them, so `check` is the one that decides.
 
-| Kind (the key under `check`) | What it finds                                                                                                    |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `links`                      | A relative link to a file that does not exist, or that leaves the repository                                     |
-| `excludedLinks`              | A link to a file you excluded, so only its text is kept                                                          |
-| `anchors`                    | A link to a heading that does not exist in the target page, or in the same page                                  |
-| `images`                     | A relative image path that does not exist                                                                        |
-| `frontmatter`                | A frontmatter key the kit does not read (`titel`), with the key it looks like                                    |
-| `order`                      | An `order` that is not a number                                                                                  |
-| `duplicateHeadings`          | A second heading in a page that makes the same anchor as an earlier one                                          |
-| `callouts`                   | A callout marker that is not one of the five, such as `[!NOTES]`, so the quote stays plain                       |
-| `variables`                  | A `{{ name }}` that is not declared under `vars`, so it stays as written                                         |
-| `snippets`                   | An include of a snippet that does not exist, or an include inside a snippet                                      |
-| `card`                       | A side card the frontmatter got wrong: an unknown key under `meta`, a missing text, a link with an unsafe scheme |
+The kinds are the keys under `check`. What each one finds, and its default severity, are in the [configuration reference](./configuration.md#check), and [Options: content checks and publishing](./options-checks.md) shows a line that each kind prints.
 
-Set the severity of a kind in `sitekit.config.json` with `error`, `warning` or `off`. A kind you do not set keeps its default, and the default of every kind is in the [configuration reference](./configuration.md#check):
+Set the severity of a kind in `sitekit.config.json` with `error`, `warning` or `off`. A kind you do not set keeps its default:
 
 ```json
 "check": {

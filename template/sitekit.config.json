@@ -74,6 +74,20 @@
           "items": ["getting-started", "configuration", "upgrading"]
         },
         {
+          "name": "Options by topic",
+          "tone": "brand",
+          "items": [
+            "options",
+            "options-identity",
+            "options-navigation",
+            "options-theme",
+            "options-search-llms",
+            "options-checks",
+            "options-edit-link",
+            "options-brand-logos"
+          ]
+        },
+        {
           "name": "Design system",
           "tone": "neutral",
           "items": ["components", "brand-logos", "design-tokens", "detail-page", "performance"]
@@ -107,6 +121,9 @@
     "target": "github-pages",
     "acknowledgePublicPages": false,
     "repositoryVisibility": "public"
+  },
+  "anonymize": {
+    "allow": ["builder.internal", "support@acme.example"]
   },
   "check": {
     "callouts": "off"
