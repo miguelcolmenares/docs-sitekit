@@ -200,6 +200,7 @@ const pageOf = (path: string, route: string, title: string): Document => ({
   description: "Fine.",
   descriptionSource: "content",
   order: null,
+  tags: [],
   group: null,
   body: "",
 });

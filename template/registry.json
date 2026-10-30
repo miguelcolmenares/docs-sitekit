@@ -70,6 +70,17 @@
       "files": ["src/presentation/components/site/ItemCard.tsx"],
       "requires": ["cn", "tone-badge"]
     },
+    "catalog-filter": {
+      "description": "A text field and tag buttons that narrow the cards of an index page, with the state in the address.",
+      "files": [
+        "src/presentation/components/site/CatalogFilter.astro",
+        "src/presentation/filter/catalogFilter.ts",
+        "src/domain/filter/index.ts",
+        "src/domain/filter/catalogFilter.ts",
+        "src/domain/filter/tags.ts"
+      ],
+      "requires": []
+    },
     "feature-grid": {
       "description": "Icon, eyebrow, title and text.",
       "files": ["src/presentation/components/site/FeatureGrid.tsx"],

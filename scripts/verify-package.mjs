@@ -158,6 +158,7 @@ write(
   [
     "---",
     "order: 1",
+    "tags: [Setup, Guide]",
     "---",
     "",
     "# Getting started",
@@ -190,11 +191,15 @@ write(
 );
 write(
   join(REPO, "docs", "guide.md"),
-  "# Guide\n\nThe longer guide.\n\n## Advanced\n\nAdvanced use.\n",
+  '---\ntags: [guide, Reference, "A tag of many words that has to wrap inside its button", Averyveryveryveryveryveryveryveryveryveryverylongtagwithnospaces]\n---\n\n# Guide\n\nThe longer guide.\n\n## Advanced\n\nAdvanced use.\n',
 );
 write(
   join(REPO, "docs", "callouts.md"),
   [
+    "---",
+    "tags: [Reference, Markdown]",
+    "---",
+    "",
     "# Callouts",
     "",
     "Notes written in markdown.",
@@ -244,7 +249,7 @@ write(
 write(join(REPO, "docs", "internal", "plan.md"), "# Plan\n\nNot for the site.\n");
 write(
   join(REPO, "docs", "README.md"),
-  "# Widget documentation\n\nStart with the getting started guide.\n",
+  "---\ntags: Setup\n---\n\n# Widget documentation\n\nStart with the getting started guide.\n",
 );
 write(
   join(REPO, "docs", "tutorials", "first-steps.md"),
@@ -457,6 +462,22 @@ check(
     assert(/>Start</.test(read("docs/guide/index.html")), "the sidebar has no group names");
   },
 );
+check("the docs index has a filter bar built from the tags, hidden until a script shows it", () => {
+  const index = read("docs/index.html");
+  const bar = /<div[^>]*\bdata-catalog-filter\b[^>]*\bhidden\b/.test(index);
+  assert(bar, "the docs index has no hidden filter bar");
+  for (const tag of ["Setup", "Guide", "Reference", "Markdown"]) {
+    assert(index.includes(`>${tag}</button>`), `no tag button for ${tag}`);
+  }
+  assert(
+    (index.match(/<a [^>]*data-filter-item/g) ?? []).length === 4,
+    "the docs index does not have four filterable cards",
+  );
+  assert(
+    !/<div[^>]*\bdata-catalog-filter\b/.test(read("tutorials/index.html")),
+    "a catalog without tags got a filter bar",
+  );
+});
 check("an excluded file is not on the site", () => {
   assert(!existsSync(join(dist, "docs", "plan")), "docs/internal/plan.md was published");
   assert(

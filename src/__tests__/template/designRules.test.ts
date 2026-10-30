@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const SRC = join(__dirname, "..", "..", "..", "template", "src");
@@ -94,9 +94,35 @@ describe("design rules, enforced", () => {
       (file) => `src/${relative(SRC, file)}`,
     );
     expect(shipped.filter((file) => !listed.has(file))).toEqual([]);
+    // A component may list the files it needs outside the components folder, such as `cn` or a script.
+    // Those are not components, but they must exist, so `add` never copies a file the template lacks.
     expect(
-      [...listed].filter((file) => !shipped.includes(file) && !file.endsWith("cn.ts")),
+      [...listed].filter(
+        (file) =>
+          !shipped.includes(file) && !(file.endsWith("cn.ts") || existsSync(join(SRC, "..", file))),
+      ),
     ).toEqual([]);
+  });
+
+  it("the catalog filter is hidden without JavaScript, announces politely and sizes every control for touch", () => {
+    const source = read(join(SRC, "presentation", "components", "site", "CatalogFilter.astro"));
+    expect(source).toMatch(/<div data-catalog-filter hidden/);
+    expect(source).toMatch(/role="status"/);
+    expect(source).toMatch(/aria-live="polite"/);
+    expect(source).toMatch(/aria-pressed="false"/);
+    expect(source).toMatch(/<label for="catalog-filter-text"/);
+    // Every control has a 44px floor: the shared class of the buttons, and the height of the field.
+    expect(source).toMatch(/min-h-11 min-w-11/);
+    expect(source).toMatch(/<input[^>]*[\s\S]*?class="[^"]*\bh-11\b/);
+    expect(source).not.toMatch(/\b(text|bg|border)-(success|warn|danger|destructive)\b/);
+  });
+
+  it("the filter script hides cards with the hidden attribute and keeps its state in the address", () => {
+    const script = read(join(SRC, "presentation", "filter", "catalogFilter.ts"));
+    expect(script).toMatch(/\.hidden = /);
+    expect(script).toMatch(/history\.pushState/);
+    expect(script).toMatch(/history\.replaceState/);
+    expect(script).toMatch(/popstate/);
   });
 
   it("every npm package a registry file imports is declared in the template package.json", () => {

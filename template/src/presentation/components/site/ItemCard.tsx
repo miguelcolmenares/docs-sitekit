@@ -3,7 +3,10 @@ import { cn } from "@/infrastructure/cn";
 import { ToneBadge } from "./ToneBadge";
 import type { Tone } from "./ToneBadge";
 
-/** A link card for a catalog: an optional badge, a mono title, a description and a hint. */
+/**
+ * A link card for a catalog: an optional badge, a mono title, a description and a hint. Any other attribute of
+ * a link, such as a `data-` attribute that a script reads, goes to the link.
+ */
 export function ItemCard({
   href,
   title,
@@ -12,17 +15,18 @@ export function ItemCard({
   tone = "neutral",
   hint,
   className,
-}: {
+  ...rest
+}: Omit<React.ComponentProps<"a">, "children" | "title"> & {
   href: string;
   title: string;
   description: string;
   badge?: string;
   tone?: Tone;
   hint?: string;
-  className?: string;
 }) {
   return (
     <a
+      {...rest}
       href={href}
       className={cn(
         "group flex h-full flex-col rounded-lg border border-border bg-surface p-5 transition-colors duration-200 hover:border-border-hover hover:bg-surface-2",

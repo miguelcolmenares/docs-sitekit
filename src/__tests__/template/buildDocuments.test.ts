@@ -10,6 +10,19 @@ const file = (
 ): SourceFile => ({ path, collection, collectionPath, frontmatter, content });
 
 describe("buildDocuments", () => {
+  it("takes the tags from the frontmatter, as a list or as one comma separated string", () => {
+    const docs = buildDocuments(
+      [
+        file("docs/a.md", "# A", { tags: ["UI", " forms ", "ui"] }),
+        file("docs/b.md", "# B", { tags: "one, two" }),
+        file("docs/c.md", "# C", { tags: 7 }),
+        file("docs/d.md", "# D"),
+      ],
+      { base: "/" },
+    );
+    expect(docs.map((doc) => doc.tags)).toEqual([["UI", "forms"], ["one", "two"], [], []]);
+  });
+
   it("takes title and description from the content when the frontmatter has none", () => {
     const [doc] = buildDocuments(
       [file("docs/start.md", "# Getting going\n\nThe first steps.\n\nMore.")],

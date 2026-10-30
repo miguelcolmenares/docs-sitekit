@@ -33,6 +33,8 @@ export interface Document {
   descriptionSource: "frontmatter" | "content" | "none";
   /** Explicit position from the frontmatter, or null. */
   order: number | null;
+  /** The `tags` of the frontmatter, trimmed and without repeats. The filter bar of an index page is built from them. */
+  tags: string[];
   /** The group of the page, or null when its collection has no groups. */
   group: DocumentGroup | null;
   /** Markdown body, without a leading heading that repeats the title. */

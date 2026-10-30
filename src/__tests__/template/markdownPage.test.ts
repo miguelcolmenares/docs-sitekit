@@ -21,6 +21,7 @@ const page = (body: string): Document => ({
   description: "",
   descriptionSource: "none",
   order: null,
+  tags: [],
   group: null,
   body,
 });

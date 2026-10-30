@@ -5,6 +5,7 @@ import {
   extractTitle,
   humanize,
   kebab,
+  normalizeTags,
 } from "../domain";
 import type { CollectionConfig, Document, SourceFile } from "../domain";
 
@@ -45,6 +46,7 @@ function toDocument(file: SourceFile, base: string): Document {
     description: fromFrontmatter ?? fromContent,
     descriptionSource: fromFrontmatter ? "frontmatter" : fromContent ? "content" : "none",
     order: orderOf(file.frontmatter.order),
+    tags: normalizeTags(file.frontmatter.tags),
     group: null,
     body: dropLeadingTitle(file.content, title),
   };
@@ -59,7 +61,7 @@ function byOrderThenSlug(a: Document, b: Document): number {
 }
 
 /**
- * Turn source files into pages. Title, description and order come from the frontmatter first and from the
+ * Turn source files into pages. Title, description, order and tags come from the frontmatter first and from the
  * content second. Two files that would get the same route are an error, not a silent skip. A collection
  * with groups orders its pages by them and fails on a page that is in no group.
  */
