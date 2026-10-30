@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The default accent is the VS Code blue**: `accent` `#4fc1ff`, `accent-strong` `#007acc` and `accent-contrast` `#ffffff`, in place of the purple. A site generated with `init` takes the blue from the kit it is generated with. A site generated earlier keeps its own `design/tokens.json`, so it stays purple until its owner changes that file.
+
 ### Fixed
 
 - **The name of the tool is `docs-sitekit` everywhere a reader sees it.** The footer of every generated site said "Built with sitekit", and the Action address, its name, the issue forms, the contributing steps and the help text used the old name. The `sitekit` command and the file names do not change. A test reads these texts and fails on the old name. The Action address in the 0.1.0 notes is corrected too.
