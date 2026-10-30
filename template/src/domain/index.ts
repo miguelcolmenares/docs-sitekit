@@ -5,5 +5,4 @@ export * from "./slug";
 export * from "./document";
 export * from "./glob";
 export * from "./groups";
-export * from "./searchText";
-export * from "./searchIndex";
+export * from "./search";
