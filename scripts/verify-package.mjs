@@ -658,15 +658,15 @@ check("a page has the edit link to its file and the date of the file's own last 
     "the guide has no edit link",
   );
   assert(
-    /<time datetime="2026-03-15">15 March 2026<\/time>/.test(guide),
+    /<time datetime="2026-03-15">15 March 2026<\/time>/i.test(guide),
     "the guide date is wrong",
   );
   assert(
-    /<time datetime="2026-01-10">10 January 2026<\/time>/.test(started),
+    /<time datetime="2026-01-10">10 January 2026<\/time>/i.test(started),
     "the date is the last commit of the repository",
   );
   assert(
-    !/edit\//.test(read("index.html")) && !/<time/.test(read("404.html")),
+    !/edit\//.test(read("index.html")) && !/<time/i.test(read("404.html")),
     "the home page or 404 has the footer",
   );
 });
