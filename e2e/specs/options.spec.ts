@@ -12,7 +12,10 @@ test.describe("identity and the home page", () => {
     page,
   }) => {
     await page.goto(BASE);
-    await expect(page.locator("[data-repository-button]")).toHaveAttribute("href", REPOSITORY);
+    await expect(page.locator("header [data-repository-button]")).toHaveAttribute(
+      "href",
+      REPOSITORY,
+    );
     const project = page.getByRole("navigation", { name: "Project" });
     await expect(project.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", REPOSITORY);
     await expect(project.getByRole("link", { name: "Report an issue" })).toHaveAttribute(
