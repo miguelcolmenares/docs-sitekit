@@ -44,7 +44,7 @@
       "icon": "zap",
       "eyebrow": "Fast by default",
       "title": "Static HTML, almost no JavaScript",
-      "text": "Every route is a real HTML file with its own title. Only the copy buttons and the mobile menu ship JavaScript."
+      "text": "Every route is a real HTML file with its own title. Only the copy buttons, the mobile menu and search (loaded on demand) ship JavaScript."
     }
   ],
   "sources": {
@@ -71,7 +71,7 @@
         {
           "name": "Content",
           "tone": "success",
-          "items": ["content", "deploying"]
+          "items": ["content", "deploying", "search"]
         }
       ]
     },

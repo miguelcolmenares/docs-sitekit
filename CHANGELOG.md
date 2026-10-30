@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Search.** A header button, Ctrl K or Cmd K, and the slash key open a dialog that searches the title, headings and text of every page, and opens the section that matched. The search code and the index load on first use, and `search.enabled` in the config turns it off. `sitekit check` verifies that the index lists every page. Typo tolerance is not in this version.
+
 ## [0.1.1] - 2026-10-28
 
 ### Fixed

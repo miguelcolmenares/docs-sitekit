@@ -11,7 +11,7 @@ pipeline that reads your repository, and a scaffold you run once with `npx`.
 - **Safe to publish**: a closed config contract, and a check that scans the content and the built files for
   credentials and internal hosts, and for a private repository whose Pages site would be public.
 - **No token, no private registry**: a generated site builds with public packages only, and does not depend on this CLI.
-- **Static and fast**: every route is a real HTML file with its own title. Only the copy buttons and the mobile menu ship JavaScript.
+- **Static and fast**: every route is a real HTML file with its own title. Only the copy buttons, the mobile menu and search (loaded on demand) ship JavaScript.
 - MIT licensed.
 
 ## Start
