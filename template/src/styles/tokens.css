@@ -26,8 +26,8 @@
   --sk-radius-md: 10px;
   --sk-radius-lg: 14px;
   --sk-radius-xl: 20px;
-  --sk-font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --sk-font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sk-font-sans: "Geist Variable", "Geist Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sk-font-mono: "Geist Mono Variable", "Geist Mono Fallback", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --sk-layout-maxw: 1120px;
   --sk-layout-maxw-prose: 760px;
   --sk-layout-nav-h: 60px;

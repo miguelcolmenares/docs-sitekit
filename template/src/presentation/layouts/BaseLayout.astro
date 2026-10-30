@@ -3,9 +3,14 @@ import "../../styles/global.css";
 import { llmsUrl, markdownUrl, repositoryLink } from "../../domain";
 import { loadSite } from "../../infrastructure";
 import { SiteFooter } from "../components/site/SiteFooter";
+import MobileMenu from "../components/site/MobileMenu.astro";
 import SiteHeader from "../components/site/SiteHeader.astro";
 import SearchDialog from "../search/SearchDialog.astro";
 import tokens from "../../../design/tokens.json";
+// The two font files the first screen needs, as the URLs the stylesheet uses for them. A preload starts the download
+// with the HTML instead of after the stylesheet has been read, which is when the browser would first find them.
+import sansFont from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
+import monoFont from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url";
 
 interface Props {
   title?: string;
@@ -70,6 +75,8 @@ const columns = [
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={config.site.name} />
     <meta name="twitter:card" content="summary" />
+    <link rel="preload" href={sansFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={monoFont} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href={href("favicon.svg")} type="image/svg+xml" />
     <link rel="sitemap" href={href("sitemap-index.xml")} />
     {describedBy && <link rel="describedby" href={describedBy} />}
@@ -119,6 +126,7 @@ const columns = [
       Skip to content
     </a>
     <SiteHeader name={config.site.name} home={href("")} links={nav} repository={repository} action={action} current={Astro.url.pathname} search={config.search.enabled} themeDefault={themeDefault} />
+    <MobileMenu links={nav} action={action} repository={repository} />
     {config.search.enabled && <SearchDialog />}
     <main id="main">
       <slot />

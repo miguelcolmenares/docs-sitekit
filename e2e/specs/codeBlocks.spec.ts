@@ -208,7 +208,7 @@ test.describe("code blocks: the copy button", () => {
     await page.goto(PAGE);
     await block(page, "const plain").getByRole("button", { name: "Copy code" }).click();
     await page.waitForLoadState("networkidle");
-    expect([...hosts]).toEqual(["127.0.0.1:4401"]);
+    expect([...hosts]).toEqual([new URL(page.url()).host]);
   });
 
   test("the script is small and ships in the page, with no file of its own", async ({

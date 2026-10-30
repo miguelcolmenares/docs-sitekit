@@ -4,7 +4,7 @@ order: 2
 
 # Components
 
-The design system is a set of React components, written in the shadcn style and rendered at build time. Only the copy button and the mobile menu hydrate.
+The design system is a set of React components, written in the shadcn style and rendered at build time. Only the copy button hydrates. The mobile menu is a native dialog and a few lines of script, see [Performance](./performance.md).
 
 ## Layout
 

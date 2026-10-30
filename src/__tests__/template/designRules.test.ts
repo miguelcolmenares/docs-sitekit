@@ -166,7 +166,7 @@ describe("design rules, enforced", () => {
 
   it("the repository button and the footer link are 44px targets on a phone", () => {
     const header = read(join(SRC, "presentation", "components", "site", "SiteHeader.astro"));
-    const menu = read(join(SRC, "presentation", "components", "site", "MobileMenu.tsx"));
+    const menu = read(join(SRC, "presentation", "components", "site", "MobileMenu.astro"));
     const footer = read(join(SRC, "presentation", "components", "site", "SiteFooter.tsx"));
     for (const [source, anchor] of [
       [header, "data-repository-button"],
@@ -176,5 +176,85 @@ describe("design rules, enforced", () => {
       expect(tag).toMatch(/\bmin-h-11\b/);
     }
     expect(footer).toMatch(/min-h-11[^"]*md:min-h-8/);
+  });
+});
+
+describe("how the page loads, enforced", () => {
+  const STYLES = join(SRC, "styles", "global.css");
+  const tokens = JSON.parse(read(join(SRC, "..", "design", "tokens.json"))) as {
+    font: { sans: string; mono: string };
+  };
+
+  /** Every @font-face block of the stylesheet that names `family`. */
+  const faces = (family: string) =>
+    [...read(STYLES).matchAll(/@font-face\s*\{([^}]*)\}/g)]
+      .map((match) => match[1]!)
+      .filter((body) => body.includes(`font-family: "${family}"`));
+
+  it.each([
+    ["Geist Fallback", "sans", "Geist Variable"],
+    ["Geist Mono Fallback", "mono", "Geist Mono Variable"],
+  ] as const)(
+    "%s is a local font with the four metric overrides, right after %s in the stack",
+    (fallback, key, webFont) => {
+      const blocks = faces(fallback);
+      expect(blocks.length).toBeGreaterThan(0);
+      for (const body of blocks) {
+        expect(body).toMatch(/src:\s*local\(/);
+        expect(body).not.toMatch(/url\(/); // a fallback that downloads is not a fallback
+        for (const property of [
+          "size-adjust",
+          "ascent-override",
+          "descent-override",
+          "line-gap-override",
+        ]) {
+          expect(body).toContain(`${property}:`);
+        }
+      }
+      expect(tokens.font[key].startsWith(`"${webFont}", "${fallback}", `)).toBe(true);
+    },
+  );
+
+  it("the two web fonts keep font-display swap and come from the package, not from a host", () => {
+    const css = read(STYLES);
+    expect(css).toContain('@import "@fontsource-variable/geist";');
+    expect(css).toContain('@import "@fontsource-variable/geist-mono";');
+    const fontsource = join(SRC, "..", "node_modules", "@fontsource-variable");
+    for (const family of ["geist", "geist-mono"]) {
+      const sheet = join(fontsource, family, "index.css");
+      if (!existsSync(sheet)) continue; // the template's dependencies are not installed
+      const declared = read(sheet);
+      expect(declared).toMatch(/font-display:\s*swap/);
+      expect(declared).not.toMatch(/font-display:\s*(block|fallback|optional|auto)/);
+    }
+  });
+
+  it("the layout preloads the latin file of each web font, as a same-origin font in CORS mode", () => {
+    const layout = read(join(SRC, "presentation", "layouts", "BaseLayout.astro"));
+    for (const file of ["geist-latin-wght-normal.woff2", "geist-mono-latin-wght-normal.woff2"]) {
+      expect(layout).toContain(`${file}?url`); // the same hashed file the stylesheet uses
+    }
+    const links = [...layout.matchAll(/<link rel="preload"[^>]*>/g)].map((match) => match[0]);
+    expect(links).toHaveLength(2);
+    for (const link of links) {
+      expect(link).toMatch(/as="font"/);
+      expect(link).toMatch(/type="font\/woff2"/);
+      expect(link).toMatch(/\bcrossorigin\b/);
+      expect(link).toMatch(/href=\{/); // an address built by the bundler, never a literal one
+    }
+  });
+
+  it("the mobile menu is markup and a script: a native dialog, and no island that loads a framework", () => {
+    const menu = read(join(SRC, "presentation", "components", "site", "MobileMenu.astro"));
+    const header = read(join(SRC, "presentation", "components", "site", "SiteHeader.astro"));
+    expect(menu).toContain("<dialog");
+    expect(menu).toContain("showModal()");
+    expect(menu).toMatch(/aria-labelledby=/);
+    // A client directive on the header would send React to every page for a button that is only a toggle.
+    expect(menu).not.toMatch(/client:/);
+    expect(header).not.toMatch(/client:/);
+    expect(existsSync(join(SRC, "presentation", "components", "site", "MobileMenu.tsx"))).toBe(
+      false,
+    );
   });
 });

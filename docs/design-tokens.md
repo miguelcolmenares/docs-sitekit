@@ -66,4 +66,4 @@ The code blocks have three tones for lines, `code-highlight`, `code-add` and `co
 
 ## Type
 
-Geist for text and Geist Mono for names, numbers and commands, both self-hosted. No request leaves the page for fonts.
+Geist for text and Geist Mono for names, numbers and commands, both self-hosted. No request leaves the page for fonts. The two files of the first screen are preloaded, and each font has a fallback with its measures, see [Performance](./performance.md#how-the-fonts-are-loaded).

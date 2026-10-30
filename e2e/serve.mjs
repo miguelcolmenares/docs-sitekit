@@ -2,11 +2,14 @@
 // A static server that behaves like GitHub Pages, for the end-to-end tests:
 // the site lives under a base path, a folder serves its index.html, a path without a trailing
 // slash redirects to the one with it, and a missing file answers 404 with 404.html.
+// With --compress a text file is sent gzipped, as GitHub Pages does, so a size measured here is the
+// size a visitor downloads. It is off by default: the browser tests do not need it.
 //
-//   node e2e/serve.mjs --dist <folder> --base /repo/ --port 4401
+//   node e2e/serve.mjs --dist <folder> --base /repo/ --port 4401 [--compress]
 import { createServer } from "node:http";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize, resolve } from "node:path";
+import { gzipSync } from "node:zlib";
 import { parseArgs } from "node:util";
 
 const { values } = parseArgs({
@@ -14,12 +17,14 @@ const { values } = parseArgs({
     dist: { type: "string" },
     base: { type: "string", default: "/" },
     port: { type: "string", default: "4401" },
+    compress: { type: "boolean", default: false },
   },
 });
 if (!values.dist) throw new Error("--dist is required");
 
 const DIST = resolve(values.dist);
 const BASE = values.base;
+const COMPRESSED = new Set([".html", ".css", ".js", ".mjs", ".json", ".xml", ".svg", ".txt"]);
 const TYPES = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -57,8 +62,22 @@ createServer((request, response) => {
   }
   if (!existsSync(file)) return notFound(response);
 
-  response.writeHead(200, { "Content-Type": TYPES[extname(file)] ?? "application/octet-stream" });
-  response.end(readFileSync(file));
+  const type = TYPES[extname(file)] ?? "application/octet-stream";
+  const body = readFileSync(file);
+  const gzip =
+    values.compress &&
+    COMPRESSED.has(extname(file)) &&
+    String(request.headers["accept-encoding"] ?? "").includes("gzip");
+  if (gzip) {
+    response.writeHead(200, {
+      "Content-Type": type,
+      "Content-Encoding": "gzip",
+      Vary: "Accept-Encoding",
+    });
+    return response.end(gzipSync(body));
+  }
+  response.writeHead(200, { "Content-Type": type });
+  response.end(body);
 }).listen(Number(values.port), "127.0.0.1", () =>
   console.log(`Serving ${DIST} at http://127.0.0.1:${values.port}${BASE}`),
 );

@@ -1,7 +1,8 @@
 import { join } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 4401;
+// 4401 unless E2E_PORT says otherwise, for a second run on the same machine.
+const PORT = Number(process.env.E2E_PORT ?? 4401);
 
 export default defineConfig({
   testDir: join(import.meta.dirname, "specs"),

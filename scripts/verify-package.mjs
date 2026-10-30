@@ -943,6 +943,79 @@ check("fonts are served from the site, with no request to a font host", () => {
   );
 });
 check(
+  "the two fonts of the first screen are preloaded from the site, and the stylesheet uses the same files",
+  () => {
+    const html = read("index.html");
+    const links = [...html.matchAll(/<link rel="preload"[^>]*as="font"[^>]*>/g)].map(
+      (match) => match[0],
+    );
+    assert(links.length === 2, `expected 2 font preloads, found ${links.length}`);
+    const css = listFiles(join(dist, "_astro"))
+      .filter((file) => file.endsWith(".css"))
+      .map((file) => readFileSync(file, "utf8"))
+      .join("\n");
+    const names = [];
+    for (const link of links) {
+      assert(
+        /type="font\/woff2"/.test(link) && /\bcrossorigin\b/.test(link),
+        `a preload without type or crossorigin: ${link}`,
+      );
+      const href = /href="([^"]+)"/.exec(link)?.[1] ?? "";
+      assert(
+        href.startsWith("/widget/_astro/") && href.endsWith(".woff2"),
+        `a preload that is not a file of the site: ${href}`,
+      );
+      assert(existsSync(join(dist, href.slice("/widget/".length))), `${href} is not in the build`);
+      const file = href.split("/").pop();
+      assert(css.includes(file), `${file} is preloaded but the stylesheet does not use it`);
+      names.push(file.replace(/\.[\w-]+\.woff2$/, ""));
+    }
+    assert(
+      names.join() === "geist-latin-wght-normal,geist-mono-latin-wght-normal",
+      `the wrong fonts are preloaded: ${names.join(", ")}`,
+    );
+  },
+);
+check("the fallback faces are in the stylesheet, with their overrides", () => {
+  const css = listFiles(join(dist, "_astro"))
+    .filter((file) => file.endsWith(".css"))
+    .map((file) => readFileSync(file, "utf8"))
+    .join("\n");
+  for (const family of ["Geist Fallback", "Geist Mono Fallback"]) {
+    // The minifier drops the quotes around a family name that is plain words.
+    assert(
+      new RegExp(`font-family:\\s*"?${family}"?[;}]`).test(css),
+      `no @font-face for ${family}`,
+    );
+  }
+  for (const property of [
+    "size-adjust",
+    "ascent-override",
+    "descent-override",
+    "line-gap-override",
+  ]) {
+    assert(css.includes(property), `no ${property} in the stylesheet`);
+  }
+  assert(
+    /--sk-font-sans:\s*"Geist Variable",\s*"Geist Fallback"/.test(css),
+    "the sans stack does not name the fallback",
+  );
+});
+check("the mobile menu is not an island: no framework is downloaded for it", () => {
+  const pages = ["index.html", "docs/getting-started/index.html", "404.html"];
+  for (const page of pages) {
+    const html = read(page);
+    assert(
+      html.includes("data-mobile-menu-open") && /<dialog[^>]*data-mobile-menu/.test(html),
+      `${page} has no mobile menu`,
+    );
+    assert(!/component-url="[^"]*MobileMenu/.test(html), `${page} hydrates the mobile menu`);
+  }
+  const bundles = listFiles(join(dist, "_astro")).filter((file) => file.endsWith(".js"));
+  const heavy = bundles.filter((file) => /MobileMenu/.test(file));
+  assert(heavy.length === 0, `a MobileMenu bundle is in the build: ${heavy.join(", ")}`);
+});
+check(
   "the footer shows the version from package.json, and a rebuild after a release shows the new one",
   () => {
     assert(/>v1\.2\.3</.test(read("index.html")), "the footer does not show v1.2.3");

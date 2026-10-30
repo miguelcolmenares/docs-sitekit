@@ -138,9 +138,9 @@
       "requires": ["breadcrumb"]
     },
     "mobile-menu": {
-      "description": "Navigation sheet for small screens.",
-      "files": ["src/presentation/components/site/MobileMenu.tsx"],
-      "requires": ["sheet"]
+      "description": "Navigation dialog for small screens, a native dialog and a few lines of script. The layout renders it, and the button in the site header opens it.",
+      "files": ["src/presentation/components/site/MobileMenu.astro"],
+      "requires": ["icon"]
     },
     "site-header": {
       "description": "Sticky translucent header.",
