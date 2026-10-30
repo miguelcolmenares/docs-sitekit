@@ -369,6 +369,16 @@ config.stats = [
   { value: "22.23.4+", label: "Node", note: "To build the site" },
   { value: "9".repeat(48), label: "A very long value", note: "It wraps inside its card" },
 ];
+// Two brand logos on the home page: one that ships with the kit and one from the site's own brands folder.
+config.features = [
+  ...(config.features ?? []),
+  { icon: "brand:github", eyebrow: "Source", title: "On GitHub", text: "The code is public." },
+  { icon: "brand:custom/mark", eyebrow: "Mark", title: "Our own mark", text: "From brands/." },
+];
+write(
+  join(SITE, "brands", "mark.svg"),
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/></svg>\n',
+);
 config.collections[0].groups = [
   { name: "Start", tone: "brand", items: ["overview", "getting-started"] },
   { name: "Use", tone: "success", items: ["guide", "callouts"] },

@@ -8,7 +8,7 @@ The design system is a set of React components, written in the shadcn style and 
 
 ## Layout
 
-- **SiteHeader**, sticky and translucent, with the brand, the navigation, a GitHub link and one primary action.
+- **SiteHeader**, sticky and translucent, with the brand, the navigation, a repository button with the logo of the host and one primary action.
 - **Hero**, with a status badge, a headline, a lede, a copyable command and up to two actions.
 - **SectionHeader**, a mono eyebrow, a heading and a lede.
 - **SiteFooter**, the brand, link columns and a legal bar.
@@ -17,7 +17,7 @@ The design system is a set of React components, written in the shadcn style and 
 ## Content
 
 - **ItemCard** and **CardGrid**, for catalogs. The grid has explicit tracks, so columns line up.
-- **FeatureGrid**, an icon, an eyebrow, a title and text.
+- **FeatureGrid**, an icon, an eyebrow, a title and text. The icon can be a brand logo, see [Brand logos](./brand-logos.md).
 - **StatRow**, two to five numbers, each with a label and an optional note.
 - **CatalogFilter**, a text field and tag buttons that narrow the cards of an index page. See [CatalogFilter](#catalogfilter).
 - **FlowDiagram**, steps in a row that stack on small screens.
