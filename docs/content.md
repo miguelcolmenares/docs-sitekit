@@ -49,6 +49,8 @@ Start a blockquote with `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]
 | `order`                      | An `order` that is not a number                                                            | error   |
 | `duplicateHeadings`          | A second heading in a page that makes the same anchor as an earlier one                    | warning |
 | `callouts`                   | A callout marker that is not one of the five, such as `[!NOTES]`, so the quote stays plain | warning |
+| `variables`                  | A `{{ name }}` that is not declared under `vars`, so it stays as written                   | warning |
+| `snippets`                   | An include of a snippet that does not exist, or an include inside a snippet                | error   |
 
 Set the severity of a kind in `sitekit.config.json` with `error`, `warning` or `off`. A kind you do not set keeps its default:
 
@@ -73,6 +75,28 @@ What the check reads, and what it does not:
 ## Code blocks
 
 A fenced block can have a title, highlighted lines and added or removed lines, written after the language, such as `ts title="src/config.ts" {2,4-6}`. Every block has a button that copies its code. See [Code blocks](./code-blocks.md) for the syntax, what the button copies and what it does without JavaScript.
+
+## Variables and snippets
+
+A version number, a package name or a command that appears in many pages can be written once.
+
+**Variables.** Write `{{ version }}` in prose, in a heading, in link text or in the frontmatter, and the build replaces it. `version` is read from the `package.json` of the repository (or `site.version` in the config). Other names are declared under `vars` in `sitekit.config.json`, with string values:
+
+```json
+{ "vars": { "package": "@acme/widget" } }
+```
+
+A variable is replaced before the page is read, so the title, the description, the search index, `llms.txt` and the Markdown copy all show the final text. In a code span or a fenced code block it is left as written, which is how this page can show the syntax. A name that is not declared stays as written and is a `variables` finding: a warning with the file and line, from `sitekit check` and from the build. Both kinds follow `check` in the config, so `"check": { "snippets": "warning" }` lowers a missing snippet to a warning. A `vars` entry wins over the version of the package.
+
+**Snippets.** A file in the `snippets/` folder at the root of the repository is included with a comment alone on its line:
+
+```md
+<!-- include: requirements.md -->
+```
+
+The indentation of the comment goes in front of every line of the snippet, so an include inside a list item stays in the item. A snippet can use variables, but it cannot include another snippet (one level only). A snippet that does not exist, or an include inside a snippet, is a `snippets` finding: an error, so `sitekit check` fails, and the build prints it with the file and the line. The `snippets/` folder is not published as pages. An include inside a code block is shown as written.
+
+**On GitHub.** The comment is not shown, so a page reads correctly without the snippet in it (the text just is not there). `{{ version }}` is shown as literal text, because GitHub does not replace it. Use a variable where that reads well as a placeholder, and a snippet where the page must read complete on the site only. A page that uses neither is built exactly as before.
 
 ## Exclude and replace
 
