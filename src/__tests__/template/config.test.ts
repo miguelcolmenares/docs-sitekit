@@ -97,3 +97,17 @@ describe("kebab", () => {
     expect(kebab("designTokens.mdx")).toBe("design-tokens");
   });
 });
+
+describe("parseSiteConfig search", () => {
+  it("turns search on when the key is absent", () => {
+    expect(parseSiteConfig(valid).search).toEqual({ enabled: true });
+  });
+
+  it("accepts search off, and rejects a key that is not declared under it", () => {
+    expect(parseSiteConfig({ ...valid, search: { enabled: false } }).search.enabled).toBe(false);
+    expect(() => parseSiteConfig({ ...valid, search: { enabled: true, fuzzy: true } })).toThrow(
+      /fuzzy/,
+    );
+    expect(() => parseSiteConfig({ ...valid, search: { enabled: "yes" } })).toThrow(/enabled/);
+  });
+});

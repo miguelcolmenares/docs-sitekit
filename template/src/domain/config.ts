@@ -87,6 +87,12 @@ export const siteConfigSchema = z
         repositoryVisibility: z.enum(["public", "private", "internal"]).optional(),
       })
       .default({ target: "github-pages", acknowledgePublicPages: false }),
+    /** The search dialog and its index. Off, the site has no search button, no dialog and no `search-index.json`. */
+    search: z
+      .strictObject({
+        enabled: z.boolean().default(true),
+      })
+      .default({ enabled: true }),
     anonymize: z
       .strictObject({
         excludePaths: z.array(z.string()).default([]),

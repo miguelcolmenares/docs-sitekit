@@ -82,6 +82,9 @@
       "lede": "Working examples you can copy and adapt."
     }
   ],
+  "search": {
+    "enabled": true
+  },
   "deploy": {
     "target": "github-pages",
     "acknowledgePublicPages": false,
