@@ -38,9 +38,10 @@ test.describe("callouts written in markdown", () => {
     page,
   }) => {
     await page.goto(PAGE);
-    await expect(page.locator('.prose-site [role="alert"], .prose-site [aria-live]')).toHaveCount(
-      0,
-    );
+    // The status region of a copy button, in a code block inside a callout, is polite and empty until a copy.
+    await expect(
+      page.locator('.prose-site [role="alert"], .prose-site [aria-live]:not(.code-status)'),
+    ).toHaveCount(0);
     await expect(page.getByRole("alert")).toHaveCount(0);
     await expect(page.getByRole("note").first()).toBeVisible();
   });

@@ -81,7 +81,7 @@
         {
           "name": "Content",
           "tone": "success",
-          "items": ["content", "callouts", "deploying", "search", "llms"]
+          "items": ["content", "callouts", "code-blocks", "deploying", "search", "llms"]
         }
       ]
     },

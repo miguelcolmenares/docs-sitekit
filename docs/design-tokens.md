@@ -68,6 +68,8 @@ Other pairs:
 
 Code blocks use Shiki's `github-light-high-contrast` theme in light and `github-dark-default` in dark. Every token color of the light code theme reaches 4.5:1 on the code surface `#f6f8fa`. The lowest is the comment color `#66707b`, at 4.73:1.
 
+The code blocks have three tones for lines, `code-highlight`, `code-add` and `code-remove`, in both color sets. They are tints of the code surface, kept light enough that the code colors still read on them. The lowest ratio of any token color of the code theme on any of the three is 5.18:1 in the dark set and 4.55:1 in the light set, both on `code-highlight` and both for the comment color. The contrast test checks every token color of both code themes on every tone, and that `fg`, `fg-muted`, `success` and `danger` reach 4.5:1 on them. See [Code blocks](./code-blocks.md).
+
 ## Type
 
 Geist for text and Geist Mono for names, numbers and commands, both self-hosted. No request leaves the page for fonts.

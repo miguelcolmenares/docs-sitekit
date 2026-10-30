@@ -9,6 +9,7 @@ const ROUTES = [
   `${BASE}docs/getting-started/`,
   `${BASE}docs/guide/`,
   `${BASE}docs/callouts/`,
+  `${BASE}docs/code-blocks/`,
   `${BASE}docs/overview/`,
   `${BASE}tutorials/`,
   `${BASE}tutorials/first-steps/`,
@@ -69,12 +70,12 @@ for (const phone of PHONES) {
 
       test("the copy button is a real touch target and never covers the code", async ({ page }) => {
         await page.goto(DOC);
-        const pre = page.locator("pre", { hasText: "configuration" });
-        const button = pre.getByRole("button", { name: "Copy code" });
+        const block = page.locator(".code-block", { hasText: "configuration" });
+        const button = block.getByRole("button", { name: "Copy code" });
         const box = (await button.boundingBox())!;
         expect(box.width).toBeGreaterThanOrEqual(44);
-        expect(box.height).toBeGreaterThanOrEqual(32);
-        const code = (await pre.locator("code").boundingBox())!;
+        expect(box.height).toBeGreaterThanOrEqual(44);
+        const code = (await block.locator("pre code").boundingBox())!;
         expect(box.y + box.height).toBeLessThanOrEqual(code.y + 1); // above the first line, not over it
       });
 

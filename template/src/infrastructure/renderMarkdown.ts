@@ -1,3 +1,4 @@
+import { codeBlockTransformers } from "./codeBlocks";
 import { remarkCallouts } from "./remarkCallouts";
 import { remarkRewriteLinks } from "./remarkRewriteLinks";
 import type { LinkContext } from "../domain";
@@ -50,6 +51,7 @@ export async function renderMarkdown(
     shikiConfig: {
       themes: { light: "github-light-high-contrast", dark: "github-dark-default" },
       defaultColor: false,
+      transformers: codeBlockTransformers(),
     },
     remarkPlugins: [
       [remarkRewriteLinks, options],

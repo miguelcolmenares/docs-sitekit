@@ -3,6 +3,7 @@
 @import "@fontsource-variable/geist-mono";
 @import "./tokens.css";
 @import "./prose.css";
+@import "./code.css";
 
 /* The `dark:` variant applies inside the dark theme, which is the `data-theme` attribute on <html>. */
 @custom-variant dark (&:is([data-theme="dark"] *));

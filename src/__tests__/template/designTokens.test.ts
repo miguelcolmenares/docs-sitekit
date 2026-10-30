@@ -98,6 +98,107 @@ describe.each(Object.keys(THEMES))("design tokens, WCAG contrast, %s theme", (th
   });
 });
 
+/**
+ * The text colors of the two Shiki themes the site uses (see renderMarkdown.ts), by theme of the page. The page's dark theme
+ * uses github-dark-default and its light theme github-light-high-contrast. The colors that are backgrounds in those
+ * themes (`markup.ignored`, `carriage-return`) are not text and are left out; a test below fails when a theme has a
+ * text color this list does not know.
+ */
+const CODE_THEMES = {
+  dark: {
+    file: "github-dark-default.mjs",
+    text: [
+      "#8b949e",
+      "#ff7b72",
+      "#79c0ff",
+      "#ffa657",
+      "#e6edf3",
+      "#d2a8ff",
+      "#7ee787",
+      "#a5d6ff",
+      "#ffa198",
+      "#f0f6fc",
+    ],
+    notText: ["#161b22"],
+  },
+  light: {
+    file: "github-light-high-contrast.mjs",
+    text: [
+      "#66707b",
+      "#a0111f",
+      "#023b95",
+      "#702c00",
+      "#0e1116",
+      "#622cbc",
+      "#024c1a",
+      "#032563",
+      "#6e011a",
+      "#4b535d",
+    ],
+    notText: ["#ffffff", "#e7ecf0"],
+  },
+} as const;
+
+describe.each(Object.keys(THEMES))("code highlight and diff tones, %s theme", (theme) => {
+  const set = THEMES[theme]!;
+  const { file, text, notText } = CODE_THEMES[theme as keyof typeof CODE_THEMES];
+  const TONES = ["code-highlight", "code-add", "code-remove"] as const;
+
+  it("the Shiki theme has the text colors this test knows, and no other", () => {
+    // The theme file is a module that holds one JSON string: read the string, then the JSON in it.
+    const module = readFileSync(
+      join(ROOT, "template", "node_modules", "@shikijs", "themes", "dist", file),
+      "utf8",
+    );
+    const json = JSON.parse(/JSON\.parse\(("(?:[^"\\]|\\.)*")\)/.exec(module)![1]!) as string;
+    const parsed = JSON.parse(json) as {
+      tokenColors: Array<{ settings?: { foreground?: string } }>;
+    };
+    const found = new Set(
+      parsed.tokenColors.flatMap((rule) => rule.settings?.foreground?.toLowerCase() ?? []),
+    );
+    expect(found.size).toBeGreaterThan(8);
+    expect(
+      [...found].filter(
+        (color) =>
+          !(text as readonly string[]).includes(color!) &&
+          !(notText as readonly string[]).includes(color!),
+      ),
+    ).toEqual([]);
+    for (const color of text) expect(found).toContain(color);
+  });
+
+  const cases = TONES.flatMap((tone) => text.map((color) => [tone, color] as const));
+  it.each(cases)("%s keeps the code color %s at 4.5:1 or more (AA)", (tone, color) => {
+    expect(contrast(color, set[tone]!)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it.each(TONES)("%s can be told from the code surface, so a highlight is visible", (tone) => {
+    expect(contrast(set[tone]!, set.surface!)).toBeGreaterThanOrEqual(1.03);
+  });
+
+  it.each(
+    TONES.flatMap((tone) =>
+      ["fg", "fg-muted", "success", "danger"].map((name) => [tone, name] as const),
+    ),
+  )(
+    "%s keeps the %s text token at 4.5:1 or more, for the signs and any text over it",
+    (tone, name) => {
+      expect(contrast(set[name]!, set[tone]!)).toBeGreaterThanOrEqual(4.5);
+    },
+  );
+
+  it("the left edge of a line (accent-strong, success, danger) reaches 3:1 on its own tone", () => {
+    expect(contrast(set["accent-strong"]!, set["code-highlight"]!)).toBeGreaterThanOrEqual(3);
+    expect(contrast(set.success!, set["code-add"]!)).toBeGreaterThanOrEqual(3);
+    expect(contrast(set.danger!, set["code-remove"]!)).toBeGreaterThanOrEqual(3);
+  });
+
+  it("the copy button text (fg-muted on surface-3) reaches 4.5:1", () => {
+    expect(contrast(set["fg-muted"]!, set["surface-3"]!)).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
 describe("generated CSS", () => {
   it("is in sync with design/tokens.json", () => {
     expect(() =>

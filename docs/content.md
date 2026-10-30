@@ -70,6 +70,10 @@ What the check reads, and what it does not:
 - An anchor is checked only against pages that are on the site. A link into an excluded page, or into a file that is only in the repository, is not checked for its anchor.
 - The changelog is not checked for repeated headings, because `Added` and `Fixed` come back under every version.
 
+## Code blocks
+
+A fenced block can have a title, highlighted lines and added or removed lines, written after the language, such as `ts title="src/config.ts" {2,4-6}`. Every block has a button that copies its code. See [Code blocks](./code-blocks.md) for the syntax, what the button copies and what it does without JavaScript.
+
 ## Exclude and replace
 
 `anonymize.excludePaths` keeps files from being read at all. `anonymize.replace` swaps literal text everywhere, for a client name or an internal host.

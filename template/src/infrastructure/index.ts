@@ -1,5 +1,6 @@
 export * from "./cn";
 export * from "./customBrands";
+export * from "./codeBlocks";
 export * from "./readSources";
 export * from "./repositoryVersion";
 export * from "./remarkCallouts";
