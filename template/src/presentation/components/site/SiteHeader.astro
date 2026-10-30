@@ -54,7 +54,7 @@ const isCurrent = (href: string) => Boolean(current) && (current === href || (hr
       }
       {
         action && (
-          <a href={action.href} class={`${buttonVariants({ size: "sm" })} hidden md:inline-flex`}>
+          <a href={action.href} class={`${buttonVariants({ size: "sm" })} max-md:hidden`}>
             {action.label}
           </a>
         )

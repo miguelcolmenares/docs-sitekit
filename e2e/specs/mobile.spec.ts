@@ -246,14 +246,17 @@ test.describe("contrast measured in the browser", () => {
           expect(offenders.filter((offender) => offender.element.startsWith("span"))).toEqual([]);
         });
 
-        test(`the open mobile menu at ${viewport.name} reaches AA`, async ({ page }) => {
-          await page.setViewportSize({ width: viewport.width, height: viewport.height });
-          await page.goto(BASE);
-          await page.getByRole("button", { name: "Open menu" }).click();
-          await expect(page.getByRole("dialog")).toBeVisible();
-          const { offenders } = await measureContrast(page);
-          expect(offenders).toEqual([]);
-        });
+        // The menu button is hidden from md up, so the open menu only exists at the phone widths.
+        if (viewport.width < 768) {
+          test(`the open mobile menu at ${viewport.name} reaches AA`, async ({ page }) => {
+            await page.setViewportSize({ width: viewport.width, height: viewport.height });
+            await page.goto(BASE);
+            await page.getByRole("button", { name: "Open menu" }).click();
+            await expect(page.getByRole("dialog")).toBeVisible();
+            const { offenders } = await measureContrast(page);
+            expect(offenders).toEqual([]);
+          });
+        }
       }
     });
   }
