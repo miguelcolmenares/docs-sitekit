@@ -134,6 +134,9 @@ With the `llms` key in `sitekit.config.json`, the site also writes an `llms.txt`
 one, for assistants and developer tools. It is a community proposal, not a search feature: Google Search does not use it.
 See [docs/llms.md](docs/llms.md).
 
+With the `editLink` and `lastUpdated` keys, every page ends with a link to edit its source file on the repository host and the date of
+the last commit that changed that file. A new site has both on. See [docs/edit-link.md](docs/edit-link.md).
+
 ## Theme
 
 The site is dark by default. A header switch lets the visitor pick the light theme, and the choice is remembered in the browser. Set `theme.default` in `sitekit.config.json` to `light`, or to `system` to follow the operating system, to change the first view. A site generated before this option was added keeps its own tokens file and has no light set, so it stays dark until it adds one (see `design/tokens.json` in the site).

@@ -22,6 +22,13 @@ export interface Environment {
    * included. Undefined when it cannot be told, for example when the folder is not a git repository.
    */
   hasUncommittedChanges(directory: string): boolean | undefined;
+  /**
+   * The branch the repository is developed on: the one `origin` points its HEAD at, else the branch
+   * that is checked out. Undefined when git cannot tell.
+   */
+  defaultBranch(directory: string): string | undefined;
+  /** Whether the clone is shallow (its history was cut). Undefined when it cannot be told, for example outside git. */
+  isShallowClone(directory: string): boolean | undefined;
 }
 
 /** One file of the template, with its path inside the template and its text. */

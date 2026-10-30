@@ -14,6 +14,7 @@ const config = (
   llms: Record<string, unknown> = {},
   base = "/",
   search: boolean = true,
+  options: Record<string, unknown> = {},
 ) =>
   parseSiteConfig({
     site: {
@@ -28,6 +29,7 @@ const config = (
     anonymize,
     llms,
     search: { enabled: search },
+    ...options,
   });
 
 const doc = (path: string, content: string): SourceFile => ({
@@ -50,6 +52,8 @@ function run(options: {
   search?: boolean;
   routes?: string[];
   existing?: string[];
+  config?: Record<string, unknown>;
+  shallow?: boolean;
 }) {
   const fs = new MemoryFileSystem(
     options.dist
@@ -58,7 +62,7 @@ function run(options: {
   );
   const deps: CheckDeps = {
     fs,
-    env: fakeEnv({ visibility: options.visibility ?? "public" }),
+    env: fakeEnv({ visibility: options.visibility ?? "public", shallow: options.shallow }),
     loadContent: () => ({
       config: config(
         options.deploy,
@@ -66,6 +70,7 @@ function run(options: {
         options.llms,
         options.base,
         options.search ?? true,
+        options.config,
       ),
       files: options.files ?? [doc("docs/a.md", "# A\n\nFine.")],
       documents: options.documents ?? [],
@@ -427,5 +432,45 @@ describe("checkSite content findings", () => {
 
   it("finds an image that exists in the repository", () => {
     expect(runContent([broken], ["docs/flow.png"]).content).toHaveLength(1);
+  });
+});
+
+describe("checkSite edit link and last updated", () => {
+  const lastUpdatedOn = { lastUpdated: { enabled: true } };
+
+  it("warns about a shallow clone when lastUpdated is on, and does not fail the site", () => {
+    const report = run({ config: lastUpdatedOn, shallow: true });
+    expect(report.warnings.join()).toMatch(/shallow clone.*fetch-depth: 0/);
+    expect(report.errors).toEqual([]);
+  });
+
+  it("says nothing about a full clone, a clone git cannot describe, or a site with the option off", () => {
+    expect(run({ config: lastUpdatedOn, shallow: false }).warnings).toEqual([]);
+    expect(run({ config: lastUpdatedOn, shallow: undefined }).warnings).toEqual([]);
+    expect(run({ shallow: true }).warnings).toEqual([]);
+  });
+
+  it("warns when the edit link is on and the repository is on a host the kit does not know", () => {
+    const own = {
+      site: {
+        name: "W",
+        description: "d",
+        url: "https://me.github.io",
+        repository: "https://git.example.org/me/widget",
+      },
+      hero: { title: "W", lede: "l", primary: { label: "Go", href: "/" } },
+      editLink: { enabled: true },
+    };
+    const report = run({
+      config: own,
+    });
+    expect(report.warnings.join()).toMatch(
+      /host of https:\/\/git\.example\.org\/me\/widget is not known/,
+    );
+    expect(report.errors).toEqual([]);
+  });
+
+  it("is quiet when the edit link is on and the host is GitHub", () => {
+    expect(run({ config: { editLink: { enabled: true } } }).warnings).toEqual([]);
   });
 });

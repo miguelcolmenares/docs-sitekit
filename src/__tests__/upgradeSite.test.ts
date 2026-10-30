@@ -55,7 +55,7 @@ function setup({
   );
   // `init` writes a config without the newer options, as a site made by 0.1.0 has it.
   const config = JSON.parse(fs.readText(`${SITE}/sitekit.config.json`)) as Record<string, unknown>;
-  for (const key of ["theme", "search", "llms"]) delete config[key];
+  for (const key of ["theme", "search", "llms", "editLink", "lastUpdated"]) delete config[key];
   fs.writeText(`${SITE}/sitekit.config.json`, `${JSON.stringify(config, null, 2)}\n`);
   for (const [path, text] of Object.entries(edits)) fs.writeText(`${SITE}/${path}`, text);
   const lockBefore = fs.readText(`${SITE}/${LOCK_FILE}`);
@@ -208,10 +208,16 @@ describe("upgradeSite", () => {
   });
 
   describe("options that did not exist before", () => {
-    it("adds theme, search and llms with the values that keep the site as it was", () => {
+    it("adds theme, search, llms, editLink and lastUpdated with the values that keep the site as it was", () => {
       const { fs, upgrade } = setup();
       const result = upgrade();
-      expect(result.options.map((option) => option.key)).toEqual(["theme", "search", "llms"]);
+      expect(result.options.map((option) => option.key)).toEqual([
+        "theme",
+        "search",
+        "llms",
+        "editLink",
+        "lastUpdated",
+      ]);
       const config = JSON.parse(fs.readText(`${SITE}/sitekit.config.json`)) as Record<
         string,
         unknown
@@ -219,6 +225,8 @@ describe("upgradeSite", () => {
       expect(config.theme).toEqual({ default: "dark" });
       expect(config.search).toEqual({ enabled: false });
       expect(config.llms).toEqual({ enabled: false, optional: [], markdownPages: false });
+      expect(config.editLink).toEqual({ enabled: false, branch: "main" });
+      expect(config.lastUpdated).toEqual({ enabled: false });
       expect((config.site as { name: string }).name).toBe("widget");
     });
 
@@ -230,10 +238,26 @@ describe("upgradeSite", () => {
       config.theme = { default: "light" };
       fs.writeText(path, JSON.stringify(config));
       const result = upgrade();
-      expect(result.options.map((option) => option.key)).toEqual(["llms"]);
+      expect(result.options.map((option) => option.key)).toEqual([
+        "llms",
+        "editLink",
+        "lastUpdated",
+      ]);
       const after = JSON.parse(fs.readText(path)) as Record<string, unknown>;
       expect(after.search).toEqual({ enabled: true });
       expect(after.theme).toEqual({ default: "light" });
+    });
+
+    it("does not turn the edit link or the dates off on a site that already has their files", () => {
+      const withBoth = [
+        ...OLD,
+        { path: "src/domain/editLink.ts", content: "export {};\n" },
+        { path: "src/domain/lastUpdated.ts", content: "export {};\n" },
+      ];
+      const { upgrade } = setup({ oldFiles: withBoth });
+      const keys = upgrade().options.map((option) => option.key);
+      expect(keys).not.toContain("editLink");
+      expect(keys).not.toContain("lastUpdated");
     });
 
     it("does not turn search off on a site that already has the search files", () => {
@@ -254,7 +278,7 @@ describe("upgradeSite", () => {
       expect(result.replaced).toContain("site/src/kit-changes.ts");
       expect(result.conflicts).toEqual(["site/src/both.ts"]);
       expect(result.added).toHaveLength(1);
-      expect(result.options).toHaveLength(3);
+      expect(result.options).toHaveLength(5);
     });
 
     it("is the default while the working tree has uncommitted changes", () => {

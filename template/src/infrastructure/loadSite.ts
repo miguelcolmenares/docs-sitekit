@@ -1,7 +1,9 @@
-import { publishedRoutes, buildDocuments, validateContent } from "../application";
+import { buildDocuments, buildPageMeta, publishedRoutes, validateContent } from "../application";
 import { matchesAny } from "../domain";
 import type { BrandGlyph, ContentFinding, Document, LinkContext, SiteConfig } from "../domain";
+import type { PageMeta } from "../application";
 import { readCustomBrands } from "./customBrands";
+import { readGitHistory } from "./gitHistory";
 import { renderMarkdown } from "./renderMarkdown";
 import type { RenderedMarkdown } from "./renderMarkdown";
 import { readSources } from "./readSources";
@@ -21,6 +23,8 @@ export interface Site {
   /** Join a path to the site base: `href("docs/")` becomes `/repo/docs/`. */
   href: (path: string) => string;
   render: (document: Document) => Promise<RenderedMarkdown>;
+  /** What a page shows at its foot: the address to edit its source and the date of its last change. */
+  pageMeta: (document: Document) => PageMeta;
   /** The link rules for one page, the same ones the page HTML and its Markdown copy use. */
   linkContext: (document: Document) => LinkContext;
 }
@@ -41,6 +45,8 @@ export function loadSite(siteDir: string = process.cwd()): Site {
     config,
     existing: sources.existing,
   });
+  const meta = buildPageMeta(config, () => readGitHistory(sources.root));
+  for (const message of meta.warnings) console.warn(`[docs-sitekit] ${message}`);
 
   const contextFor = (document: Document): LinkContext => ({
     file: document.path,
@@ -57,6 +63,7 @@ export function loadSite(siteDir: string = process.cwd()): Site {
     customBrands: readCustomBrands(siteDir, config),
     findings,
     href: (path) => `${config.site.base}${path.replace(/^\//, "")}`,
+    pageMeta: meta.of,
     linkContext: contextFor,
     render: (document) =>
       renderMarkdown(document.body, {

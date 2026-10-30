@@ -76,6 +76,7 @@ function collectFacts(deps: InitDeps, root: string): RepositoryFacts {
   return {
     packageJson: readJson(fs, joinPath(root, "package.json")) as RepositoryFacts["packageJson"],
     remoteUrl: env.remoteUrl(root),
+    defaultBranch: env.defaultBranch(root),
     readmeDescription: readme || undefined,
     collections: findCollections(fs, root),
     hasChangelog: fs.exists(joinPath(root, "CHANGELOG.md")),

@@ -20,6 +20,7 @@ The design system is a set of React components, written in the shadcn style and 
 - **FeatureGrid**, an icon, an eyebrow, a title and text. The icon can be a brand logo, see [Brand logos](./brand-logos.md).
 - **StatRow**, two to five numbers, each with a label and an optional note.
 - **CatalogFilter**, a text field and tag buttons that narrow the cards of an index page. See [CatalogFilter](#catalogfilter).
+- **PageInfo**, the line at the foot of a page: an "Edit this page" link and the date of the last change. See [Edit this page](./edit-link.md).
 - **FlowDiagram**, steps in a row that stack on small screens.
 - **CommandTable**, a command and what it does.
 - **Callout**, a note, a tip, an important point, a warning or a caution. The same five also come from markdown, see [Callouts](./callouts.md).

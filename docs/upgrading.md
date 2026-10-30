@@ -73,8 +73,8 @@ so the next upgrade finds the same conflict until your file is the new version.
 - **`sitekit.config.json`**, with one exception: an option that did not exist in your version is added with the value that keeps the
   site as it was. Nothing you have set is changed.
 
-The options added this way are `theme` with `default: "dark"`, `search` with `enabled: false` and `llms` with `enabled: false`. The
-site looks and works as before, and you turn a feature on when you want it. `search` and `llms` are not written when the site already has the
+The options added this way are `theme` with `default: "dark"`, `search`, `llms`, `editLink` and `lastUpdated` with `enabled: false`. The
+site looks and works as before, and you turn a feature on when you want it. A key is not written when the site already has the
 files of that feature.
 
 `package.json` and `package-lock.json` are compared like any other file, with the name and description your site already has, so the

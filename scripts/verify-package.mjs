@@ -49,6 +49,25 @@ function run(command, args, options = {}) {
   }
 }
 
+/** Run git in a folder with a fixed identity. A date makes the commit as old as that date. */
+const gitIn = (cwd, args, date) =>
+  run(
+    "git",
+    [
+      "-c",
+      "user.name=Test",
+      "-c",
+      "user.email=test@example.com",
+      "-c",
+      "commit.gpgsign=false",
+      ...args,
+    ],
+    {
+      cwd,
+      env: { ...process.env, ...(date ? { GIT_AUTHOR_DATE: date, GIT_COMMITTER_DATE: date } : {}) },
+    },
+  );
+
 const runLoud = (command, args, options = {}) =>
   execFileSync(command, args, { stdio: "inherit", ...options });
 
@@ -370,6 +389,16 @@ check("the config comes from the repository", () => {
     `install command: ${site.installCommand}`,
   );
 });
+check("a new site has the edit link on the branch of the repository, and the dates on", () => {
+  const { editLink, lastUpdated } = JSON.parse(
+    readFileSync(join(SITE, "sitekit.config.json"), "utf8"),
+  );
+  assert(
+    editLink?.enabled === true && editLink.branch === "main",
+    `editLink: ${JSON.stringify(editLink)}`,
+  );
+  assert(lastUpdated?.enabled === true, `lastUpdated: ${JSON.stringify(lastUpdated)}`);
+});
 check("init found docs, tutorials (inside docs/) and examples, each as its own collection", () => {
   const { collections } = JSON.parse(readFileSync(join(SITE, "sitekit.config.json"), "utf8"));
   assert(
@@ -400,6 +429,7 @@ check(
       "a release does not trigger a rebuild",
     );
     assert(!workflow.includes("__SITEKIT_VERSION__"), "the version placeholder was left in");
+    assert(/fetch-depth: 0/.test(workflow), "the checkout is shallow, so no page has its own date");
     assert(!workflow.includes("configure-pages"), "it uses configure-pages");
   },
 );
@@ -520,6 +550,27 @@ check("check finds a credential in the docs, masked, and passes again once it is
   assert(/Safe to publish/.test(sitekit(["check"])), "still failing after removal");
 });
 
+// A git history for the dates: every file was added on 2026-01-10, and only the guide changed after that.
+gitIn(REPO, ["add", "-A"]);
+gitIn(REPO, ["commit", "-q", "-m", "Add the widget and its docs"], "2026-01-10T12:00:00Z");
+writeFileSync(
+  join(REPO, "docs", "guide.md"),
+  `${readFileSync(join(REPO, "docs", "guide.md"), "utf8")}\n## Later\n\nAdded after the first commit.\n`,
+);
+gitIn(REPO, ["add", "docs/guide.md"]);
+gitIn(REPO, ["commit", "-q", "-m", "Extend the guide"], "2026-03-15T12:00:00Z");
+check("check warns about a shallow clone when lastUpdated is on, and still passes", () => {
+  const shallow = join(WORK, "repo-shallow");
+  gitIn(WORK, ["clone", "-q", "--depth", "1", `file://${REPO}`, shallow]);
+  const output = run("node", [CLI, "check", "--root", shallow]);
+  assert(/warning: lastUpdated is on, but this is a shallow clone/.test(output), `got: ${output}`);
+  assert(/fetch-depth: 0/.test(output), "the warning does not say how to fix it");
+  assert(/Safe to publish/.test(output), "a shallow clone must warn, not fail");
+});
+check("check does not warn about a full clone", () => {
+  assert(!/shallow/.test(sitekit(["check"])), "a full clone was called shallow");
+});
+
 console.log("4/6 Install and build the generated site");
 runLoud("npm", ["ci", "--no-audit", "--no-fund"], { cwd: SITE });
 const firstBuild = capture("npm", ["run", "build"], {
@@ -597,6 +648,26 @@ check("the docs index has a filter bar built from the tags, hidden until a scrip
   assert(
     !/<div[^>]*\bdata-catalog-filter\b/.test(read("tutorials/index.html")),
     "a catalog without tags got a filter bar",
+  );
+});
+check("a page has the edit link to its file and the date of the file's own last commit", () => {
+  const guide = read("docs/guide/index.html");
+  const started = read("docs/getting-started/index.html");
+  assert(
+    guide.includes('href="https://github.com/demo/widget/edit/main/docs/guide.md"'),
+    "the guide has no edit link",
+  );
+  assert(
+    /<time datetime="2026-03-15">15 March 2026<\/time>/.test(guide),
+    "the guide date is wrong",
+  );
+  assert(
+    /<time datetime="2026-01-10">10 January 2026<\/time>/.test(started),
+    "the date is the last commit of the repository",
+  );
+  assert(
+    !/edit\//.test(read("index.html")) && !/<time/.test(read("404.html")),
+    "the home page or 404 has the footer",
   );
 });
 check("an excluded file is not on the site", () => {
@@ -882,6 +953,10 @@ check("the lock moved to this version, and the options keep the site as it was",
   assert(lock.sitekit === version, `the lock says ${lock.sitekit}`);
   const config = JSON.parse(readFileSync(siteFile("sitekit.config.json"), "utf8"));
   assert(config.search?.enabled === false && config.llms?.enabled === false, "options not set off");
+  assert(
+    config.editLink?.enabled === false && config.lastUpdated?.enabled === false,
+    "the edit link or the dates were turned on for a site that did not have them",
+  );
   assert(config.theme?.default === "dark", "the theme is not dark");
 });
 check("a second upgrade has nothing left to replace or add", () => {
@@ -901,6 +976,11 @@ check("the upgraded site builds, is still without search and llms.txt, and passe
     "the site gained a search index",
   );
   assert(!existsSync(join(OLD_SITE, "dist", "llms.txt")), "the site gained llms.txt");
+  const oldPage = readFileSync(
+    join(OLD_SITE, "dist", "docs", "getting-started", "index.html"),
+    "utf8",
+  );
+  assert(!/<time|Edit this page/.test(oldPage), "the site gained the edit link or the dates");
   assert(
     /Safe to publish/.test(run("node", [CLI, "check", "--dist", "site/dist"], { cwd: OLD_REPO })),
     "check --dist failed",

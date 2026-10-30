@@ -16,6 +16,9 @@ Set the repository to publish from GitHub Actions, and keep `site.base` equal to
 separate job deploys it. The workflow runs when the docs change and when a release is published, so the changelog and the version in the footer
 (read from `package.json` on each build) are always the latest. See the README of the repository for every input of the action.
 
+The checkout in that workflow uses `fetch-depth: 0`, the full history. The date of the last change of a page comes from the history of its file, and a
+shallow clone would give every page the same date. See [Edit this page](./edit-link.md).
+
 ## Check before you publish
 
 ```bash

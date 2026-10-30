@@ -51,12 +51,16 @@ export function fakeEnv(
     remoteUrl?: string;
     visibility?: RepositoryVisibility;
     uncommittedChanges?: boolean;
+    defaultBranch?: string;
+    shallow?: boolean;
   } = {},
 ): Environment {
   return {
     remoteUrl: () => options.remoteUrl,
     repositoryVisibility: () => options.visibility ?? "public",
     hasUncommittedChanges: () => options.uncommittedChanges,
+    defaultBranch: () => options.defaultBranch,
+    isShallowClone: () => options.shallow,
   };
 }
 

@@ -98,6 +98,11 @@
       "files": ["src/presentation/components/site/StatRow.tsx"],
       "requires": []
     },
+    "page-info": {
+      "description": "The line at the foot of a page: an edit link and the date of the last change.",
+      "files": ["src/presentation/components/site/PageInfo.tsx"],
+      "requires": []
+    },
     "flow-diagram": {
       "description": "Steps in a row that stack on small screens.",
       "files": ["src/presentation/components/site/FlowDiagram.tsx"],

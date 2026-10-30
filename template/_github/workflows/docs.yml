@@ -40,6 +40,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The date of the last change of a page comes from the history of its file.
+          # A shallow clone would give every page the date of the last commit. Needed when lastUpdated is on.
+          fetch-depth: 0
       # Installs the site, builds it, checks it, and uploads the Pages artifact.
       - uses: miguelcolmenares/docs-sitekit@v__SITEKIT_VERSION__
         with:

@@ -34,6 +34,15 @@ export const nodeEnvironment: Environment = {
     // An empty answer is a clean tree. No answer at all means git failed or this is not a repository.
     return status === undefined ? undefined : status.length > 0;
   },
+  defaultBranch(directory) {
+    const head = run("git", ["symbolic-ref", "--short", "refs/remotes/origin/HEAD"], directory);
+    const fromOrigin = head?.replace(/^origin\//, "");
+    return fromOrigin || run("git", ["branch", "--show-current"], directory) || undefined;
+  },
+  isShallowClone(directory) {
+    const answer = run("git", ["rev-parse", "--is-shallow-repository"], directory);
+    return answer === "true" ? true : answer === "false" ? false : undefined;
+  },
   repositoryVisibility(repositoryUrl): RepositoryVisibility {
     const repository = parseGitHubUrl(repositoryUrl);
     if (!repository) return "unknown";

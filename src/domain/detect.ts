@@ -19,6 +19,8 @@ export interface RepositoryFacts {
   /** Folders that hold pages, found in the repository, in menu order. `dir` is relative to the repository root. */
   collections: { id: string; label: string; dir: string }[];
   hasChangelog: boolean;
+  /** The branch the repository is developed on, for the "Edit this page" link. */
+  defaultBranch?: string;
   /** Name of the folder, the last resort for a project name. */
   folderName: string;
 }
@@ -80,5 +82,8 @@ export function deriveConfig(facts: RepositoryFacts): SiteConfig {
     })),
     // A new site gets its llms.txt. A site generated before the key existed does not change by itself.
     llms: { enabled: true, optional: [], markdownPages: false },
+    // So do the edit link and the date of the last change. The link needs a repository address on a host the kit knows.
+    editLink: { enabled: github !== undefined, branch: facts.defaultBranch ?? "main" },
+    lastUpdated: { enabled: true },
   });
 }

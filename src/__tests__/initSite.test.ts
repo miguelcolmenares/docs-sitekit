@@ -69,6 +69,31 @@ describe("initSite", () => {
     });
   });
 
+  it("writes the edit link and the dates on for a new site on GitHub, on the branch of the repository", () => {
+    const { fs, deps } = setup();
+    const env = { ...deps.env, defaultBranch: () => "trunk" };
+    initSite({ ...deps, env }, { root: ROOT, siteDir: "site" });
+    const config = JSON.parse(fs.readText(`${ROOT}/site/sitekit.config.json`));
+    expect(config.editLink).toEqual({ enabled: true, branch: "trunk" });
+    expect(config.lastUpdated).toEqual({ enabled: true });
+  });
+
+  it("uses main when git cannot name the branch", () => {
+    const { fs, run } = setup();
+    run();
+    expect(JSON.parse(fs.readText(`${ROOT}/site/sitekit.config.json`)).editLink.branch).toBe(
+      "main",
+    );
+  });
+
+  it("leaves the edit link off without a repository address, and keeps the dates on", () => {
+    const { fs, run } = setup({}, "");
+    run();
+    const config = JSON.parse(fs.readText(`${ROOT}/site/sitekit.config.json`));
+    expect(config.editLink.enabled).toBe(false);
+    expect(config.lastUpdated.enabled).toBe(true);
+  });
+
   it("writes only inside the site folder, even when the repository has a src/ of its own", () => {
     const { fs, run } = setup();
     run();

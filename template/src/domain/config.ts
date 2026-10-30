@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { iconProblem } from "./brands";
 import { FINDING_KINDS, isFindingKind } from "./findings";
+import { EDIT_HOSTS } from "./editLink";
 
 const link = z.strictObject({
   label: z.string().min(1),
@@ -159,6 +160,24 @@ export const siteConfigSchema = z
         markdownPages: z.boolean().default(false),
       })
       .default({ enabled: false, optional: [], markdownPages: false }),
+    /**
+     * A link at the foot of every page to its source file on the repository host. A site without the key
+     * has no link. The host comes from `site.repository`, and `host` is for a repository on a domain of its own.
+     */
+    editLink: z
+      .strictObject({
+        enabled: z.boolean().default(false),
+        /** The branch the link opens the file on. */
+        branch: z.string().min(1).default("main"),
+        host: z.enum(EDIT_HOSTS).optional(),
+      })
+      .default({ enabled: false, branch: "main" }),
+    /** The date of the last commit that touched each page, read from git at build time. A site without the key shows none. */
+    lastUpdated: z
+      .strictObject({
+        enabled: z.boolean().default(false),
+      })
+      .default({ enabled: false }),
   })
   .superRefine((config, context) => {
     const known = new Set([...config.collections.map((entry) => entry.id), "changelog"]);

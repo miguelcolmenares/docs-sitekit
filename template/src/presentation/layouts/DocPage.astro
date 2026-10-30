@@ -1,7 +1,9 @@
 ---
 import type { Document } from "../../domain";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { loadSite } from "../../infrastructure";
 import { Breadcrumbs } from "../components/site/Breadcrumbs";
+import { PageInfo } from "../components/site/PageInfo";
 import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
@@ -17,6 +19,7 @@ const { doc, html, headings, siblings, collectionLabel, collectionHref, homeHref
 const index = siblings.findIndex((sibling) => sibling.route === doc.route);
 const previous = index > 0 ? siblings[index - 1] : undefined;
 const next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : undefined;
+const { editUrl, updated } = loadSite().pageMeta(doc);
 const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 ---
 
@@ -51,6 +54,7 @@ const toc = headings.filter((heading) => heading.depth === 2 || heading.depth ==
       <h1 class="mt-6 text-balance text-[clamp(2rem,5vw,3rem)] leading-[1.08] font-semibold tracking-[-0.035em] text-fg-bright">{doc.title}</h1>
       {doc.description && doc.descriptionSource === "frontmatter" && <p class="mt-4 text-lg leading-relaxed text-fg-muted">{doc.description}</p>}
       <div class="prose-site mt-10" set:html={html} data-prose />
+      <PageInfo editUrl={editUrl} updated={updated} />
       <nav aria-label="Previous and next" class="mt-16 grid grid-cols-1 gap-4 border-t border-border pt-8 sm:grid-cols-2">
         {
           previous ? (

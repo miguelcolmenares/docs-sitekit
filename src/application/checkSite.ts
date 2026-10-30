@@ -1,6 +1,6 @@
 import { scanText } from "../domain";
 import type { Finding } from "../domain";
-import { LLMS_FILE } from "../../template/src/domain";
+import { LLMS_FILE, resolveEditHost, SHALLOW_CLONE_WARNING } from "../../template/src/domain";
 import type { ContentFinding, Document, SiteConfig, SourceFile } from "../../template/src/domain";
 import { validateContent } from "../../template/src/application";
 import { checkLlms } from "./checkLlms";
@@ -120,6 +120,17 @@ export function checkSite(deps: CheckDeps, options: CheckOptions): CheckReport {
 
   // The same findings the build prints: links, images, anchors, frontmatter, headings and callout markers.
   report.content.push(...validateContent(files, documents, { config, existing }));
+  // The edit link and the date of the last change depend on the repository, so a setup that cannot give them is said out loud.
+  if (config.editLink.enabled) {
+    const resolution = resolveEditHost(config.site.repository, config.editLink.host);
+    if (!resolution.ok) report.warnings.push(resolution.reason);
+  }
+  if (
+    config.lastUpdated.enabled &&
+    env.isShallowClone(joinPath(options.root, options.siteDir, config.sources.root)) === true
+  ) {
+    report.warnings.push(SHALLOW_CLONE_WARNING);
+  }
 
   // 2. Visibility: a private repository's Pages site is public.
   if (config.deploy.target === "github-pages") {

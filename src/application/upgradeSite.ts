@@ -87,6 +87,16 @@ const NEW_OPTIONS: Array<{ key: string; value: unknown; introducedBy?: string }>
     value: { enabled: false, optional: [], markdownPages: false },
     introducedBy: "src/application/buildLlmsText.ts",
   },
+  {
+    key: "editLink",
+    value: { enabled: false, branch: "main" },
+    introducedBy: "src/domain/editLink.ts",
+  },
+  {
+    key: "lastUpdated",
+    value: { enabled: false },
+    introducedBy: "src/domain/lastUpdated.ts",
+  },
 ];
 
 function readJson(fs: FileSystem, path: string): Record<string, unknown> | undefined {

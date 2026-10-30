@@ -81,7 +81,15 @@
         {
           "name": "Content",
           "tone": "success",
-          "items": ["content", "callouts", "code-blocks", "deploying", "search", "llms"]
+          "items": [
+            "content",
+            "callouts",
+            "code-blocks",
+            "deploying",
+            "search",
+            "llms",
+            "edit-link"
+          ]
         }
       ]
     },
@@ -102,6 +110,13 @@
   },
   "check": {
     "callouts": "off"
+  },
+  "editLink": {
+    "enabled": true,
+    "branch": "main"
+  },
+  "lastUpdated": {
+    "enabled": true
   },
   "llms": {
     "enabled": true,

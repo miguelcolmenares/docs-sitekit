@@ -99,6 +99,22 @@ describe("deriveConfig", () => {
     expect(config.collections.every((c) => c.groups.length === 0)).toBe(true);
   });
 
+  it("turns the edit link on for a GitHub repository, on the branch the repository uses, and the dates on", () => {
+    const config = deriveConfig(
+      facts({ remoteUrl: "https://github.com/me/proj.git", defaultBranch: "develop" }),
+    );
+    expect(config.editLink).toEqual({ enabled: true, branch: "develop" });
+    expect(config.lastUpdated).toEqual({ enabled: true });
+  });
+
+  it("uses main when the branch is not known, and leaves the link off without a GitHub repository", () => {
+    const github = deriveConfig(facts({ remoteUrl: "https://github.com/me/proj.git" }));
+    expect(github.editLink.branch).toBe("main");
+    const none = deriveConfig(facts());
+    expect(none.editLink.enabled).toBe(false);
+    expect(none.lastUpdated.enabled).toBe(true);
+  });
+
   it("produces a config that passes the schema without a GitHub remote", () => {
     const config = deriveConfig(facts({ packageJson: { name: "x" } }));
     expect(config.site.url).toBe("https://example.github.io");
