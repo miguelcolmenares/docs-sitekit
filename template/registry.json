@@ -86,7 +86,7 @@
       "requires": []
     },
     "callout": {
-      "description": "A note, a tip or a warning.",
+      "description": "A note, a tip, an important point, a warning or a caution.",
       "files": ["src/presentation/components/site/Callout.tsx"],
       "requires": ["cn"]
     },

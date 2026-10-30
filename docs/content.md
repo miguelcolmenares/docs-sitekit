@@ -27,6 +27,10 @@ Write ordinary relative links, the ones that also work on GitHub.
 
 Links inside code are never touched.
 
+## Callouts
+
+Start a blockquote with `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]` or `> [!CAUTION]` on a line of its own, the alert syntax that GitHub also renders, and it becomes a callout with its own icon, color and visible label. The marker line is removed, and the rest can hold paragraphs, lists and code. A blockquote without a marker, or with a name that is not one of these five, stays a plain blockquote, and a marker inside code is never touched. See [Callouts](./callouts.md) for each kind.
+
 ## Exclude and replace
 
 `anonymize.excludePaths` keeps files from being read at all. `anonymize.replace` swaps literal text everywhere, for a client name or an internal host.

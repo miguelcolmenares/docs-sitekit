@@ -8,6 +8,7 @@ const ROUTES = [
   `${BASE}docs/`,
   `${BASE}docs/getting-started/`,
   `${BASE}docs/guide/`,
+  `${BASE}docs/callouts/`,
   `${BASE}docs/overview/`,
   `${BASE}tutorials/`,
   `${BASE}tutorials/first-steps/`,

@@ -1,3 +1,4 @@
+import { remarkCallouts } from "./remarkCallouts";
 import { remarkRewriteLinks } from "./remarkRewriteLinks";
 import type { LinkContext } from "../domain";
 
@@ -50,7 +51,10 @@ export async function renderMarkdown(
       themes: { light: "github-light-high-contrast", dark: "github-dark-default" },
       defaultColor: false,
     },
-    remarkPlugins: [[remarkRewriteLinks, options]],
+    remarkPlugins: [
+      [remarkRewriteLinks, options],
+      [remarkCallouts, {}],
+    ],
     rehypePlugins: [rehypeExternalLinks],
   });
   const result = await processor.render(markdown);

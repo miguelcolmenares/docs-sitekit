@@ -20,7 +20,7 @@ The design system is a set of React components, written in the shadcn style and 
 - **FeatureGrid**, an icon, an eyebrow, a title and text.
 - **FlowDiagram**, steps in a row that stack on small screens.
 - **CommandTable**, a command and what it does.
-- **Callout**, a note, a tip or a warning.
+- **Callout**, a note, a tip, an important point, a warning or a caution. The same five also come from markdown, see [Callouts](./callouts.md).
 - **ToneBadge**, the only place a status color is chosen.
 
 ## Rules

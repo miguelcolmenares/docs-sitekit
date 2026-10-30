@@ -192,6 +192,55 @@ write(
   join(REPO, "docs", "guide.md"),
   "# Guide\n\nThe longer guide.\n\n## Advanced\n\nAdvanced use.\n",
 );
+write(
+  join(REPO, "docs", "callouts.md"),
+  [
+    "# Callouts",
+    "",
+    "Notes written in markdown.",
+    "",
+    "> [!NOTE]",
+    "> A note with a [link to the guide](./guide.md) and `inline code`.",
+    "",
+    "> [!TIP]",
+    "> A tip with a list:",
+    ">",
+    "> - first item",
+    "> - second item",
+    "",
+    "> [!IMPORTANT]",
+    "> Something important.",
+    "",
+    "> [!WARNING]",
+    "> A warning with code:",
+    ">",
+    "> ```ts",
+    "> export const longLine = { endpoint: 'https://example.com/a/very/long/path/that/keeps/going/and/going/and/going/until/it/is/wider/than/a/phone', retries: 3 };",
+    "> ```",
+    "",
+    "> [!CAUTION]",
+    "> Something that can cause harm.",
+    "",
+    "- A list item with a callout:",
+    "  > [!NOTE]",
+    "  > Inside the list.",
+    "",
+    "> A plain quote, not a callout.",
+    "",
+    "> [!NOTES]",
+    "> An unknown marker stays a quote.",
+    "",
+    "A marker in code stays as written:",
+    "",
+    "```markdown",
+    "> [!NOTE]",
+    "> In a code block.",
+    "```",
+    "",
+    "And in a code span: `> [!TIP]`.",
+    "",
+  ].join("\n"),
+);
 write(join(REPO, "docs", "internal", "plan.md"), "# Plan\n\nNot for the site.\n");
 write(
   join(REPO, "docs", "README.md"),
@@ -310,7 +359,7 @@ config.anonymize.excludePaths = ["docs/internal/**"];
 config.llms = { enabled: true, optional: ["examples"], markdownPages: true };
 config.collections[0].groups = [
   { name: "Start", tone: "brand", items: ["overview", "getting-started"] },
-  { name: "Use", tone: "success", items: ["guide"] },
+  { name: "Use", tone: "success", items: ["guide", "callouts"] },
 ];
 writeFileSync(configPath, JSON.stringify(config, null, 2));
 check("check fails on a page that no group lists, and says how to fix it", () => {
@@ -372,6 +421,7 @@ check("every document, example and the changelog became a page with its own titl
     "index.html": "widget",
     "docs/getting-started/index.html": "Getting started",
     "docs/guide/index.html": "Guide",
+    "docs/callouts/index.html": "Callouts",
     "docs/overview/index.html": "Widget documentation",
     "tutorials/first-steps/index.html": "First steps",
     "tutorials/index.html": "Tutorials",
