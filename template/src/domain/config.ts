@@ -182,7 +182,7 @@ export const siteConfigSchema = z
       .array(link)
       .default([])
       .describe(
-        "The links of the header menu. When it is empty, the header lists the collections and the changelog.",
+        "The links of the header menu. A path that starts with `/` gets the site base. When it is empty, the header lists the collections and the changelog.",
       ),
     footer: z
       .strictObject({
@@ -190,7 +190,7 @@ export const siteConfigSchema = z
           .array(link)
           .default([])
           .describe(
-            "Extra links in the Project column of the footer, after the repository and the issues.",
+            "Extra links in the Project column of the footer, after the repository and the issues. A path that starts with `/` gets the site base.",
           ),
       })
       .default({ links: [] })

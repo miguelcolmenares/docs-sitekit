@@ -50,7 +50,7 @@ What it changes, on the pages of the built site:
 
 - **`title`** is the `h1` of the home page, and **`lede`** is the paragraph under it.
 - **`badge`** is a small line above the title. Without it there is no line.
-- **`primary`** is the first button. A `href` that starts with `/` is a path of the site, and the build adds the `base` to it: with the base `/acme/`, `/docs/getting-started/` becomes `/acme/docs/getting-started/`. The same button is in the closing band of the page.
+- **`primary`** is the first button. A `href` that starts with `/` is a path of the site, and the build adds the `base` to it: with the base `/acme/`, `/docs/getting-started/` becomes `/acme/docs/getting-started/`. This is done to every path, so write it without the base; the links of `nav` and `footer.links` leave a path that already starts with the base as it is, see [The base on a link](./options-navigation.md#the-base-on-a-link). The same button is in the closing band of the page.
 - **`secondary`** is the quieter second link, only in the hero. A full URL is used as written. Without it the hero has one button.
 
 ## Feature cards

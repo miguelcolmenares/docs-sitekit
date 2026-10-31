@@ -64,7 +64,7 @@ The top of the home page.
 
 | Key | Type | Default | Allowed values | Description |
 | --- | --- | --- | --- | --- |
-| `nav` | array of object | `[]` | - | The links of the header menu. When it is empty, the header lists the collections and the changelog. |
+| `nav` | array of object | `[]` | - | The links of the header menu. A path that starts with `/` gets the site base. When it is empty, the header lists the collections and the changelog. |
 | `nav[].label` | string | required | any | The text of the link. |
 | `nav[].href` | string | required | any | Where the link goes: a path of the site such as `/docs/`, or a full URL. |
 
@@ -74,7 +74,7 @@ The footer of every page.
 
 | Key | Type | Default | Allowed values | Description |
 | --- | --- | --- | --- | --- |
-| `footer.links` | array of object | `[]` | - | Extra links in the Project column of the footer, after the repository and the issues. |
+| `footer.links` | array of object | `[]` | - | Extra links in the Project column of the footer, after the repository and the issues. A path that starts with `/` gets the site base. |
 | `footer.links[].label` | string | required | any | The text of the link. |
 | `footer.links[].href` | string | required | any | Where the link goes: a path of the site such as `/docs/`, or a full URL. |
 

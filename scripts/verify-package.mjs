@@ -1190,6 +1190,52 @@ check("the site of the project makes no request to another host from a component
   assert(!/<script[^>]+src="https?:/.test(html), "a script is loaded from another host");
 });
 
+console.log("5d/6 A generated site with a nav and footer links, for the base on links");
+// The default site has no `nav` and no `footer.links`, and the other specs read its default menu. A second build of the
+// same site, with both keys set, is served on the port after the one of the project site. The config is put back.
+const NAV_SITE = join(WORK, "nav-site");
+const savedConfig = readFileSync(configPath, "utf8");
+const withLinks = JSON.parse(savedConfig);
+withLinks.nav = [
+  { label: "Guide", href: "/docs/getting-started/" },
+  { label: "Written with the base", href: "/widget/tutorials/" },
+  { label: "Blog", href: "https://blog.widget.example" },
+  { label: "Contact", href: "mailto:team@widget.example" },
+  { label: "Top", href: "#main" },
+];
+withLinks.footer = {
+  links: [
+    { label: "Status", href: "/changelog/" },
+    { label: "Footer with the base", href: "/widget/examples/" },
+    { label: "Status page", href: "https://status.widget.example" },
+    { label: "Footer contact", href: "mailto:status@widget.example" },
+  ],
+};
+writeFileSync(configPath, JSON.stringify(withLinks, null, 2));
+try {
+  runLoud("npm", ["run", "build", "--", "--outDir", NAV_SITE], {
+    cwd: SITE,
+    env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" },
+  });
+} finally {
+  writeFileSync(configPath, savedConfig);
+}
+check("a path of nav and footer.links gets the base, and the other links are not changed", () => {
+  const html = readFileSync(join(NAV_SITE, "index.html"), "utf8");
+  for (const href of [
+    "/widget/docs/getting-started/",
+    "/widget/tutorials/",
+    "/widget/changelog/",
+    "/widget/examples/",
+    "https://blog.widget.example",
+    "mailto:team@widget.example",
+  ]) {
+    assert(html.includes(`href="${href}"`), `no link to ${href}`);
+  }
+  assert(!html.includes('href="/docs/getting-started/"'), "a nav path was left without the base");
+  assert(!html.includes("/widget/widget/"), "a path that had the base got it twice");
+});
+
 console.log("5b/6 Upgrade a site made by the published 0.1.0");
 // The real 0.1.0 from the registry makes a site, and this build upgrades it. Nothing here is a copy:
 // a site made by an older release has to come out building and passing `check`.

@@ -9,7 +9,7 @@ Each key is documented in the [configuration reference](./configuration.md#nav).
 ```json title="sitekit.config.json" {3-4}
 {
   "nav": [
-    { "label": "Guide", "href": "/acme/docs/getting-started/" },
+    { "label": "Guide", "href": "/docs/getting-started/" },
     { "label": "Blog", "href": "https://blog.acme.example" }
   ]
 }
@@ -17,8 +17,23 @@ Each key is documented in the [configuration reference](./configuration.md#nav).
 
 With a `nav`, the header shows these links, in this order, and the menu that opens on a phone shows the same ones. Without it, the header has one link for each collection that has pages, in the order of `collections`, and then `Changelog` when the site has a changelog page.
 
-> [!WARNING]
-> The `href` of a `nav` link is used as written. The build does not add the `base` to it, as it does for the buttons of the hero. On a site with the base `/acme/`, write `/acme/docs/getting-started/`: a link written as `/docs/getting-started/` goes to `/docs/getting-started/` and misses the site.
+### The base on a link
+
+A link whose `href` starts with `/` is a path of the site, and the build adds the `base` to it. With the base `/acme/`, `/docs/getting-started/` becomes `/acme/docs/getting-started/`, so the same config works under any base. Some links are left as written:
+
+| `href`                                            | On the page                   | Why                                       |
+| ------------------------------------------------- | ----------------------------- | ----------------------------------------- |
+| `/docs/getting-started/`                          | `/acme/docs/getting-started/` | A path of the site gets the base          |
+| `/acme/docs/getting-started/`                     | `/acme/docs/getting-started/` | It already starts with the base           |
+| `https://blog.acme.example`, `//cdn.acme.example` | as written                    | A web address                             |
+| `mailto:team@acme.example`                        | as written                    | Not a path                                |
+| `#install`, `docs/start/`                         | as written                    | An anchor, or a path relative to the page |
+
+This holds for the `nav` in the header and in the menu of a phone, and for the links of the footer. On a site with the base `/`, nothing changes.
+
+A site that wrote the base into its hrefs, which this page used to ask for, keeps working: a path that starts with the base is not changed. The one case to know is a path that starts with the base by accident. With the base `/docs/`, a link written `/docs/api/` is left as `/docs/api/`, the address as it stands, and does not become `/docs/docs/api/`. A path that starts with the base is always taken as complete. To reach `/docs/docs/api/` on that site, write the base twice.
+
+The buttons of the hero follow a simpler rule, see [Identity and the home page](./options-identity.md): they add the base to every path that starts with `/`, whether or not it starts with the base already.
 
 The `nav` does not change the footer. The Documentation column of the footer always lists the collections and the changelog.
 
@@ -32,7 +47,7 @@ The `nav` does not change the footer. The Documentation column of the footer alw
 }
 ```
 
-The links go in the Project column of the footer, after the link to the repository and `Report an issue`. They follow the same rule as the `nav`: a path is used as written, with no `base`.
+The links go in the Project column of the footer, after the link to the repository and `Report an issue`. They follow the same rule as the `nav`, see [The base on a link](#the-base-on-a-link).
 
 ## Collections and groups
 

@@ -1,6 +1,6 @@
 ---
 import "../../styles/global.css";
-import { llmsUrl, markdownUrl, repositoryLink } from "../../domain";
+import { llmsUrl, markdownUrl, repositoryLink, withSiteBase } from "../../domain";
 import { loadSite } from "../../infrastructure";
 import { SiteFooter } from "../components/site/SiteFooter";
 import MobileMenu from "../components/site/MobileMenu.astro";
@@ -40,7 +40,9 @@ const defaultNav = [
   ...config.collections.filter((collection) => has(collection.id)).map((collection) => ({ label: collection.label, href: href(`${collection.id}/`) })),
   ...(has("changelog") ? [{ label: "Changelog", href: href("changelog/") }] : []),
 ];
-const nav = config.nav.length > 0 ? config.nav : defaultNav;
+// A link of the config that is a path of this site gets the base, as the buttons of the hero do.
+const withBase = (link: { label: string; href: string }) => ({ ...link, href: withSiteBase(link.href, config.site.base) });
+const nav = config.nav.length > 0 ? config.nav.map(withBase) : defaultNav;
 const firstDoc = site.documents.find((document) => config.collections.some((collection) => collection.id === document.collection));
 const action = firstDoc ? { label: "Get started", href: firstDoc.route } : undefined;
 
@@ -54,7 +56,7 @@ const columns = [
     links: [
       ...(repository ? [{ label: repository.name, href: repository.href, external: true, icon: repository.icon }] : []),
       ...(config.site.repository ? [{ label: "Report an issue", href: `${config.site.repository}/issues`, external: true }] : []),
-      ...config.footer.links,
+      ...config.footer.links.map(withBase),
     ],
   },
 ].filter((column) => column.links.length > 0);
