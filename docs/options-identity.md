@@ -88,4 +88,4 @@ Each item is a card in the `Why Acme` section of the home page: the icon in a sq
 }
 ```
 
-The items become a row of values under the hero, each with its label, and with the `note` under the value when there is one. The kit fetches nothing, so you write the numbers yourself. The list takes two to five items or none: one item fails the build with `stats: stats takes two to five items, or none`. Without the key the row is not drawn. See [StatRow](./components.md#statrow) for the component.
+The items become a row of values under the hero, each with its label, and with the `note` under the value when there is one. The kit fetches nothing, so you write the numbers yourself. The list takes two to five items or none: one item fails the build with `stats: stats takes two to five items, or none`. Without the key the row is not drawn. See [StatRow](./components/stat-row.md) for the component.
