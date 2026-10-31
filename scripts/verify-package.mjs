@@ -1238,7 +1238,6 @@ check("a path of nav and footer.links gets the base, and the other links are not
   assert(!html.includes("/widget/widget/"), "a path that had the base got it twice");
 });
 
-
 console.log("5e/6 Recipes: extend a site made by init (docs/extend-*.md)");
 // Each recipe of "Extending your site" is a folder in e2e/recipes/, applied here to a site made by `init` and then built,
 // checked and driven by e2e/specs/recipes.spec.ts. The commands a page names are run below with the real CLI.
