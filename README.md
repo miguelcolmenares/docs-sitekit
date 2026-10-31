@@ -44,9 +44,9 @@ rebuild the site on every release.
 
 ```yaml
 - uses: actions/checkout@v7
-- uses: miguelcolmenares/docs-sitekit@v0.2.0
+- uses: miguelcolmenares/docs-sitekit@v0.2.2
   with:
-    version: 0.2.0 # the docs-sitekit CLI that runs `check`
+    version: 0.2.2 # the docs-sitekit CLI that runs `check`
 ```
 
 The action installs the site, builds it, runs `sitekit check` on the result, and uploads it as the GitHub Pages artifact. **Deploying stays in
@@ -73,9 +73,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: miguelcolmenares/docs-sitekit@v0.2.0
+      - uses: miguelcolmenares/docs-sitekit@v0.2.2
         with:
-          version: 0.2.0
+          version: 0.2.2
 
   deploy:
     needs: build
