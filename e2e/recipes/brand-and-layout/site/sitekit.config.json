@@ -1,0 +1,10 @@
+{
+  "features": [
+    {
+      "icon": "brand:custom/compass",
+      "eyebrow": "Our own mark",
+      "title": "A logo that ships with the site",
+      "text": "Drawn in brands/compass.svg and filled with the color of the text."
+    }
+  ]
+}

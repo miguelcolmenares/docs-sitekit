@@ -1,0 +1,15 @@
+---
+import type { ComponentProps } from "astro/types";
+import DocPage from "../DocPage.astro";
+
+// The pages of the collection "examples" use this layout, because its file is named after the id of the collection.
+// It takes the props of DocPage, draws DocPage, and puts more in its slot.
+type Props = ComponentProps<typeof DocPage>;
+const page = Astro.props;
+---
+
+<DocPage {...page}>
+  <p class="mt-6 rounded-md border border-border bg-surface px-4 py-3 text-sm text-fg-muted" data-example-note>
+    This is an example. Copy the folder <code class="font-mono text-fg">examples/</code> from the repository and adapt it.
+  </p>
+</DocPage>

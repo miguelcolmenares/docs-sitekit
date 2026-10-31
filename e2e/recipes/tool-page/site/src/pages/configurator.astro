@@ -1,0 +1,250 @@
+---
+import { buttonVariants } from "../presentation/components/ui/button";
+import BaseLayout from "../presentation/layouts/BaseLayout.astro";
+import { DEFAULT_CHOICES, heroSnippet } from "../presentation/tools/heroSnippet";
+
+// The page is sent with the default choices already in place, so it reads without JavaScript.
+const choices = DEFAULT_CHOICES;
+const targets = [
+  { value: "/docs/getting-started/", label: "Getting started" },
+  { value: "/examples/", label: "Examples" },
+];
+---
+
+<BaseLayout title="Hero configurator" description="Fill in a form and copy the hero key of sitekit.config.json.">
+  <div class="mx-auto max-w-site px-5 py-14">
+    <h1 class="text-3xl font-semibold text-fg-bright">Hero configurator</h1>
+    <p class="mt-3 max-w-prose text-fg-muted">Fill in the form. The preview and the <code>hero</code> key of <code>sitekit.config.json</code> follow what you type.</p>
+
+    <div class="tool" data-tool>
+      <form class="form" data-form>
+        <div class="field">
+          <label for="title">Title</label>
+          <input id="title" name="title" value={choices.title} autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="lede">Lede</label>
+          <input id="lede" name="lede" value={choices.lede} autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="badge">Badge (optional)</label>
+          <input id="badge" name="badge" value={choices.badge} autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="action">Button text</label>
+          <input id="action" name="action" value={choices.action} autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="target">Button goes to</label>
+          <select id="target" name="target">
+            {targets.map((target) => <option value={target.value} selected={target.value === choices.target}>{target.label}</option>)}
+          </select>
+        </div>
+        <label class="check"><input type="checkbox" name="secondary" /> Add a second button</label>
+      </form>
+
+      <div class="output">
+        <section aria-labelledby="preview-title">
+          <h2 id="preview-title">Preview</h2>
+          <div class="preview" data-preview>
+            <p class="badge" data-preview-badge hidden></p>
+            <p class="headline" data-preview-title>{choices.title}</p>
+            <p class="lede" data-preview-lede>{choices.lede}</p>
+            <p class="actions">
+              <span class="primary" data-preview-action>{choices.action}</span>
+              <span class="secondary" data-preview-secondary hidden>Read the changelog</span>
+            </p>
+          </div>
+        </section>
+
+        <section aria-labelledby="snippet-title">
+          <h2 id="snippet-title">sitekit.config.json</h2>
+          <pre tabindex="0"><code data-snippet>{heroSnippet(choices)}</code></pre>
+          <p class="problems" data-problems role="status"></p>
+          <button type="button" data-copy class={`${buttonVariants({ variant: "outline" })} min-h-11`}>Copy the snippet</button>
+        </section>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .tool {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  @media (min-width: 64rem) {
+    .tool {
+      grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+  .form,
+  .output {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    min-width: 0;
+  }
+  .field {
+    display: grid;
+    gap: 0.375rem;
+  }
+  label {
+    color: var(--sk-fg);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  input:not([type="checkbox"]),
+  select {
+    min-height: 2.75rem;
+    width: 100%;
+    padding: 0 0.75rem;
+    color: var(--sk-fg-bright);
+    background: var(--sk-surface);
+    border: 1px solid var(--sk-border-strong);
+    border-radius: var(--sk-radius-md);
+    font: inherit;
+  }
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--sk-accent);
+    outline-offset: 2px;
+  }
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+  }
+  .check input {
+    width: 1.25rem;
+    height: 1.25rem;
+    accent-color: var(--sk-accent-strong);
+  }
+  h2 {
+    margin-bottom: 0.75rem;
+    color: var(--sk-fg-bright);
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  .preview {
+    padding: 1.5rem;
+    background: var(--sk-bg-subtle);
+    border: 1px solid var(--sk-border);
+    border-radius: var(--sk-radius-lg);
+  }
+  .badge {
+    display: inline-block;
+    padding: 0.125rem 0.75rem;
+    color: var(--sk-accent);
+    font-family: var(--sk-font-mono);
+    font-size: 0.75rem;
+    border: 1px solid var(--sk-border-strong);
+    border-radius: 999px;
+    overflow-wrap: anywhere;
+  }
+  .badge[hidden] {
+    display: none;
+  }
+  .headline {
+    margin-top: 0.75rem;
+    color: var(--sk-fg-bright);
+    font-size: clamp(1.5rem, 5vw, 2.25rem);
+    font-weight: 600;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+  .lede {
+    margin-top: 0.75rem;
+    color: var(--sk-fg-muted);
+    overflow-wrap: anywhere;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+  .primary,
+  .secondary {
+    padding: 0.5rem 1rem;
+    border-radius: var(--sk-radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .primary {
+    color: var(--sk-accent-contrast);
+    background: var(--sk-accent-strong);
+  }
+  .secondary {
+    color: var(--sk-fg);
+    border: 1px solid var(--sk-border-strong);
+  }
+  pre {
+    overflow-x: auto;
+    padding: 1rem;
+    color: var(--sk-fg);
+    background: var(--sk-surface);
+    border: 1px solid var(--sk-border);
+    border-radius: var(--sk-radius-md);
+    font-family: var(--sk-font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+  }
+  .problems {
+    min-height: 1.5rem;
+    margin: 0.5rem 0;
+    color: var(--sk-danger);
+    font-size: 0.875rem;
+  }
+</style>
+
+<script>
+  import { heroProblems, heroSnippet } from "../presentation/tools/heroSnippet";
+  import type { HeroChoices } from "../presentation/tools/heroSnippet";
+
+  const root = document.querySelector<HTMLElement>("[data-tool]")!;
+  const form = root.querySelector<HTMLFormElement>("[data-form]")!;
+  const part = (name: string) => root.querySelector<HTMLElement>(`[data-${name}]`)!;
+
+  /** The choices as the form holds them now. */
+  function read(): HeroChoices {
+    const data = new FormData(form);
+    const text = (name: string) => String(data.get(name) ?? "");
+    return {
+      title: text("title"),
+      lede: text("lede"),
+      badge: text("badge"),
+      action: text("action"),
+      target: text("target"),
+      secondary: data.get("secondary") === "on",
+    };
+  }
+
+  /** Write the choices into the preview and the snippet. Only text is set, never HTML. */
+  function show() {
+    const choices = read();
+    const badge = part("preview-badge");
+    badge.textContent = choices.badge.trim();
+    badge.hidden = choices.badge.trim() === "";
+    part("preview-title").textContent = choices.title;
+    part("preview-lede").textContent = choices.lede;
+    part("preview-action").textContent = choices.action;
+    part("preview-secondary").hidden = !choices.secondary;
+    part("snippet").textContent = heroSnippet(choices);
+    part("problems").textContent = heroProblems(choices).join(" ");
+  }
+
+  form.addEventListener("input", show);
+  form.addEventListener("submit", (event) => event.preventDefault());
+
+  const copy = part("copy");
+  copy.addEventListener("click", async () => {
+    await navigator.clipboard.writeText(part("snippet").textContent ?? "");
+    copy.textContent = "Copied";
+    setTimeout(() => (copy.textContent = "Copy the snippet"), 2000);
+  });
+</script>

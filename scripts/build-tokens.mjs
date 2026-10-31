@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Generate template/src/styles/tokens.css from template/design/tokens.json.
+// Generate template/src/styles/tokens.css from template/design/tokens.json, with the function that the generated sites
+// run as `npm run build:tokens` (template/scripts/build-tokens.mjs).
 // The JSON is the source of truth. Run with --check to fail when the CSS is out of date.
 // The dark set (the top-level groups) goes under `:root`. The light set (`themes.light.color`)
 // goes under `:root[data-theme="light"]`, and under a media query for a page that has no
@@ -10,49 +11,12 @@
 // can show a component in the other theme without leaving the page.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { checkThemeParity, declarations, renderTokens } from "../template/scripts/build-tokens.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const SOURCE = join(ROOT, "template", "design", "tokens.json");
 const TARGET = join(ROOT, "template", "src", "styles", "tokens.css");
 const PREVIEW_TARGET = join(ROOT, "template", "src", "examples", "host", "previewTheme.css");
-
-const declarations = (group, values) =>
-  Object.entries(values).map(
-    ([name, value]) => `  --sk-${group === "color" ? "" : `${group}-`}${name}: ${value};`,
-  );
-
-/** Fail when a key is in one color set and not in the other, so a theme can never miss a token. */
-export function checkThemeParity(tokens) {
-  const dark = Object.keys(tokens.color ?? {});
-  const light = Object.keys(tokens.themes?.light?.color ?? {});
-  const onlyDark = dark.filter((key) => !light.includes(key));
-  const onlyLight = light.filter((key) => !dark.includes(key));
-  if (onlyDark.length || onlyLight.length)
-    throw new Error(
-      `The light and dark color sets differ. Only in dark: ${onlyDark.join(", ") || "none"}. Only in light: ${onlyLight.join(", ") || "none"}.`,
-    );
-}
-
-export function renderTokens(tokens) {
-  checkThemeParity(tokens);
-  const { themes, ...dark } = tokens;
-  const light = themes.light.color;
-  const lines = [
-    "/* Generated from design/tokens.json by scripts/build-tokens.mjs. Do not edit. */",
-    ":root {",
-  ];
-  for (const [group, values] of Object.entries(dark)) lines.push(...declarations(group, values));
-  lines.push("}", ':root[data-theme="light"] {', ...declarations("color", light), "}");
-  lines.push(
-    "@media (prefers-color-scheme: light) {",
-    ':root:not([data-theme="dark"]) {',
-    ...declarations("color", light),
-    "}",
-    "}",
-    "",
-  );
-  return lines.join("\n");
-}
 
 /** The two color sets again, each under an attribute that can be put on any element. */
 export function renderPreviewThemes(tokens) {

@@ -38,6 +38,10 @@ npm run dev
 
 A source that does not exist produces no page and no menu entry. Nothing is invented.
 
+## Make it yours
+
+The site is your code, so you can add to it. [Extending your site](./extending.md) has guides for an interactive page, a collection of your own, a component you changed, new colors, a logo and a layout, and a rule for `sitekit check`. Each one is run as a test, so it works on the site that `init` made.
+
 ## Publish
 
 Push to the default branch. The deploy workflow builds the site and publishes it to GitHub Pages. See [Deploying](./deploying.md).

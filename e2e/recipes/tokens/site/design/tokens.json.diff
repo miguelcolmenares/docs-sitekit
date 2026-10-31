@@ -1,0 +1,17 @@
+diff --git a/site/design/tokens.json b/site/design/tokens.json
+--- a/site/design/tokens.json
++++ b/site/design/tokens.json
+@@ -15,4 +15,4 @@
+     "fg-faint": "#6b6b71",
+-    "accent": "#4fc1ff",
+-    "accent-strong": "#007acc",
++    "accent": "#2dd4bf",
++    "accent-strong": "#0f766e",
+     "accent-contrast": "#ffffff",
+@@ -41,4 +41,4 @@
+         "fg-faint": "#737c86",
+-        "accent": "#0066b8",
+-        "accent-strong": "#007acc",
++        "accent": "#0b5f59",
++        "accent-strong": "#0f766e",
+         "accent-contrast": "#ffffff",

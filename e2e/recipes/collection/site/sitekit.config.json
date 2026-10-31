@@ -1,0 +1,14 @@
+{
+  "collections": [
+    {
+      "id": "notes",
+      "label": "Notes",
+      "dir": "../notes",
+      "lede": "Short notes the team keeps next to the code.",
+      "groups": [
+        { "name": "Start", "tone": "brand", "items": ["welcome", "glossary"] },
+        { "name": "Process", "tone": "warn", "items": ["release-process"] }
+      ]
+    }
+  ]
+}

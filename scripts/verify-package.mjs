@@ -7,6 +7,7 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { applyRecipe } from "./recipes.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const WORK = join(ROOT, "e2e", ".build");
@@ -127,6 +128,7 @@ check("tarball has the CLI, the template, the registry and the workflow", () => 
     "template/src/infrastructure/codeBlocks.ts",
     "template/src/presentation/code/copyCode.ts",
     "template/src/styles/code.css",
+    "template/scripts/build-tokens.mjs",
     "template/src/presentation/components/site/Hero.astro",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
@@ -1236,6 +1238,217 @@ check("a path of nav and footer.links gets the base, and the other links are not
   assert(!html.includes("/widget/widget/"), "a path that had the base got it twice");
 });
 
+
+console.log("5e/6 Recipes: extend a site made by init (docs/extend-*.md)");
+// Each recipe of "Extending your site" is a folder in e2e/recipes/, applied here to a site made by `init` and then built,
+// checked and driven by e2e/specs/recipes.spec.ts. The commands a page names are run below with the real CLI.
+const RECIPE_REPO = join(WORK, "recipes-repo");
+const RECIPE_SITE = join(RECIPE_REPO, "site");
+const recipeKit = (args, options = {}) =>
+  run("node", [CLI, ...args], { cwd: RECIPE_REPO, ...options });
+const recipeKitLoose = (args) => capture("node", [CLI, ...args], { cwd: RECIPE_REPO });
+const recipeConfigPath = join(RECIPE_SITE, "sitekit.config.json");
+
+mkdirSync(RECIPE_REPO, { recursive: true });
+run("git", ["init", "-q", "-b", "main"], { cwd: RECIPE_REPO });
+run("git", ["remote", "add", "origin", "https://github.com/demo/recipes.git"], {
+  cwd: RECIPE_REPO,
+});
+write(
+  join(RECIPE_REPO, "package.json"),
+  JSON.stringify({
+    name: "recipes",
+    version: "1.0.0",
+    description: "A project that extends its documentation site.",
+    license: "MIT",
+  }),
+);
+write(
+  join(RECIPE_REPO, "README.md"),
+  "# Recipes\n\nA project that extends its documentation site.\n",
+);
+write(join(RECIPE_REPO, "LICENSE"), "MIT License\n");
+write(
+  join(RECIPE_REPO, "CHANGELOG.md"),
+  "# Changelog\n\n## [1.0.0] - 2026-10-28\n\n### Added\n\n- Everything.\n",
+);
+write(
+  join(RECIPE_REPO, "docs", "getting-started.md"),
+  "# Getting started\n\nInstall the package and use it.\n",
+);
+write(
+  join(RECIPE_REPO, "examples", "basic", "README.md"),
+  "# Basic example\n\nThe smallest example.\n",
+);
+recipeKit(["init"]);
+const recipeConfig = JSON.parse(readFileSync(recipeConfigPath, "utf8"));
+recipeConfig.deploy.repositoryVisibility = "public";
+writeFileSync(recipeConfigPath, `${JSON.stringify(recipeConfig, null, 2)}\n`);
+const manifestBefore =
+  readFileSync(join(RECIPE_SITE, "package.json"), "utf8") +
+  readFileSync(join(RECIPE_SITE, "package-lock.json"), "utf8");
+const commitRecipes = (message) => {
+  gitIn(RECIPE_REPO, ["add", "-A"]);
+  gitIn(RECIPE_REPO, ["commit", "-q", "-m", message], "2026-10-28T12:00:00Z");
+};
+commitRecipes("A site made by init");
+
+const STAT_ROW = join(RECIPE_SITE, "src", "presentation", "components", "site", "StatRow.tsx");
+check(
+  "component: add restores a component that was deleted, and keeps it once you changed it",
+  () => {
+    rmSync(STAT_ROW);
+    assert(/StatRow\.tsx/.test(recipeKit(["add", "stat-row"])), "add did not write StatRow.tsx");
+    assert(
+      readFileSync(STAT_ROW, "utf8").includes("text-fg-bright"),
+      "the restored file is not the kit's",
+    );
+    applyRecipe("component", RECIPE_REPO);
+    const edited = readFileSync(STAT_ROW, "utf8");
+    assert(edited.includes("wrap-anywhere text-brand"), "the change was not applied");
+    const kept = recipeKit(["add", "stat-row"]);
+    assert(/you changed it, kept; use --force to replace/.test(kept), `got: ${kept}`);
+    assert(readFileSync(STAT_ROW, "utf8") === edited, "add overwrote the change");
+  },
+);
+check(
+  "component: sitekit upgrade keeps the edited file and says why, and writes nothing else",
+  () => {
+    commitRecipes("Change StatRow");
+    const output = recipeKit(["upgrade"]);
+    assert(
+      output.includes(
+        "= site/src/presentation/components/site/StatRow.tsx (you changed it, the kit did not, kept)",
+      ),
+      `got: ${output}`,
+    );
+    assert(/0 replaced, 0 added, 1 kept, 0 to merge/.test(output), `got: ${output}`);
+    assert(
+      readFileSync(STAT_ROW, "utf8").includes("wrap-anywhere text-brand"),
+      "upgrade lost the change",
+    );
+    assert(
+      run("git", ["status", "--porcelain"], { cwd: RECIPE_REPO }).trim() === "",
+      "upgrade wrote",
+    );
+  },
+);
+
+for (const name of ["tool-page", "collection", "brand-and-layout", "safe-build", "tokens"]) {
+  applyRecipe(name, RECIPE_REPO);
+}
+check("recipes: they add no dependency to the site", () => {
+  const manifestAfter =
+    readFileSync(join(RECIPE_SITE, "package.json"), "utf8") +
+    readFileSync(join(RECIPE_SITE, "package-lock.json"), "utf8");
+  assert(manifestAfter === manifestBefore, "package.json or package-lock.json changed");
+});
+check("recipes: the merged config is the one of the site, with the keys the recipes add", () => {
+  const merged = JSON.parse(readFileSync(recipeConfigPath, "utf8"));
+  assert(
+    merged.collections.map((c) => c.id).join() === "docs,examples,notes",
+    `collections: ${merged.collections.map((c) => c.id)}`,
+  );
+  assert(merged.stats?.length === 3, `stats: ${JSON.stringify(merged.stats)}`);
+  assert(merged.features?.at(-1)?.icon === "brand:custom/compass", "the custom logo is missing");
+  assert(merged.anonymize?.denyPatterns?.length === 1, "the deny pattern is missing");
+});
+
+check(
+  "tokens: the CSS is out of date until npm run build:tokens, then it follows tokens.json",
+  () => {
+    const stale = capture("npm", ["run", "build:tokens", "--", "--check"], { cwd: RECIPE_SITE });
+    assert(stale.status === 1, `--check exited with ${stale.status}, not 1`);
+    assert(/tokens\.css is out of date/.test(stale.stderr), `got: ${stale.stderr}`);
+    run("npm", ["run", "build:tokens"], { cwd: RECIPE_SITE });
+    const css = readFileSync(join(RECIPE_SITE, "src", "styles", "tokens.css"), "utf8");
+    assert(
+      css.includes("--sk-accent: #2dd4bf;") && css.includes("--sk-accent: #0b5f59;"),
+      "no accent",
+    );
+    run("npm", ["run", "build:tokens", "--", "--check"], { cwd: RECIPE_SITE });
+  },
+);
+check(
+  "tokens: the contrast script passes for the new accent and names the pair of a bad one",
+  () => {
+    const good = run("node", ["scripts/check-contrast.mjs"], { cwd: RECIPE_SITE });
+    assert(/^102 pairs reach the contrast they need\./.test(good), `got: ${good}`);
+    const file = join(RECIPE_SITE, "design", "tokens.json");
+    const original = readFileSync(file, "utf8");
+    try {
+      writeFileSync(
+        file,
+        original.replace('"accent-strong": "#0f766e"', '"accent-strong": "#6d28d9"'),
+      );
+      const bad = capture("node", ["scripts/check-contrast.mjs"], { cwd: RECIPE_SITE });
+      assert(bad.status === 1, `exited with ${bad.status}, not 1`);
+      assert(
+        /dark: accent-strong #6d28d9 on surface-3 #1c1c21 is 2\.39:1/.test(bad.stderr),
+        bad.stderr,
+      );
+    } finally {
+      writeFileSync(file, original);
+    }
+  },
+);
+
+check("collection: a page that no group lists fails check, and says how to fix it", () => {
+  const draft = join(RECIPE_REPO, "notes", "draft.md");
+  writeFileSync(draft, "# Draft\n\nNot in a group yet.\n");
+  const failed = recipeKitLoose(["check"]);
+  rmSync(draft);
+  assert(failed.status === 1, `check exited with ${failed.status}, not 1`);
+  assert(
+    /draft is in no group of "Notes"\. Add it to a group, or remove the groups to sort by name\./.test(
+      failed.stderr,
+    ),
+    failed.stderr,
+  );
+});
+check(
+  "safe build: a pattern of the config makes check fail on a leak, masked, until it is allowed",
+  () => {
+    const page = join(RECIPE_REPO, "docs", "ticket.md");
+    writeFileSync(page, "# Ticket\n\nThe fix is tracked in ACME-1042.\n");
+    const configText = readFileSync(recipeConfigPath, "utf8");
+    try {
+      const failed = recipeKitLoose(["check"]);
+      assert(failed.status === 1, `check exited with ${failed.status}, not 1`);
+      assert(/docs\/ticket\.md: deny-pattern-1 \(high\) "ACM…"/.test(failed.stderr), failed.stderr);
+      assert(!failed.stderr.includes("ACME-1042"), "the match was printed");
+      const allowed = JSON.parse(configText);
+      allowed.anonymize.allow = ["ACME-1042"];
+      writeFileSync(recipeConfigPath, JSON.stringify(allowed, null, 2));
+      assert(/Safe to publish/.test(recipeKit(["check"])), "allow did not accept the text");
+    } finally {
+      writeFileSync(recipeConfigPath, configText);
+      rmSync(page);
+    }
+  },
+);
+check("recipes: check passes on the site with every recipe applied", () => {
+  assert(/Safe to publish/.test(recipeKit(["check"])), "not safe");
+});
+
+runLoud("npm", ["ci", "--no-audit", "--no-fund"], { cwd: RECIPE_SITE });
+runLoud("npm", ["run", "build"], {
+  cwd: RECIPE_SITE,
+  env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" },
+});
+check(
+  "recipes: the site builds, passes check --dist, and carries every page of the recipes",
+  () => {
+    const built = (path) => join(RECIPE_SITE, "dist", path, "index.html");
+    for (const path of ["configurator", "notes", "notes/welcome", "examples/basic", "docs"]) {
+      assert(existsSync(built(path)), `missing ${path}`);
+    }
+    assert(
+      /Safe to publish/.test(recipeKit(["check", "--dist", "site/dist"])),
+      "check --dist failed",
+    );
+  },
+);
 console.log("5b/6 Upgrade a site made by the published 0.1.0");
 // The real 0.1.0 from the registry makes a site, and this build upgrades it. Nothing here is a copy:
 // a site made by an older release has to come out building and passing `check`.

@@ -1,0 +1,5 @@
+{
+  "anonymize": {
+    "denyPatterns": ["ACME-\\d{4}"]
+  }
+}

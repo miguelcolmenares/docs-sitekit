@@ -88,6 +88,19 @@
           ]
         },
         {
+          "name": "Extending your site",
+          "tone": "success",
+          "items": [
+            "extending",
+            "extend-tool-page",
+            "extend-collection",
+            "extend-component",
+            "extend-tokens",
+            "extend-brand-and-layout",
+            "extend-safe-build"
+          ]
+        },
+        {
           "name": "Design system",
           "tone": "neutral",
           "items": ["components", "brand-logos", "design-tokens", "detail-page", "performance"]

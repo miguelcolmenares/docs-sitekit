@@ -1,0 +1,7 @@
+{
+  "stats": [
+    { "value": "1.0", "label": "Version", "note": "The latest release" },
+    { "value": "22+", "label": "Node", "note": "To build the site" },
+    { "value": "MIT", "label": "License" }
+  ]
+}

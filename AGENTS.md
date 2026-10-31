@@ -25,7 +25,8 @@ template/                 the site that `init` copies. It has the same four laye
   design/tokens.json      the only source of colors, radius, fonts and layout
   registry.json           components, their files and what each requires
 e2e/                      Playwright against a site generated from the packed tarball
-scripts/                  build-tokens.mjs, build-docs.mjs (docs/configuration.md from the config schema), build-component-docs.mjs (the props tables of the component pages, from TSDoc), verify-package.mjs
+e2e/recipes/              the guides of "Extending your site": one folder each, with the layout of the repository (see scripts/recipes.mjs)
+scripts/                  recipes.mjs (applies a recipe to a site), build-recipe-docs.mjs (writes the files of a recipe into its page), build-tokens.mjs, build-docs.mjs (docs/configuration.md from the config schema), build-component-docs.mjs (the props tables of the component pages, from TSDoc), verify-package.mjs
 template/src/examples/    the examples of the component pages, one folder per component. Kit documentation only: not in the package, not in a generated site
 docs/, examples/          the documentation of this project, built with this kit (docs/components/ holds the notes of each component page)
 ```
@@ -72,7 +73,8 @@ and measured in the browser on every route; the meter is itself tested against p
 - **A registry entry has a component page or a reason it has none** (`docs/components.md`), and a page is made of four things that agree: the `example` pointer, the files in `template/src/examples/<name>/`, `docs/components/<name>.md` and its group in `template/sitekit.config.json`. Every prop of a component with a page needs a TSDoc comment, or `npm run build:docs` fails. The example is one `.astro` file that is both rendered and shown as text (`?raw`).
 - **Kit-only paths** (`KIT_ONLY_PATHS` in `packagedTemplate.ts`, and the same paths negated in `files` of `package.json`) never reach the package or a generated site. `verify-package` checks both.
 - **A color transition is not a color.** The browser tests wait for `document.getAnimations()` before they measure contrast.
-- Do not edit `template/src/styles/tokens.css`: change `design/tokens.json` and run `npm run build:tokens`.
+- **A guide of "Extending your site" is a recipe, and a recipe is a test.** A folder in `e2e/recipes/<name>/` with the layout of the repository (`site/...`, `notes/...`). `scripts/recipes.mjs` copies the files, merges `site/sitekit.config.json` into the config (lists are added to, not replaced) and applies a `.diff` with `git apply`, so a change to a file of the kit is a diff and fails when the file moves. `verify-package` (section 5d) applies the recipes to a site made by `init` and runs the commands the page names; `e2e/specs/recipes.spec.ts` drives the built site (group `recipe <name>`); the page `docs/extend-<name>.md` shows the files with `<!-- recipe-file: <name> <path> -->` markers that `npm run build:docs` fills, and says "How it is tested". A recipe adds no package to the site. The Tailwind `accent` is the quiet surface of shadcn/ui and `brand` is the accent of the tokens.
+- Do not edit `template/src/styles/tokens.css`: change `design/tokens.json` and run `npm run build:tokens`. A generated site has the same command: `template/scripts/build-tokens.mjs` is the function, and `scripts/build-tokens.mjs` adds the preview themes of the kit.
 - Credential-shaped test values are built at run time, never written as literals.
 
 ## TSDoc

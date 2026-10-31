@@ -32,7 +32,7 @@ Edit `color.accent`, `color.accent-strong` and, if the fill needs another text c
 
 A new accent must keep the contrast of the default. The token tests check `accent` on every surface it sits on, `accent-contrast` on `accent-strong`, and the focus ring on every ground, so a color that fails them fails `npm test`.
 
-A site generated with `init` keeps its own `design/tokens.json`, so changing the kit does not change a site that already exists.
+A site generated with `init` keeps its own `design/tokens.json`, so changing the kit does not change a site that already exists. In the site, run `npm run build:tokens` from the `site/` folder. [Change the tokens](./extend-tokens.md) walks through a new accent and a script that checks its contrast.
 
 ## Light set and measured contrast
 
