@@ -86,6 +86,9 @@ Every export of our own code has a TSDoc comment, enforced in CI by the jsdoc-to
 
 Trusted publishing from a `v*` tag. Tags are immutable, so a tag is pushed only after the package builds and the e2e passes.
 The first publication of a new package name is done by hand, then the trusted publisher is configured.
+Tags are annotated: `git tag -a vX.Y.Z -m vX.Y.Z`, as the existing ones are, because a plain `git tag` asks for a message here.
+The Publish workflow also creates the GitHub Release in the same run, from the CHANGELOG section of the version, after the
+package is on npm, so a release is the version bump pull request, then the tag.
 
 ## Commits
 

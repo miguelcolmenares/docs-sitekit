@@ -49,3 +49,32 @@ jobs:
           fi
       - if: steps.published.outputs.already != 'true'
         run: npm publish
+
+  # The GitHub Release is made in the same run, after the package is on npm, so a failed publish leaves no Release.
+  # It is a separate job so that only this one can write to the repository. The notes are the section of the CHANGELOG
+  # for the tag. A Release made with the workflow token does not start other workflows; the docs site is rebuilt by the
+  # push of the release pull request, which changes the CHANGELOG.
+  release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Create the GitHub Release from the CHANGELOG
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::notice::The release $TAG already exists, so there is nothing to create."
+            exit 0
+          fi
+          version="${TAG#v}"
+          awk -v v="$version" '/^## \[/ { p = (index($0, "[" v "]") == 4); next } p' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "::error::CHANGELOG.md has no section for $version"; exit 1
+          fi
+          flags=""
+          case "$version" in *-*) flags="--prerelease" ;; esac
+          gh release create "$TAG" --verify-tag --title "$TAG" --notes-file notes.md $flags

@@ -82,4 +82,16 @@ describe("workflows and the action", () => {
     expect(workflow).toMatch(/permissions:\n\s+contents: read/);
     expect(workflow).toMatch(/permissions:\n\s+pages: write\n\s+id-token: write/);
   });
+
+  it("publishing makes the GitHub Release in the same run, from the CHANGELOG, in a job of its own that alone can write", () => {
+    const workflow = read(".github/workflows/publish.yml");
+    const [publish, release] = workflow.split(/\n {2}release:\n/);
+    expect(release).toBeDefined();
+    expect(release).toMatch(/needs: publish/);
+    expect(release).toMatch(/permissions:\n\s+contents: write/);
+    expect(release).toMatch(/gh release create/);
+    expect(release).toMatch(/--notes-file/);
+    expect(publish).toMatch(/permissions:\n\s+contents: read\n\s+id-token: write/);
+    expect(publish).not.toMatch(/contents: write/);
+  });
 });
