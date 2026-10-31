@@ -1,0 +1,124 @@
+---
+import type { Document } from "../../../domain";
+import { loadSite, renderMarkdown } from "../../../infrastructure";
+import registry from "../../../../registry.json";
+import { PAGE_BY_NAME } from "../../../examples/catalog";
+import type { PageSpec } from "../../../examples/catalog";
+import { exampleFor } from "../../../examples/host/examples";
+import { fencedCode } from "../../../examples/host/fence";
+import ExampleBlock from "../../../examples/host/ExampleBlock.astro";
+import props from "../../../examples/props.json";
+import { CommandBox } from "../../components/site/CommandBox";
+import { ReferenceTable } from "../../components/site/ReferenceTable";
+import type { ReferenceRow } from "../../components/site/ReferenceTable";
+import DocPage from "../DocPage.astro";
+
+// The layout of the pages of the "components" collection: the page of a document, with a live preview, the code
+// that produced it, the command to add it, a table of its props and each of its variants before the text.
+// It is a layout of the documentation of this project, so it is not part of a generated site.
+interface Props {
+  doc: Document;
+  html: string;
+  headings: { depth: number; slug: string; text: string }[];
+  siblings: Document[];
+  collectionLabel: string;
+  collectionHref: string;
+  homeHref: string;
+}
+const page = Astro.props;
+const { doc } = page;
+const spec = PAGE_BY_NAME.get(doc.slug) as PageSpec;
+const entry = registry.components[doc.slug as keyof typeof registry.components] as { files: string[]; requires: string[] };
+const site = loadSite();
+
+/** The example as the pair a block needs: the component to draw, and the highlighted text of its file. */
+async function block(id: string) {
+  const example = exampleFor(spec.name, id);
+  const { html } = await renderMarkdown(fencedCode(example.source, { lang: "astro", title: example.path }), {
+    context: site.linkContext(doc),
+    base: site.config.site.base,
+  });
+  return { Component: example.Component, html };
+}
+
+const main = await block("example");
+const variants = await Promise.all(spec.variants.map(async (variant) => ({ variant, ...(await block(variant.id)) })));
+const tables = (props as Record<string, { label: string; rows: ReferenceRow[] }[]>)[spec.name] ?? [];
+
+// A required entry has a page of its own, or an entry in the list of those that have none.
+const withPage = (name: string) => PAGE_BY_NAME.has(name);
+const target = (name: string) => (withPage(name) ? site.href(`components/${name}/`) : `${site.href("docs/components/")}#${name}`);
+
+const headings = [
+  { depth: 2, slug: "preview", text: "Preview" },
+  { depth: 2, slug: "add", text: "Add to your site" },
+  { depth: 2, slug: "props", text: "Props" },
+  ...(variants.length > 0
+    ? [{ depth: 2, slug: "variants", text: "Variants and states" }, ...variants.map(({ variant }) => ({ depth: 3, slug: `variant-${variant.id}`, text: variant.title }))]
+    : []),
+  ...page.headings,
+];
+const h2 = "mt-14 mb-4 border-t border-border pt-4 text-[1.65rem] leading-tight font-semibold tracking-tight text-fg-bright";
+const h3 = "mt-8 mb-2 text-xl leading-tight font-semibold tracking-tight text-fg-bright";
+const list = "mt-3 space-y-1.5 text-fg-muted";
+const code = "wrap-anywhere rounded border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em] text-fg";
+---
+
+<DocPage {...page} headings={headings}>
+  <section aria-labelledby="preview" class="mt-10">
+    <h2 id="preview" class="mb-4 text-[1.65rem] leading-tight font-semibold tracking-tight text-fg-bright">Preview</h2>
+    <ExampleBlock id={`${spec.name}-main`} label={`${spec.title} example`} codeHtml={main.html}>
+      <main.Component />
+    </ExampleBlock>
+  </section>
+
+  <section aria-labelledby="add">
+    <h2 id="add" class={h2}>Add to your site</h2>
+    <CommandBox command={`npx docs-sitekit add ${spec.name}`} client:load />
+    <p class="mt-4 text-fg-muted">It writes these files, and keeps a file you changed:</p>
+    <ul class={list}>
+      {entry.files.map((file) => <li><code class={code}>{file}</code></li>)}
+    </ul>
+    <p class="mt-4 text-fg-muted">
+      {entry.requires.length === 0 ? "It requires nothing else from the registry." : "It requires these entries of the registry, which add restores first:"}
+    </p>
+    {
+      entry.requires.length > 0 && (
+        <ul class={list}>
+          {entry.requires.map((name) => (
+            <li><a href={target(name)} class="text-brand underline underline-offset-[3px]">{name}</a></li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+
+  <section aria-labelledby="props">
+    <h2 id="props" class={h2}>Props</h2>
+    <p class="mb-4 text-fg-muted">Built from the TypeScript types and the TSDoc comments of the component, so they cannot drift from the code.</p>
+    <div class="space-y-6">
+      {tables.map((table) => <ReferenceTable label={table.label} rows={table.rows} />)}
+    </div>
+  </section>
+
+  {
+    variants.length > 0 && (
+      <section aria-labelledby="variants">
+        <h2 id="variants" class={h2}>Variants and states</h2>
+        {variants.map(({ variant, Component, html }) => (
+          <section aria-labelledby={`variant-${variant.id}`}>
+            <h3 id={`variant-${variant.id}`} class={h3}>{variant.title}</h3>
+            <p class="mb-4 text-fg-muted">{variant.text}</p>
+            <ExampleBlock id={`${spec.name}-${variant.id}`} label={variant.title} codeHtml={html}>
+              <Component />
+            </ExampleBlock>
+          </section>
+        ))}
+      </section>
+    )
+  }
+</DocPage>
+
+<script>
+  import "../../../examples/host/exampleTabs";
+</script>

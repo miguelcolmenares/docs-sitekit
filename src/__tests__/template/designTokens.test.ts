@@ -206,3 +206,21 @@ describe("generated CSS", () => {
     ).not.toThrow();
   });
 });
+
+describe("the color sets under an attribute, for the previews of the component pages", () => {
+  const css = readFileSync(
+    join(ROOT, "template", "src", "examples", "host", "previewTheme.css"),
+    "utf8",
+  );
+
+  it.each(Object.keys(THEMES))(
+    "holds every color of the %s theme, with the same value",
+    (theme) => {
+      const block = css.split(`[data-preview-theme="${theme}"] {`)[1]!.split("}")[0]!;
+      for (const [name, value] of Object.entries(THEMES[theme]!)) {
+        expect(block).toContain(`--sk-${name}: ${value};`);
+      }
+      expect(block).toContain(`color-scheme: ${theme};`);
+    },
+  );
+});

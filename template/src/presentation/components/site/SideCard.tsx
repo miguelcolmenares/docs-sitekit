@@ -2,13 +2,17 @@ import { ChevronDown } from "lucide-react";
 
 /** One line of the card: a label and its value. */
 export interface SideCardRow {
+  /** The name of the row, in mono capitals. */
   label: string;
+  /** The value. A long one, such as a hash or an address, wraps. */
   value: string;
 }
 
 /** A link of the card. */
 export interface SideCardLink {
+  /** The text of the link. */
   label: string;
+  /** Where it leads. */
   href: string;
 }
 
@@ -41,11 +45,19 @@ export function SideCard({
   label = "Details",
   className = "",
 }: {
+  /** The metadata, one label and value for each line. */
   rows: readonly SideCardRow[];
+  /** Links, under the rows. */
   links?: readonly SideCardLink[];
+  /** Tags, under the links. */
   tags?: readonly string[];
-  /** The accessible name of the card. */
+  /**
+   * The accessible name of the card.
+   *
+   * @defaultValue "Details"
+   */
   label?: string;
+  /** Classes added to the card. */
   className?: string;
 }) {
   const more = sideCardHasMore({ rows, links, tags });

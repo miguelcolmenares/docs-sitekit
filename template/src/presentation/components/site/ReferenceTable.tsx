@@ -2,11 +2,13 @@
 export interface ReferenceRow {
   /** The name, written in code: a config key, an option, a flag. */
   name: string;
+  /** The type, as a short text. */
   type: string;
   /** The default, or a word such as `required`. Optional, a row without one shows a dash. */
   default?: string;
   /** The values the name accepts. Optional, a row without them shows a dash. */
   allowed?: string;
+  /** What the name does. */
   text: string;
 }
 
@@ -22,6 +24,7 @@ export function ReferenceTable({
 }: {
   /** What the table lists, for example `Keys of the search group`. It names the scrollable region. */
   label: string;
+  /** The rows, in the order shown. */
   rows: readonly ReferenceRow[];
 }) {
   return (

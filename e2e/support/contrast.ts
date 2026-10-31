@@ -15,7 +15,8 @@ export interface ContrastOffender {
  * The background is found by stacking the background colors of the element and its ancestors, so it
  * works for any CSS color syntax. An ancestor that paints an image or a gradient behind the text is
  * reported as `uncertain`, not guessed. Decorative layers that sit behind the page (the hero glow)
- * are covered by a token test, since they are not ancestors of the text.
+ * are covered by a token test, since they are not ancestors of the text. The text of a disabled control is
+ * left out, as WCAG 1.4.3 does.
  */
 export async function measureContrast(
   page: Page,
@@ -76,6 +77,8 @@ export async function measureContrast(
       )
         continue;
       if (rect.width <= 1 && rect.height <= 1) continue; // sr-only
+      // WCAG 1.4.3 leaves out the text of an inactive component: a disabled control has no contrast to meet.
+      if (element.closest(":disabled")) continue;
       seen.add(element);
 
       // Opacity applies to the whole subtree, so multiply it up the tree.

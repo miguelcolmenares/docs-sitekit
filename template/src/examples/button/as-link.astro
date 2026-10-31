@@ -1,0 +1,12 @@
+---
+import { ArrowRight } from "lucide-react";
+import { buttonVariants } from "@/presentation/components/ui/button";
+---
+
+<div class="flex flex-wrap items-center gap-3">
+  <a href="#" class={buttonVariants({ size: "lg" })}>
+    Get started
+    <ArrowRight aria-hidden="true" />
+  </a>
+  <a href="#" class={buttonVariants({ size: "lg", variant: "outline" })}>Read the docs</a>
+</div>

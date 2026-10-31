@@ -59,6 +59,30 @@ describe("addComponent", () => {
     expect(result.missingPackages).toEqual([]);
   });
 
+  it("ignores the `example` pointer of an entry: only its files are written", () => {
+    const fs = new MemoryFileSystem();
+    const template = fakeTemplate();
+    const withExample = {
+      ...template,
+      registry: () => ({
+        components: {
+          cn: {
+            description: "helper",
+            files: ["src/cn.ts"],
+            requires: [],
+            example: "src/examples/cn",
+          },
+        },
+      }),
+    };
+    const result = addComponent(
+      { fs, template: withExample, hash: sha },
+      { siteAbs: SITE, name: "cn" },
+    );
+    expect(result.written).toEqual(["src/cn.ts"]);
+    expect([...fs.files.keys()].some((path) => path.includes("examples"))).toBe(false);
+  });
+
   it("keeps a file you edited", () => {
     const fs = new MemoryFileSystem({ [`${SITE}/src/cn.ts`]: "// my version" });
     const result = addComponent(deps(fs), { siteAbs: SITE, name: "cn" });

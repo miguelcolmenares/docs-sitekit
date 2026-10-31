@@ -1,0 +1,51 @@
+---
+import "./previewTheme.css";
+
+interface Props {
+  /** A name that is unique on the page, for the ids that tie a tab to its panel. */
+  id: string;
+  /** What the block shows, for the name of the tab list. */
+  label: string;
+  /** The example file as highlighted HTML, from the markdown renderer of the site, with its caption and copy button. */
+  codeHtml: string;
+}
+const { id, label, codeHtml } = Astro.props;
+
+const tab =
+  "inline-flex min-h-11 items-center border-b-2 border-transparent px-4 text-sm font-medium text-fg-muted transition-colors hover:text-fg-bright aria-selected:border-brand-strong aria-selected:text-fg-bright";
+---
+
+{/*
+  The preview and the code are two panels. Without JavaScript the bar is hidden and both panels are shown, one after
+  the other. The script right after the block shows the bar and hides the code before the first paint, and
+  exampleTabs.ts, loaded once by the page, wires the tabs and the theme switch.
+*/}
+<div data-example class="min-w-0 overflow-hidden rounded-lg border border-border">
+  <div data-example-bar hidden class="flex flex-wrap items-center justify-between gap-x-4 border-b border-border bg-surface-2 px-2">
+    <div role="tablist" aria-label={`${label}: preview or code`} class="flex">
+      <button type="button" role="tab" id={`${id}-tab-preview`} aria-controls={`${id}-panel-preview`} aria-selected="true" data-example-tab="preview" class={tab}>Preview</button>
+      <button type="button" role="tab" id={`${id}-tab-code`} aria-controls={`${id}-panel-code`} aria-selected="false" tabindex="-1" data-example-tab="code" class={tab}>Code</button>
+    </div>
+    <button
+      type="button"
+      data-example-theme
+      aria-pressed="false"
+      class="inline-flex min-h-11 items-center rounded-md px-3 text-sm text-fg-muted transition-colors hover:text-fg-bright aria-pressed:text-fg-bright"
+    >
+      Preview in the other theme
+    </button>
+  </div>
+  <div role="tabpanel" id={`${id}-panel-preview`} aria-label="Preview" data-example-panel="preview">
+    <div data-example-stage class="min-w-0 bg-background p-4 text-foreground sm:p-6">
+      <slot />
+    </div>
+  </div>
+  <div role="tabpanel" id={`${id}-panel-code`} aria-label="Code" data-example-panel="code" class="prose-site border-t border-border [[data-example-bar]:not([hidden])~&]:border-t-0 [&_.code-block]:m-0 [&_.code-block]:rounded-none [&_.code-block]:border-0" set:html={codeHtml} />
+</div>
+<script is:inline>
+  (function () {
+    var block = document.currentScript.previousElementSibling;
+    block.querySelector("[data-example-bar]").hidden = false;
+    block.querySelector('[data-example-panel="code"]').hidden = true;
+  })();
+</script>

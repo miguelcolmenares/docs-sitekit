@@ -14,11 +14,18 @@ const NEVER_COPIED = new Set([
   "registry.json",
 ]);
 
+/**
+ * Paths of the template, from its root, that belong to the documentation of this project and not to a site:
+ * the examples of each component and the layout that shows them. `package.json` leaves them out of the package too.
+ */
+export const KIT_ONLY_PATHS = ["src/examples", "src/presentation/layouts/collections"] as const;
+
 function collect(directory: string, prefix = ""): TemplateFile[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     if (NEVER_COPIED.has(entry.name) && prefix === "") return [];
     if (entry.name === ".DS_Store") return [];
     const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if ((KIT_ONLY_PATHS as readonly string[]).includes(relative)) return [];
     return entry.isDirectory()
       ? collect(join(directory, entry.name), relative)
       : [{ path: relative, content: readFileSync(join(directory, entry.name), "utf8") }];

@@ -1,0 +1,10 @@
+---
+import { CommandTable } from "@/presentation/components/site/CommandTable";
+---
+
+<CommandTable
+  rows={[
+    { command: "sitekit init", text: "Create a site", note: "Writes only into --dir" },
+    { command: "sitekit check", text: "Check the build", note: "Exits with 1 on an error" },
+  ]}
+/>

@@ -21,6 +21,7 @@ const siteFiles = [
   ...files(join(SRC, "presentation", "components", "site"), /\.(tsx|astro)$/),
   ...files(join(SRC, "presentation", "layouts"), /\.astro$/),
   ...files(join(SRC, "pages"), /\.astro$/),
+  ...files(join(SRC, "examples"), /\.astro$/),
 ];
 
 describe("design rules, enforced", () => {

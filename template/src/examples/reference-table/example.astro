@@ -1,0 +1,22 @@
+---
+import { ReferenceTable } from "@/presentation/components/site/ReferenceTable";
+---
+
+<ReferenceTable
+  label="Keys of the search group"
+  rows={[
+    {
+      name: "search.enabled",
+      type: "boolean",
+      default: "true",
+      allowed: "true, false",
+      text: "Turn search on.",
+    },
+    {
+      name: "site.url",
+      type: "string (URL)",
+      default: "required",
+      text: "The origin of the site.",
+    },
+  ]}
+/>

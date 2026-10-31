@@ -1,0 +1,27 @@
+---
+import { collectTags, filterText, tagKey } from "@/domain/filter";
+import CatalogFilter from "@/presentation/components/site/CatalogFilter.astro";
+import { CardGrid, ItemCard } from "@/presentation/components/site/ItemCard";
+
+const cards = [
+  { title: "getting-started", description: "Create a site.", tags: ["Setup", "Guide"] },
+  { title: "deploying", description: "Publish to GitHub Pages.", tags: ["Guide"] },
+  { title: "design-tokens", description: "Colors, radius and fonts.", tags: ["Design"] },
+];
+---
+
+<CatalogFilter tags={collectTags(cards)} total={cards.length} />
+<CardGrid>
+  {
+    cards.map((card) => (
+      <ItemCard
+        href="#"
+        title={card.title}
+        description={card.description}
+        data-filter-item
+        data-filter-tags={JSON.stringify(card.tags.map(tagKey))}
+        data-filter-text={filterText(card)}
+      />
+    ))
+  }
+</CardGrid>

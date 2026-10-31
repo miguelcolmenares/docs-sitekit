@@ -3,7 +3,8 @@
     "button": {
       "description": "Button and buttonVariants, from shadcn/ui.",
       "files": ["src/presentation/components/ui/button.tsx"],
-      "requires": ["cn"]
+      "requires": ["cn"],
+      "example": "src/examples/button"
     },
     "badge": {
       "description": "Badge, from shadcn/ui.",
@@ -48,7 +49,8 @@
     "tone-badge": {
       "description": "The only way to show a status color.",
       "files": ["src/presentation/components/site/ToneBadge.tsx"],
-      "requires": ["cn"]
+      "requires": ["cn"],
+      "example": "src/examples/tone-badge"
     },
     "icon": {
       "description": "A lucide icon by its kebab-case name, or a brand logo as brand:<slug>.",
@@ -60,22 +62,26 @@
         "src/domain/brands/icons.ts",
         "src/domain/brands/customSvg.ts"
       ],
-      "requires": []
+      "requires": [],
+      "example": "src/examples/icon"
     },
     "section-header": {
       "description": "Mono eyebrow, heading and lede.",
       "files": ["src/presentation/components/site/SectionHeader.tsx"],
-      "requires": ["cn"]
+      "requires": ["cn"],
+      "example": "src/examples/section-header"
     },
     "command-box": {
       "description": "A copyable shell command.",
       "files": ["src/presentation/components/site/CommandBox.tsx"],
-      "requires": ["cn"]
+      "requires": ["cn"],
+      "example": "src/examples/command-box"
     },
     "item-card": {
       "description": "ItemCard and CardGrid for catalogs.",
       "files": ["src/presentation/components/site/ItemCard.tsx"],
-      "requires": ["cn", "tone-badge"]
+      "requires": ["cn", "tone-badge"],
+      "example": "src/examples/item-card"
     },
     "catalog-filter": {
       "description": "A text field and tag buttons that narrow the cards of an index page, with the state in the address.",
@@ -86,22 +92,26 @@
         "src/domain/filter/catalogFilter.ts",
         "src/domain/filter/tags.ts"
       ],
-      "requires": []
+      "requires": [],
+      "example": "src/examples/catalog-filter"
     },
     "feature-grid": {
       "description": "Icon, eyebrow, title and text.",
       "files": ["src/presentation/components/site/FeatureGrid.tsx"],
-      "requires": ["icon"]
+      "requires": ["icon"],
+      "example": "src/examples/feature-grid"
     },
     "stat-row": {
       "description": "Two to five numbers, each with a label and a note.",
       "files": ["src/presentation/components/site/StatRow.tsx"],
-      "requires": []
+      "requires": [],
+      "example": "src/examples/stat-row"
     },
     "page-info": {
       "description": "The line at the foot of a page: an edit link and the date of the last change.",
       "files": ["src/presentation/components/site/PageInfo.tsx"],
-      "requires": []
+      "requires": [],
+      "example": "src/examples/page-info"
     },
     "side-card": {
       "description": "A card of metadata, links and tags beside the text of a detail page, collapsed on a phone.",
@@ -110,32 +120,38 @@
         "src/presentation/sideCard/sideCard.ts",
         "src/domain/sideCard.ts"
       ],
-      "requires": ["catalog-filter"]
+      "requires": ["catalog-filter"],
+      "example": "src/examples/side-card"
     },
     "reference-table": {
       "description": "A table for a reference: names in code, a type, a default, allowed values and a text, in a scrollable region.",
       "files": ["src/presentation/components/site/ReferenceTable.tsx"],
-      "requires": []
+      "requires": [],
+      "example": "src/examples/reference-table"
     },
     "flow-diagram": {
       "description": "Steps in a row that stack on small screens.",
       "files": ["src/presentation/components/site/FlowDiagram.tsx"],
-      "requires": []
+      "requires": [],
+      "example": "src/examples/flow-diagram"
     },
     "command-table": {
       "description": "A command and what it does.",
       "files": ["src/presentation/components/site/CommandTable.tsx"],
-      "requires": []
+      "requires": [],
+      "example": "src/examples/command-table"
     },
     "callout": {
       "description": "A note, a tip, an important point, a warning or a caution.",
       "files": ["src/presentation/components/site/Callout.tsx"],
-      "requires": ["cn"]
+      "requires": ["cn"],
+      "example": "src/examples/callout"
     },
     "breadcrumbs": {
       "description": "Breadcrumb trail for a page.",
       "files": ["src/presentation/components/site/Breadcrumbs.tsx"],
-      "requires": ["breadcrumb"]
+      "requires": ["breadcrumb"],
+      "example": "src/examples/breadcrumbs"
     },
     "mobile-menu": {
       "description": "Navigation dialog for small screens, a native dialog and a few lines of script. The layout renders it, and the button in the site header opens it.",
@@ -150,17 +166,20 @@
     "hero": {
       "description": "Badge, headline, lede, command and actions.",
       "files": ["src/presentation/components/site/Hero.astro"],
-      "requires": ["button", "command-box", "tone-badge"]
+      "requires": ["button", "command-box", "tone-badge"],
+      "example": "src/examples/hero"
     },
     "cta-band": {
       "description": "Closing headline with a command and actions.",
       "files": ["src/presentation/components/site/CtaBand.astro"],
-      "requires": ["button", "command-box"]
+      "requires": ["button", "command-box"],
+      "example": "src/examples/cta-band"
     },
     "site-footer": {
       "description": "Brand, link columns and a legal bar.",
       "files": ["src/presentation/components/site/SiteFooter.tsx"],
-      "requires": []
+      "requires": [],
+      "example": "src/examples/site-footer"
     }
   }
 }

@@ -154,7 +154,7 @@ npm run bootstrap      # installs the CLI and the template
 npm test               # unit and integration
 npm run test:e2e       # packs the package, generates a site, builds it, and drives it in a browser
 npm run build:tokens   # regenerate the CSS from template/design/tokens.json
-npm run build:docs     # regenerate docs/configuration.md from the config schema
+npm run build:docs     # regenerate docs/configuration.md and the tables of props of the component pages
 ```
 
 See [AGENTS.md](AGENTS.md) for the layout and the rules.

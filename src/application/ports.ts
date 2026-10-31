@@ -54,6 +54,11 @@ export interface ComponentEntry {
   description: string;
   files: string[];
   requires: string[];
+  /**
+   * The folder, relative to the template, of the examples that the documentation of this project shows for the
+   * component. Only the documentation of the kit reads it: `add` ignores it, and the folder is not in the package.
+   */
+  example?: string;
 }
 
 /** Every component the template offers, by name. */

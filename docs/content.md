@@ -16,7 +16,7 @@ Pages sort by file name. Put `order: 1` in the frontmatter to move a page up. Th
 
 ## Tags
 
-Put `tags` in the frontmatter, a list or one comma separated string, and the index page of the collection gets a filter bar with a button per tag. Tags are trimmed, and `UI` and `ui` are the same tag. See [CatalogFilter](./components.md#catalogfilter).
+Put `tags` in the frontmatter, a list or one comma separated string, and the index page of the collection gets a filter bar with a button per tag. Tags are trimmed, and `UI` and `ui` are the same tag. See [CatalogFilter](./components/catalog-filter.md).
 
 ## Side card
 

@@ -108,6 +108,39 @@
       ]
     },
     {
+      "id": "components",
+      "label": "Components",
+      "dir": "../docs/components",
+      "lede": "Every component of the kit with a live preview, the code that produced it, the command to add it and its props.",
+      "groups": [
+        {
+          "name": "Foundation",
+          "tone": "neutral",
+          "items": ["button", "tone-badge", "icon"]
+        },
+        {
+          "name": "Layout",
+          "tone": "brand",
+          "items": ["section-header", "hero", "cta-band", "site-footer"]
+        },
+        {
+          "name": "Content",
+          "tone": "success",
+          "items": ["item-card", "feature-grid", "stat-row", "flow-diagram", "callout", "side-card"]
+        },
+        {
+          "name": "Reference and commands",
+          "tone": "warn",
+          "items": ["reference-table", "command-table", "command-box"]
+        },
+        {
+          "name": "Navigation and page",
+          "tone": "neutral",
+          "items": ["breadcrumbs", "catalog-filter", "page-info"]
+        }
+      ]
+    },
+    {
       "id": "examples",
       "label": "Examples",
       "dir": "../examples",

@@ -82,4 +82,4 @@ block yourself when you turn `lastUpdated` on.
 ## The look
 
 The line is small text in the muted color, which reaches WCAG AA in the dark and the light theme, and the link is a 44 px target. The
-component is `PageInfo`, and `sitekit add page-info` restores it. See [Components](./components.md).
+component is `PageInfo`, and `sitekit add page-info` restores it. See [PageInfo](./components/page-info.md).

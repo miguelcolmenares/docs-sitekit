@@ -1,0 +1,714 @@
+{
+  "button": [
+    {
+      "label": "Props of Button",
+      "rows": [
+        {
+          "name": "variant",
+          "type": "string",
+          "text": "The look of the button.",
+          "allowed": "\"default\", \"destructive\", \"ghost\", \"link\", \"outline\", \"secondary\"",
+          "default": "\"default\""
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "text": "The size of the button. The icon sizes are squares for a button that holds only an icon.",
+          "allowed": "\"default\", \"icon\", \"icon-lg\", \"icon-sm\", \"icon-xs\", \"lg\", \"sm\", \"xs\"",
+          "default": "\"default\""
+        },
+        {
+          "name": "asChild",
+          "type": "boolean",
+          "text": "Draw the child element instead of a button. It does not work with Astro children, so on an Astro page use buttonVariants on the element.",
+          "allowed": "true, false",
+          "default": "false"
+        }
+      ]
+    }
+  ],
+  "tone-badge": [
+    {
+      "label": "Props of ToneBadge",
+      "rows": [
+        {
+          "name": "tone",
+          "type": "Tone",
+          "text": "The color of the badge.",
+          "allowed": "\"neutral\", \"brand\", \"success\", \"warn\"",
+          "default": "\"neutral\""
+        },
+        {
+          "name": "dot",
+          "type": "boolean",
+          "text": "Show a dot before the text. The dot is hidden from assistive technology.",
+          "allowed": "true, false",
+          "default": "false"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "text": "Classes added to the badge."
+        },
+        {
+          "name": "children",
+          "type": "string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<AwaitedReactNode>",
+          "text": "The text of the badge. It always says the status in words, so the color is not the only cue.",
+          "default": "required"
+        }
+      ]
+    }
+  ],
+  "icon": [
+    {
+      "label": "Props of Icon",
+      "rows": [
+        {
+          "name": "name",
+          "type": "string",
+          "text": "A lucide icon in kebab-case, brand:<slug> for a logo that ships, or brand:custom/<name> for your own.",
+          "default": "required"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "text": "Give the icon a name when it stands alone. The icon then has role=\"img\" and that name, and a brand logo also carries it as a <title>, which a browser shows on hover. Without it the icon is decorative and hidden from assistive technology, because the text next to it already names the brand."
+        },
+        {
+          "name": "brands",
+          "type": "Record<string, BrandGlyph>",
+          "text": "The custom logos of the site, by icon value. The page passes them in: the component reads no files."
+        }
+      ]
+    }
+  ],
+  "section-header": [
+    {
+      "label": "Props of SectionHeader",
+      "rows": [
+        {
+          "name": "as",
+          "type": "string",
+          "text": "The heading element. Use \"h1\" for the heading that names the page.",
+          "allowed": "\"h2\", \"h1\"",
+          "default": "\"h2\""
+        },
+        {
+          "name": "eyebrow",
+          "type": "string",
+          "text": "A short line in mono type over the heading."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "text": "The heading.",
+          "default": "required"
+        },
+        {
+          "name": "lede",
+          "type": "string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<AwaitedReactNode>",
+          "text": "A sentence under the heading."
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "text": "Classes added to the wrapper."
+        },
+        {
+          "name": "children",
+          "type": "string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<AwaitedReactNode>",
+          "text": "An action, shown on the right of the text, or under it on a phone."
+        }
+      ]
+    }
+  ],
+  "hero": [
+    {
+      "label": "Props of Hero",
+      "rows": [
+        {
+          "name": "badge",
+          "type": "string",
+          "text": "A short status in a badge over the headline."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "text": "The headline, as the h1 of the page.",
+          "default": "required"
+        },
+        {
+          "name": "lede",
+          "type": "string",
+          "text": "A sentence under the headline.",
+          "default": "required"
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "text": "A command to copy, in a CommandBox."
+        },
+        {
+          "name": "primary",
+          "type": "{ label: string; href: string; }",
+          "text": "The main action.",
+          "default": "required"
+        },
+        {
+          "name": "secondary",
+          "type": "{ label: string; href: string; }",
+          "text": "A second action, as an outline button."
+        }
+      ]
+    }
+  ],
+  "cta-band": [
+    {
+      "label": "Props of CtaBand",
+      "rows": [
+        {
+          "name": "title",
+          "type": "string",
+          "text": "The headline, as an h2.",
+          "default": "required"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "text": "A sentence under the headline."
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "text": "A command to copy, in a CommandBox."
+        },
+        {
+          "name": "primary",
+          "type": "{ label: string; href: string; }",
+          "text": "The main action.",
+          "default": "required"
+        },
+        {
+          "name": "secondary",
+          "type": "{ label: string; href: string; }",
+          "text": "A second action, as an outline button."
+        }
+      ]
+    }
+  ],
+  "site-footer": [
+    {
+      "label": "Props of SiteFooter",
+      "rows": [
+        {
+          "name": "name",
+          "type": "string",
+          "text": "The name of the site, in the brand and in the legal line.",
+          "default": "required"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "text": "One sentence under the brand."
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "text": "A command shown under the description."
+        },
+        {
+          "name": "columns",
+          "type": "readonly FooterColumn[]",
+          "text": "The link columns, one grid track each.",
+          "default": "required"
+        },
+        {
+          "name": "license",
+          "type": "string",
+          "text": "The license, after the name in the legal line."
+        },
+        {
+          "name": "version",
+          "type": "{ label: string; href?: string; }",
+          "text": "Shown after the license, linked when href is given."
+        },
+        {
+          "name": "credit",
+          "type": "{ prefix: string; label: string; href: string; }",
+          "text": "A credit at the right of the legal line."
+        }
+      ]
+    },
+    {
+      "label": "Fields of FooterColumn",
+      "rows": [
+        {
+          "name": "title",
+          "type": "string",
+          "text": "The heading of the column, and the name of its navigation.",
+          "default": "required"
+        },
+        {
+          "name": "links",
+          "type": "readonly { label: string; href: string; external?: boolean; icon?: string; }[]",
+          "text": "The links. icon is a lucide name or brand:<slug>, drawn before the label, and external opens the link in a new tab.",
+          "default": "required"
+        }
+      ]
+    }
+  ],
+  "item-card": [
+    {
+      "label": "Props of ItemCard",
+      "rows": [
+        {
+          "name": "href",
+          "type": "string",
+          "text": "Where the card leads. The whole card is the link.",
+          "default": "required"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "text": "The title, in mono type.",
+          "default": "required"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "text": "A sentence under the title. An empty text leaves the paragraph out.",
+          "default": "required"
+        },
+        {
+          "name": "badge",
+          "type": "string",
+          "text": "The text of a badge over the title."
+        },
+        {
+          "name": "tone",
+          "type": "Tone",
+          "text": "The tone of the badge.",
+          "allowed": "\"neutral\", \"brand\", \"success\", \"warn\"",
+          "default": "\"neutral\""
+        },
+        {
+          "name": "hint",
+          "type": "string",
+          "text": "A short text at the foot of the card, before the arrow."
+        }
+      ]
+    },
+    {
+      "label": "Props of CardGrid",
+      "rows": [
+        {
+          "name": "children",
+          "type": "string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<AwaitedReactNode>",
+          "text": "The cards of the grid.",
+          "default": "required"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "text": "Classes added to the grid."
+        }
+      ]
+    }
+  ],
+  "feature-grid": [
+    {
+      "label": "Props of FeatureGrid",
+      "rows": [
+        {
+          "name": "features",
+          "type": "readonly FeatureItem[]",
+          "text": "The features, in the order shown.",
+          "default": "required"
+        },
+        {
+          "name": "brands",
+          "type": "Record<string, BrandGlyph>",
+          "text": "The custom logos of the site, for brand:custom/<name> icons."
+        }
+      ]
+    },
+    {
+      "label": "Fields of FeatureItem",
+      "rows": [
+        {
+          "name": "icon",
+          "type": "string",
+          "text": "A lucide name in kebab-case, or brand:<slug> for a logo.",
+          "default": "required"
+        },
+        {
+          "name": "eyebrow",
+          "type": "string",
+          "text": "A short line in mono type over the title.",
+          "default": "required"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "text": "The title of the feature.",
+          "default": "required"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "text": "One sentence.",
+          "default": "required"
+        }
+      ]
+    }
+  ],
+  "stat-row": [
+    {
+      "label": "Props of StatRow",
+      "rows": [
+        {
+          "name": "stats",
+          "type": "readonly StatItem[]",
+          "text": "Two to five items. A different count throws.",
+          "default": "required"
+        }
+      ]
+    },
+    {
+      "label": "Fields of StatItem",
+      "rows": [
+        {
+          "name": "value",
+          "type": "string",
+          "text": "The number, or any short text. A long one wraps inside its card.",
+          "default": "required"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "text": "What the value counts.",
+          "default": "required"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "text": "A line under the value, for the unit or the period."
+        }
+      ]
+    }
+  ],
+  "flow-diagram": [
+    {
+      "label": "Props of FlowDiagram",
+      "rows": [
+        {
+          "name": "steps",
+          "type": "readonly FlowStep[]",
+          "text": "The steps, in order.",
+          "default": "required"
+        }
+      ]
+    },
+    {
+      "label": "Fields of FlowStep",
+      "rows": [
+        {
+          "name": "label",
+          "type": "string",
+          "text": "The phase, in mono capitals over the step.",
+          "default": "required"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "text": "The name of the step.",
+          "default": "required"
+        },
+        {
+          "name": "detail",
+          "type": "string",
+          "text": "A short line under the title."
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "text": "A command, in a mono pill under the step."
+        }
+      ]
+    }
+  ],
+  "callout": [
+    {
+      "label": "Props of Callout",
+      "rows": [
+        {
+          "name": "kind",
+          "type": "string",
+          "text": "Which of the five: note, tip, important, warning or caution. It sets the icon, the label and the tone.",
+          "allowed": "\"note\", \"caution\", \"important\", \"tip\", \"warning\"",
+          "default": "\"note\""
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "text": "A title that replaces the name of the kind."
+        },
+        {
+          "name": "children",
+          "type": "string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<AwaitedReactNode>",
+          "text": "The text of the callout.",
+          "default": "required"
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "text": "Classes added to the callout."
+        }
+      ]
+    }
+  ],
+  "side-card": [
+    {
+      "label": "Props of SideCard",
+      "rows": [
+        {
+          "name": "rows",
+          "type": "readonly SideCardRow[]",
+          "text": "The metadata, one label and value for each line.",
+          "default": "required"
+        },
+        {
+          "name": "links",
+          "type": "readonly SideCardLink[]",
+          "text": "Links, under the rows."
+        },
+        {
+          "name": "tags",
+          "type": "readonly string[]",
+          "text": "Tags, under the links."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "text": "The accessible name of the card.",
+          "default": "\"Details\""
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "text": "Classes added to the card."
+        }
+      ]
+    },
+    {
+      "label": "Fields of SideCardRow",
+      "rows": [
+        {
+          "name": "label",
+          "type": "string",
+          "text": "The name of the row, in mono capitals.",
+          "default": "required"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "text": "The value. A long one, such as a hash or an address, wraps.",
+          "default": "required"
+        }
+      ]
+    },
+    {
+      "label": "Fields of SideCardLink",
+      "rows": [
+        {
+          "name": "label",
+          "type": "string",
+          "text": "The text of the link.",
+          "default": "required"
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "text": "Where it leads.",
+          "default": "required"
+        }
+      ]
+    }
+  ],
+  "reference-table": [
+    {
+      "label": "Props of ReferenceTable",
+      "rows": [
+        {
+          "name": "label",
+          "type": "string",
+          "text": "What the table lists, for example Keys of the search group. It names the scrollable region.",
+          "default": "required"
+        },
+        {
+          "name": "rows",
+          "type": "readonly ReferenceRow[]",
+          "text": "The rows, in the order shown.",
+          "default": "required"
+        }
+      ]
+    },
+    {
+      "label": "Fields of ReferenceRow",
+      "rows": [
+        {
+          "name": "name",
+          "type": "string",
+          "text": "The name, written in code: a config key, an option, a flag.",
+          "default": "required"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "text": "The type, as a short text.",
+          "default": "required"
+        },
+        {
+          "name": "default",
+          "type": "string",
+          "text": "The default, or a word such as required. Optional, a row without one shows a dash."
+        },
+        {
+          "name": "allowed",
+          "type": "string",
+          "text": "The values the name accepts. Optional, a row without them shows a dash."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "text": "What the name does.",
+          "default": "required"
+        }
+      ]
+    }
+  ],
+  "command-table": [
+    {
+      "label": "Props of CommandTable",
+      "rows": [
+        {
+          "name": "rows",
+          "type": "readonly CommandRow[]",
+          "text": "The commands, in the order shown.",
+          "default": "required"
+        }
+      ]
+    },
+    {
+      "label": "Fields of CommandRow",
+      "rows": [
+        {
+          "name": "command",
+          "type": "string",
+          "text": "The command, in code.",
+          "default": "required"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "text": "What it does.",
+          "default": "required"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "text": "More detail, shown from the lg breakpoint up."
+        }
+      ]
+    }
+  ],
+  "command-box": [
+    {
+      "label": "Props of CommandBox",
+      "rows": [
+        {
+          "name": "command",
+          "type": "string",
+          "text": "The command, shown and copied as it is.",
+          "default": "required"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "text": "The accessible name of the copy button. Without it the name is \"Copy command: \" and the command."
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "text": "Classes added to the box."
+        }
+      ]
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "label": "Props of Breadcrumbs",
+      "rows": [
+        {
+          "name": "items",
+          "type": "readonly { label: string; href?: string; }[]",
+          "text": "The trail, from the home page to the current one. An item with no href is the current page.",
+          "default": "required"
+        }
+      ]
+    }
+  ],
+  "catalog-filter": [
+    {
+      "label": "Props of CatalogFilter",
+      "rows": [
+        {
+          "name": "tags",
+          "type": "TagOption[]",
+          "text": "One button per tag, from collectTags.",
+          "default": "required"
+        },
+        {
+          "name": "total",
+          "type": "number",
+          "text": "How many cards the page has, for the first status line.",
+          "default": "required"
+        }
+      ]
+    }
+  ],
+  "page-info": [
+    {
+      "label": "Props of PageInfo",
+      "rows": [
+        {
+          "name": "editUrl",
+          "type": "string",
+          "text": "The address of the source file on the repository host. Without it the link is left out."
+        },
+        {
+          "name": "updated",
+          "type": "PageUpdated",
+          "text": "The day of the last change. Without it the date is left out."
+        }
+      ]
+    },
+    {
+      "label": "Fields of PageUpdated",
+      "rows": [
+        {
+          "name": "datetime",
+          "type": "string",
+          "text": "The value of the datetime attribute, for example 2026-10-28.",
+          "default": "required"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "text": "The date as a reader sees it.",
+          "default": "required"
+        }
+      ]
+    }
+  ]
+}

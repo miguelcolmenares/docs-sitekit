@@ -6,100 +6,85 @@ order: 2
 
 The design system is a set of React components, written in the shadcn style and rendered at build time. Only the copy button hydrates. The mobile menu is a native dialog and a few lines of script, see [Performance](./performance.md).
 
+This page is the index of the Components section. Each component below has a page with a live preview that you can show in the other theme, the code that produced it, the command that adds it, a table of its props, each of its variants and its accessibility notes. The preview and the code come from the same file, so they cannot drift apart, and the table is generated from the TypeScript types and the TSDoc of the component.
+
+## Foundation
+
+- [Button](./components/button.md), the button of shadcn/ui, and `buttonVariants` for a link.
+- [ToneBadge](./components/tone-badge.md), the only place a status color is chosen.
+- [Icon](./components/icon.md), a lucide icon or a brand logo.
+
 ## Layout
 
-- **SiteHeader**, sticky and translucent, with the brand, the navigation, a repository button with the logo of the host and one primary action.
-- **Hero**, with a status badge, a headline, a lede, a copyable command and up to two actions.
-- **SectionHeader**, a mono eyebrow, a heading and a lede.
-- **SiteFooter**, the brand, link columns and a legal bar.
-- **CtaBand**, a closing headline with a command and actions.
+- [SectionHeader](./components/section-header.md), a mono eyebrow, a heading and a lede.
+- [Hero](./components/hero.md), a badge, a headline, a lede, a command and actions.
+- [CtaBand](./components/cta-band.md), a closing headline with a command and actions.
+- [SiteFooter](./components/site-footer.md), the brand, link columns and a legal bar.
 
 ## Content
 
-- **ItemCard** and **CardGrid**, for catalogs. The grid has explicit tracks, so columns line up.
-- **FeatureGrid**, an icon, an eyebrow, a title and text. The icon can be a brand logo, see [Brand logos](./brand-logos.md).
-- **StatRow**, two to five numbers, each with a label and an optional note.
-- **SideCard**, metadata, links and tags in a card beside the text of a detail page. It builds on the tag rules of **CatalogFilter**, so `sitekit add side-card` restores that component too. A card the frontmatter got wrong is a `card` finding in `sitekit check`. See [A detail page with a side card](./detail-page.md).
-- **CatalogFilter**, a text field and tag buttons that narrow the cards of an index page. See [CatalogFilter](#catalogfilter).
-- **PageInfo**, the line at the foot of a page: an "Edit this page" link and the date of the last change. See [Edit this page](./edit-link.md).
-- **FlowDiagram**, steps in a row that stack on small screens.
-- **CommandTable**, a command and what it does.
-- **ReferenceTable**, a table of names in code with a type, a default, the values allowed and a text. See [ReferenceTable](#referencetable).
-- **Callout**, a note, a tip, an important point, a warning or a caution. The same five also come from markdown, see [Callouts](./callouts.md).
-- **ToneBadge**, the only place a status color is chosen.
+- [ItemCard](./components/item-card.md), a link card and its grid, for catalogs.
+- [FeatureGrid](./components/feature-grid.md), an icon, an eyebrow, a title and text.
+- [StatRow](./components/stat-row.md), two to five numbers, each with a label and a note.
+- [FlowDiagram](./components/flow-diagram.md), steps in a row that stack on small screens.
+- [Callout](./components/callout.md), a note, a tip, an important point, a warning or a caution.
+- [SideCard](./components/side-card.md), metadata, links and tags beside the text of a detail page.
 
-## StatRow
+## Reference and commands
 
-A row of numbers for a project page: downloads, a version, the Node versions it supports. It is a description list, so a screen reader says each label with its value, and no meaning depends on color alone. The value is the large text, in the mono face, and a long value wraps inside its card.
+- [ReferenceTable](./components/reference-table.md), names in code with a type, a default, the values allowed and a text.
+- [CommandTable](./components/command-table.md), a command and what it does.
+- [CommandBox](./components/command-box.md), a copyable shell command.
 
-```tsx
-<StatRow
-  stats={[
-    { value: "1.2k", label: "Downloads", note: "Last 30 days" },
-    { value: "v1.2.3", label: "Version" },
-  ]}
-/>
-```
+## Navigation and page
 
-- It takes two to five items and throws, with the limits in the message, outside them.
-- One column on a phone, then up to one column per item on wider screens, on explicit tracks.
-- The numbers come from props. The kit fetches nothing at run time, so the page decides where a number comes from.
-- The home page shows a row when `sitekit.config.json` has a `stats` key with the same items, as this site does. Without the key, nothing is shown.
-- `sitekit add stat-row` restores the file.
+- [Breadcrumbs](./components/breadcrumbs.md), the trail to the current page.
+- [CatalogFilter](./components/catalog-filter.md), a text field and tag buttons that narrow the cards of an index page.
+- [PageInfo](./components/page-info.md), the edit link and the date of the last change.
 
-## ReferenceTable
+## Listed without a page
 
-A table for a reference page written in Astro: a column of code names, a type, a default, the values a name accepts and a text. The configuration reference of this project is markdown, see [Configuration reference](./configuration.md), and a markdown table already scrolls and takes focus. Use the component where a page is `.astro` and the rows are data.
+These entries of the registry have no page, each for a reason. `sitekit list` prints all of them, and `sitekit add <name>` restores any of them. A test fails when an entry of the registry has neither a page nor a place in this list.
 
-```tsx
-<ReferenceTable
-  label="Keys of the search group"
-  rows={[
-    {
-      name: "search.enabled",
-      type: "boolean",
-      default: "true",
-      allowed: "true, false",
-      text: "Turn search on.",
-    },
-    {
-      name: "site.url",
-      type: "string (URL)",
-      default: "required",
-      text: "The origin of the site.",
-    },
-  ]}
-/>
-```
+### cn
 
-- **The wrapper scrolls, not the page.** The table is 40rem wide at least, so on a phone it scrolls sideways inside a region that has a border, and the page does not scroll with it.
-- **A keyboard user can scroll it.** The wrapper has `role="region"`, an `aria-label` from `label` and `tabindex="0"` in the HTML, so Tab reaches it and the arrow keys scroll it, with no JavaScript. The focus ring is the one of the rest of the site.
-- **It is a real table.** It has a caption, `scope="col"` headers and the name of each row as its `scope="row"` header, so a screen reader says the name with each cell.
-- **Names stay on one line**, so a long key scrolls instead of breaking in the middle. The description column wraps.
-- **`default` and `allowed` are optional.** A row without them shows a dash, never an empty cell.
-- The text uses the `fg`, `fg-muted` and `brand` tokens, which reach AA contrast in both themes, and it chooses no status color.
-- `sitekit add reference-table` restores the file.
+The helper that joins class names with `clsx` and `tailwind-merge`. It draws nothing, so it has nothing to preview. Every component that takes a `className` requires it.
 
-## CatalogFilter
+### badge
 
-A bar above the cards of an index page, to narrow the page you are already on. Search finds a page across the site, the filter narrows this one. It is built from the `tags` in the frontmatter of the pages that the grid shows:
+The `Badge` of shadcn/ui, generated by its CLI. No component of the kit uses it, because [ToneBadge](./components/tone-badge.md) is the way to show a status. Its documentation is [the one of shadcn/ui](https://ui.shadcn.com/docs/components/badge).
 
-```markdown
----
-tags: [Setup, Guide]
----
-```
+### card
 
-- **It appears only when a page of the index has a tag.** An index without tags looks and works as before.
-- **Without JavaScript every card is shown and the bar is not.** The bar is hidden in the HTML, and a one line script right after it shows it, so it is in the first paint and nothing moves. A card that does not match gets the `hidden` attribute, and a group with no card left is hidden with its heading.
-- **The text field** keeps the cards that contain every word, in the title, the description or the tags, whatever the case and the accents.
-- **The tag buttons** are toggle buttons with `aria-pressed`. With several tags selected a card needs all of them.
-- **The status line** is a polite live region that says "N of M shown." A state with no match says "Nothing matches this filter." and shows a "Clear filter" button.
-- **The state is in the address**, `?tag=setup&tag=guide&q=card`, so a filtered view can be shared, and loading that address shows it. A tag button adds a history entry, so the back button undoes it. Typing replaces the current entry, so one search does not fill the history.
-- Every control is at least 44 px, and the focus ring is the one of the rest of the site.
-- `sitekit add catalog-filter` restores its component, its script and the matching rules. The index layout that uses it, `CollectionIndex.astro`, is yours to edit.
+The `Card` of shadcn/ui, generated by its CLI. No component of the kit uses it, and [ItemCard](./components/item-card.md) is the card for a catalog. Its documentation is [the one of shadcn/ui](https://ui.shadcn.com/docs/components/card).
 
-The matching is a set of pure functions in `src/domain/filter/`, the same ones that build the page and run in the browser.
+### tabs
+
+The `Tabs` of shadcn/ui, generated by its CLI, built on Radix. No component of the kit uses it, and it needs a client directive to work on an Astro page. Its documentation is [the one of shadcn/ui](https://ui.shadcn.com/docs/components/tabs). The Preview and Code tabs of these pages are a few lines of script, not this component.
+
+### tooltip
+
+The `Tooltip` of shadcn/ui, generated by its CLI, built on Radix. No component of the kit uses it, and it needs a client directive to work on an Astro page. Its documentation is [the one of shadcn/ui](https://ui.shadcn.com/docs/components/tooltip).
+
+### separator
+
+The `Separator` of shadcn/ui, generated by its CLI, built on Radix. No component of the kit uses it. Its documentation is [the one of shadcn/ui](https://ui.shadcn.com/docs/components/separator).
+
+### sheet
+
+The `Sheet` of shadcn/ui, generated by its CLI, built on the dialog of Radix. No component of the kit uses it: the mobile menu is a native dialog, see [Performance](./performance.md). Its documentation is [the one of shadcn/ui](https://ui.shadcn.com/docs/components/sheet).
+
+### breadcrumb
+
+The parts of the `Breadcrumb` of shadcn/ui, generated by its CLI. Only [Breadcrumbs](./components/breadcrumbs.md) uses them, and that is the component to use. Its documentation is [the one of shadcn/ui](https://ui.shadcn.com/docs/components/breadcrumb).
+
+### site-header
+
+The sticky header of every page, with the brand, the navigation, the search button, the repository button and the theme switch. The layout renders it once, and its script finds the theme switch and the menu button by attribute in the whole page, so a second copy would fight the first one. The page you are reading shows it at the top.
+
+### mobile-menu
+
+The navigation dialog for small screens, a native `<dialog>` and a few lines of script. The layout renders it after the header, and the button in the header opens it. Its script takes the first dialog of the page, so it cannot be previewed beside the real one. Open the menu of this page on a screen under 768 px wide to see it.
 
 ## Rules
 

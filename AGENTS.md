@@ -25,8 +25,9 @@ template/                 the site that `init` copies. It has the same four laye
   design/tokens.json      the only source of colors, radius, fonts and layout
   registry.json           components, their files and what each requires
 e2e/                      Playwright against a site generated from the packed tarball
-scripts/                  build-tokens.mjs, build-docs.mjs (docs/configuration.md from the config schema), verify-package.mjs
-docs/, examples/          the documentation of this project, built with this kit
+scripts/                  build-tokens.mjs, build-docs.mjs (docs/configuration.md from the config schema), build-component-docs.mjs (the props tables of the component pages, from TSDoc), verify-package.mjs
+template/src/examples/    the examples of the component pages, one folder per component. Kit documentation only: not in the package, not in a generated site
+docs/, examples/          the documentation of this project, built with this kit (docs/components/ holds the notes of each component page)
 ```
 
 Dependencies point inward. Every layer has an `index.ts`, and other layers import it, not its files. Exceptions, on purpose:
@@ -68,6 +69,9 @@ and measured in the browser on every route; the meter is itself tested against p
   server that behaves like GitHub Pages (`e2e/serve.mjs`).
 - Every key of the config schema needs a `.describe()`: `npm run build:docs` fails without one, and writes `docs/configuration.md`, which a test
   compares with the schema. Run it after changing a key, and do not edit that page by hand.
+- **A registry entry has a component page or a reason it has none** (`docs/components.md`), and a page is made of four things that agree: the `example` pointer, the files in `template/src/examples/<name>/`, `docs/components/<name>.md` and its group in `template/sitekit.config.json`. Every prop of a component with a page needs a TSDoc comment, or `npm run build:docs` fails. The example is one `.astro` file that is both rendered and shown as text (`?raw`).
+- **Kit-only paths** (`KIT_ONLY_PATHS` in `packagedTemplate.ts`, and the same paths negated in `files` of `package.json`) never reach the package or a generated site. `verify-package` checks both.
+- **A color transition is not a color.** The browser tests wait for `document.getAnimations()` before they measure contrast.
 - Do not edit `template/src/styles/tokens.css`: change `design/tokens.json` and run `npm run build:tokens`.
 - Credential-shaped test values are built at run time, never written as literals.
 

@@ -1,7 +1,10 @@
 /** One number of a stat row: the value, what it counts, and an optional note under it. */
 export interface StatItem {
+  /** The number, or any short text. A long one wraps inside its card. */
   value: string;
+  /** What the value counts. */
   label: string;
+  /** A line under the value, for the unit or the period. */
   note?: string;
 }
 
@@ -24,7 +27,12 @@ const TRACKS: Record<number, string> = {
  * and its value together. The values come from props: the component fetches nothing.
  * It throws when the count is outside the limits, so a bad page fails the build with a clear message.
  */
-export function StatRow({ stats }: { stats: readonly StatItem[] }) {
+export function StatRow({
+  stats,
+}: {
+  /** Two to five items. A different count throws. */
+  stats: readonly StatItem[];
+}) {
   const tracks = TRACKS[stats.length];
   if (!tracks) {
     throw new Error(

@@ -24,6 +24,7 @@ every export of our own code has a TSDoc comment.
 - **A test at the right level.** Rules and use cases get unit tests, file handling gets an integration test, and anything a visitor sees gets a Playwright check.
 - **The design rules hold.** They are tests: no shadows, status colors only in `ToneBadge` and `Callout`, components never import content, WCAG AA contrast,
   and 44 px touch targets on a phone. See [AGENTS.md](AGENTS.md).
+- **A component has a page, or a reason it has none.** A new entry of `template/registry.json` either points at a folder of examples (`"example": "src/examples/<name>"`, with a page in `docs/components/<name>.md` and an entry in `template/src/examples/catalog.ts`) or gets a `###` heading in `docs/components.md` that says why it has no page. A test fails on both omissions. The props of the page come from the TSDoc of the component: every prop needs a comment, and `npm run build:docs` regenerates the table and fails on one without it. The examples are kit documentation and stay out of the package and out of a generated site.
 - **Tokens come from one file.** Change `template/design/tokens.json` and run `npm run build:tokens`. Do not edit `tokens.css`.
 - **No code copied from elsewhere**, and no dependency on a private package.
 

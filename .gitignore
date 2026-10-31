@@ -12,3 +12,4 @@ e2e/.build/
 template/node_modules/
 template/dist/
 template/.astro/
+.sitekit-docs-*

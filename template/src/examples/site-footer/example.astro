@@ -1,0 +1,28 @@
+---
+import { SiteFooter } from "@/presentation/components/site/SiteFooter";
+---
+
+<SiteFooter
+  name="widget"
+  description="A widget that does widget things."
+  command="npm install @demo/widget"
+  license="MIT"
+  version={{ label: "v1.2.3", href: "#" }}
+  credit={{ prefix: "Built with", label: "docs-sitekit", href: "https://github.com/miguelcolmenares/docs-sitekit" }}
+  columns={[
+    {
+      title: "Documentation",
+      links: [
+        { label: "Docs", href: "#" },
+        { label: "Examples", href: "#" },
+      ],
+    },
+    {
+      title: "Project",
+      links: [
+        { label: "GitHub", href: "https://github.com/demo/widget", external: true, icon: "brand:github" },
+        { label: "Report an issue", href: "https://github.com/demo/widget/issues", external: true },
+      ],
+    },
+  ]}
+/>

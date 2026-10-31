@@ -30,9 +30,23 @@ export function Callout({
   children,
   className,
 }: {
+  /**
+   * Which of the five: note, tip, important, warning or caution. It sets the icon, the label and the tone.
+   *
+   * @defaultValue "note"
+   */
   kind?: keyof typeof kinds;
+  /**
+   * A title that replaces the name of the kind.
+   */
   title?: string;
+  /**
+   * The text of the callout.
+   */
   children: React.ReactNode;
+  /**
+   * Classes added to the callout.
+   */
   className?: string;
 }) {
   const { icon: IconComponent, label, tone, edge } = kinds[kind];

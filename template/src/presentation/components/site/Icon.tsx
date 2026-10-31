@@ -12,6 +12,7 @@ const toPascal = (name: string) =>
  * logo (`brand:custom/my-logo`). A name that resolves to nothing shows a plain circle.
  */
 export interface IconProps extends LucideProps {
+  /** A lucide icon in kebab-case, `brand:<slug>` for a logo that ships, or `brand:custom/<name>` for your own. */
   name: string;
   /**
    * Give the icon a name when it stands alone. The icon then has `role="img"` and that name, and a brand

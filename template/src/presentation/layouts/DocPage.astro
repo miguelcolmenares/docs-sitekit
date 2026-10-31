@@ -91,6 +91,7 @@ const card = doc.card;
           </>
         )
       }
+      <slot />
       <div class="prose-site mt-10" set:html={html} data-prose />
       <PageInfo editUrl={editUrl} updated={updated} />
       <nav aria-label="Previous and next" class="mt-16 grid grid-cols-1 gap-4 border-t border-border pt-8 sm:grid-cols-2">

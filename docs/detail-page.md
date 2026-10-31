@@ -48,7 +48,7 @@ tags: [Plugin, Forms]
 
 - **`meta`** is a list of items with a `label` and a `value`. Both are text, so put a number such as `1.0` in quotes, or YAML reads it as the number 1. A long value, such as a hash or an address, wraps inside the card.
 - **`links`** is a list of items with a `label` and an `href`. An `href` is a web address, a `mailto:` address, or a path to a file of the repository. A path is resolved like a link in the text: a page of the site becomes its route, and any other file becomes its address on the repository. A link to a file that does not exist, or one that is excluded from the site, is left out.
-- **`tags`** is the same key the [filter bar](./components.md#catalogfilter) reads. The card shows the tags of its page.
+- **`tags`** is the same key the [filter bar](./components/catalog-filter.md) reads. The card shows the tags of its page.
 
 A page has a card when `meta` or `links` has at least one valid item. A page that has only `tags` does not get a card, so an index with a filter bar does not change. A page with neither is laid out as before.
 

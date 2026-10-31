@@ -3,9 +3,13 @@ import { Icon } from "./Icon";
 
 /** One feature: an icon (a lucide name or `brand:<slug>`), an eyebrow, a title and a sentence. */
 export interface FeatureItem {
+  /** A lucide name in kebab-case, or `brand:<slug>` for a logo. */
   icon: string;
+  /** A short line in mono type over the title. */
   eyebrow: string;
+  /** The title of the feature. */
   title: string;
+  /** One sentence. */
   text: string;
 }
 
@@ -14,6 +18,7 @@ export function FeatureGrid({
   features,
   brands,
 }: {
+  /** The features, in the order shown. */
   features: readonly FeatureItem[];
   /** The custom logos of the site, for `brand:custom/<name>` icons. */
   brands?: Record<string, BrandGlyph>;

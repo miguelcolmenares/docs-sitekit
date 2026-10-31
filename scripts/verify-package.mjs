@@ -134,6 +134,13 @@ check("tarball has the CLI, the template, the registry and the workflow", () => 
     assert(packedPaths.includes(required), `missing ${required}`);
   }
 });
+check("tarball has no example and no layout that only the project site uses", () => {
+  const bad = packedPaths.filter((path) =>
+    /^template\/src\/(examples|presentation\/layouts\/collections)(\/|$)/.test(path),
+  );
+  assert(bad.length === 0, `unexpected files: ${bad.slice(0, 5).join(", ")}`);
+  assert(packedPaths.includes("template/registry.json"), "the registry is missing");
+});
 check("tarball has no node_modules, build output, dev config or tests", () => {
   const bad = packedPaths.filter((path) =>
     /node_modules|template\/dist\/|template\/\.astro\/|template\/sitekit\.config\.json|__tests__|\.env/.test(
@@ -1130,6 +1137,57 @@ check("add rejects an unknown component with a way forward", () => {
     message = error.stderr;
   }
   assert(/Unknown component "nope".*sitekit list/.test(message), `got: ${message}`);
+});
+
+check(
+  "the generated site has no example and no layout of a collection, and add restores none",
+  () => {
+    for (const path of ["src/examples", "src/presentation/layouts/collections"]) {
+      assert(!existsSync(join(SITE, path)), `the site has ${path}`);
+    }
+    sitekit(["add", "stat-row", "--force"]);
+    assert(!existsSync(join(SITE, "src", "examples")), "add wrote the examples");
+    const page = read("docs/getting-started/index.html");
+    assert(!/data-example|data-preview-theme/.test(page), "a page of the site has a preview");
+    const styles = listFiles(join(dist, "_astro"))
+      .filter((file) => file.endsWith(".css"))
+      .map((file) => readFileSync(file, "utf8"))
+      .join("");
+    assert(!styles.includes("data-preview-theme"), "the site carries the preview themes");
+  },
+);
+
+console.log("5c/6 The documentation site of this project, for the pages of the components");
+// The pages of the components are part of the documentation of this project and not of a generated site, so they are
+// built from the template folder itself, with its own configuration. The browser tests serve this build as well.
+const OWN = join(WORK, "own-site");
+runLoud("npm", ["run", "build", "--", "--outDir", OWN], {
+  cwd: join(ROOT, "template"),
+  env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" },
+});
+check("the site of the project has a page for each component that has an example", () => {
+  const registry = JSON.parse(readFileSync(join(ROOT, "template", "registry.json"), "utf8"));
+  const names = Object.entries(registry.components)
+    .filter(([, entry]) => entry.example)
+    .map(([name]) => name);
+  assert(names.length > 0, "no entry points at an example");
+  for (const name of names) {
+    const file = join(OWN, "components", name, "index.html");
+    assert(existsSync(file), `no page for ${name}`);
+    const html = readFileSync(file, "utf8");
+    assert(html.includes("data-example-stage"), `${name} has no preview`);
+    assert(html.includes("code-block"), `${name} has no code block`);
+    assert(html.includes(`npx docs-sitekit add ${name}`), `${name} has no add command`);
+  }
+});
+check("the site of the project makes no request to another host from a component page", () => {
+  const html = readFileSync(join(OWN, "components", "stat-row", "index.html"), "utf8");
+  const hosts = [...html.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((match) => match[1]);
+  const foreign = hosts.filter(
+    (url) => !/^https:\/\/(github\.com\/(miguelcolmenares|demo)|miguelcolmenares\.com)\//.test(url),
+  );
+  assert(foreign.length === 0, `links to: ${foreign.join(", ")}`);
+  assert(!/<script[^>]+src="https?:/.test(html), "a script is loaded from another host");
 });
 
 console.log("5b/6 Upgrade a site made by the published 0.1.0");

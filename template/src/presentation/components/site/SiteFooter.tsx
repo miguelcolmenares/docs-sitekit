@@ -3,8 +3,12 @@ import { Icon } from "./Icon";
 
 /** A titled column of footer links. */
 export interface FooterColumn {
+  /** The heading of the column, and the name of its navigation. */
   title: string;
-  /** `icon` is a lucide name or `brand:<slug>`, drawn before the label. */
+  /**
+   * The links. `icon` is a lucide name or `brand:<slug>`, drawn before the label, and `external` opens the link in
+   * a new tab.
+   */
   links: readonly { label: string; href: string; external?: boolean; icon?: string }[];
 }
 
@@ -18,13 +22,19 @@ export function SiteFooter({
   version,
   credit,
 }: {
+  /** The name of the site, in the brand and in the legal line. */
   name: string;
+  /** One sentence under the brand. */
   description?: string;
+  /** A command shown under the description. */
   command?: string;
+  /** The link columns, one grid track each. */
   columns: readonly FooterColumn[];
+  /** The license, after the name in the legal line. */
   license?: string;
   /** Shown after the license, linked when `href` is given. */
   version?: { label: string; href?: string };
+  /** A credit at the right of the legal line. */
   credit?: { prefix: string; label: string; href: string };
 }) {
   // One explicit track for the brand and one per column, so columns sit side by side on desktop.

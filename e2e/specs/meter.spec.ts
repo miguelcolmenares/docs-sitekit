@@ -82,6 +82,19 @@ test.describe("the contrast meter", () => {
     expect((await measureContrast(page)).checked).toBe(0);
   });
 
+  test("leaves out the text of a disabled control, and still measures an enabled one", async ({
+    page,
+  }) => {
+    await page.setContent(
+      page$(
+        '<button disabled style="color:#555;background:#000;font-size:16px">off</button><button style="color:#555;background:#000;font-size:16px">on</button>',
+      ),
+    );
+    const { offenders, checked } = await measureContrast(page);
+    expect(checked).toBe(1);
+    expect(offenders.map((offender) => offender.text)).toEqual(["on"]);
+  });
+
   test("understands modern color syntax", async ({ page }) => {
     await page.setContent(page$('<p style="color:color-mix(in srgb, #fff 20%, #000)">mixed</p>'));
     expect((await measureContrast(page)).offenders).toHaveLength(1);

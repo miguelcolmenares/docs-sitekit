@@ -17,11 +17,31 @@ export function ItemCard({
   className,
   ...rest
 }: Omit<React.ComponentProps<"a">, "children" | "title"> & {
+  /**
+   * Where the card leads. The whole card is the link.
+   */
   href: string;
+  /**
+   * The title, in mono type.
+   */
   title: string;
+  /**
+   * A sentence under the title. An empty text leaves the paragraph out.
+   */
   description: string;
+  /**
+   * The text of a badge over the title.
+   */
   badge?: string;
+  /**
+   * The tone of the badge.
+   *
+   * @defaultValue "neutral"
+   */
   tone?: Tone;
+  /**
+   * A short text at the foot of the card, before the arrow.
+   */
   hint?: string;
 }) {
   return (
@@ -58,7 +78,9 @@ export function CardGrid({
   children,
   className,
 }: {
+  /** The cards of the grid. */
   children: React.ReactNode;
+  /** Classes added to the grid. */
   className?: string;
 }) {
   return (
