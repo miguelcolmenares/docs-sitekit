@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-30
+
 ### Added
 
 - **The site base is added to the links of `nav` and `footer.links`.** A `href` that starts with `/` is a path of the site, and the build adds the `base` to it, in the header, in the menu of a phone and in the footer, as the buttons of the hero already did: with the base `/acme/`, `/docs/getting-started/` becomes `/acme/docs/getting-started/`. Web addresses, `//host` addresses, `mailto:` links, `#` anchors, paths relative to the page and paths that already start with the base are left as written, so a site that wrote the base into its hrefs keeps working and a site served from `/` does not change. A path that starts with the base by accident is taken as complete: with the base `/docs/`, `/docs/api/` stays `/docs/api/`, and `/docs/docs/api/` reaches the page below it. The rule is the pure function `withSiteBase` in the domain layer of the template, with a unit test, a test with a real `sitekit.config.json`, and a browser spec on a generated site with the base `/widget/` and a `nav` and `footer.links` (`verify-package` builds it a second time, and it is served on the port after the one of the project site). The warning on `docs/options-navigation.md` that asked for the base in each `href` is replaced by the rule. A site generated earlier gets this after `BaseLayout.astro`, `domain/siteHref.ts` and the line in `domain/index.ts` are copied from this version. See `docs/options-navigation.md`.
