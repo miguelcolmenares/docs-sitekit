@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-31
+
 ### Changed
 
 - **The Publish workflow creates the GitHub Release.** After the package is on npm, a second job, the only one that can write to the repository, creates the Release for the tag with the matching section of the CHANGELOG as its notes, and does nothing if the Release already exists. A tag whose version has no section in the CHANGELOG fails that job. The Release no longer has to be made by hand.
+
+- **A CodeQL workflow for this repository.** `.github/workflows/codeql.yml` analyses the JavaScript and TypeScript of `src/` and `template/` on pull requests to `main` and every Monday, with the configuration of css-js-minifier. The actions are pinned by SHA.
 
 ### Fixed
 
