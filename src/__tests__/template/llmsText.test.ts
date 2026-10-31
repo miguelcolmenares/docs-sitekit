@@ -41,6 +41,13 @@ const build = (site: ReturnType<typeof config>, files: SourceFile[] = sources) =
     buildDocuments(files, { base: site.site.base, collections: site.collections }),
   );
 
+describe("buildLlmsText link text", () => {
+  it("escapes brackets and the backslash that would escape them", () => {
+    const text = build(config("/"), [file("docs/odd.md", "# Odd \\ and [x]\n\nText.\n")]);
+    expect(text).toContain("- [Odd \\\\ and \\[x\\]](");
+  });
+});
+
 describe("buildLlmsText structure", () => {
   it("starts with the H1 name, then the blockquote description", () => {
     const lines = build(config("/")).split("\n");

@@ -243,6 +243,14 @@ describe("parseCustomSvg", () => {
     expect(glyph).toEqual({ viewBox: "0 0 24 24", paths: [{ d: "M1 1L5 5Z" }] });
   });
 
+  it("takes out a comment that the removal of another one closed up", () => {
+    const glyph = parseCustomSvg(
+      svg('<!<!-- one -->-- <script>alert(1)</script> --><path d="M0 0L5 5Z"/>'),
+      "brands/acme.svg",
+    );
+    expect(glyph).toEqual({ viewBox: "0 0 24 24", paths: [{ d: "M0 0L5 5Z" }] });
+  });
+
   it.each([
     [
       "a shape that is not a path",

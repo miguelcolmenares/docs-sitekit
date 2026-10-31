@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Three CodeQL warnings in code that every generated site carries**, found when CodeQL analysed a site made by 0.2.0. `parseCustomSvg` removed comments in a single pass, which could leave a `<!--` that the removal itself had closed up, so it now repeats until the text stops changing. The link text of `llms.txt` escaped brackets but not the backslash that could escape them, so a title ending in `\` could break the link, and it now escapes both. The inline text reader of the search index took comments with `.`, which does not match a line break, and now takes them with `[\s\S]`. The first two have regression tests. A site generated earlier gets the fixes after `customSvg.ts`, `buildLlmsText.ts` and `searchText.ts` are copied from this version, or with `sitekit upgrade`.
+
 ## [0.2.0] - 2026-10-30
 
 ### Added
