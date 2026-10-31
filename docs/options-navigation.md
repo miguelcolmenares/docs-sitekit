@@ -26,7 +26,7 @@ A link whose `href` starts with `/` is a path of the site, and the build adds th
 | `/docs/getting-started/`                          | `/acme/docs/getting-started/` | A path of the site gets the base          |
 | `/acme/docs/getting-started/`                     | `/acme/docs/getting-started/` | It already starts with the base           |
 | `https://blog.acme.example`, `//cdn.acme.example` | as written                    | A web address                             |
-| `mailto:team@acme.example`                        | as written                    | Not a path                                |
+| `mailto:support@acme.example`                     | as written                    | Not a path                                |
 | `#install`, `docs/start/`                         | as written                    | An anchor, or a path relative to the page |
 
 This holds for the `nav` in the header and in the menu of a phone, and for the links of the footer. On a site with the base `/`, nothing changes.
