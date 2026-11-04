@@ -40,9 +40,10 @@ describe("the name of the tool", () => {
     expect(found).toEqual([]);
   });
 
-  it("is the name the footer of a generated site credits", () => {
-    expect(read("template/src/presentation/layouts/BaseLayout.astro")).toContain(
-      'label: "docs-sitekit"',
-    );
+  it("is the name the footer of a generated site credits, linked to the microsite", () => {
+    const layout = read("template/src/presentation/layouts/BaseLayout.astro");
+    expect(layout).toContain('label: "docs-sitekit"');
+    expect(layout).toContain('href: "https://miguelcolmenares.com/docs-sitekit/"');
+    expect(layout).not.toContain('github.com/miguelcolmenares/docs-sitekit" }}');
   });
 });
