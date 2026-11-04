@@ -162,8 +162,11 @@ describe("code blocks, rendered by the real markdown package", () => {
 /** The text of the `code` element of a block: what the copy button copies. */
 function text(block: string): string {
   const code = /<code[^>]*>([\s\S]*?)<\/code>/.exec(block)![1]!;
+  // The tags are the separators and the entities are read in each piece of text between them, so a
+  // character that an entity gives is never read again as a tag or as another entity.
+  const entities: Record<string, string> = { "&#x26;": "&", "&#x3c;": "<" };
   return code
-    .replace(/<[^>]+>/g, "")
-    .replace(/&#x26;/g, "&")
-    .replace(/&#x3C;/g, "<");
+    .split(/<[^>]*>/)
+    .map((piece) => piece.replace(/&#x(?:26|3c);/gi, (entity) => entities[entity.toLowerCase()]!))
+    .join("");
 }

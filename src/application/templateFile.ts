@@ -2,10 +2,12 @@ import type { TemplateFile } from "./ports";
 
 /** Name for a site's `package.json`, made from the site name: lowercase, hyphens, `-docs` after it. */
 export function packageName(siteName: string): string {
-  const slug = siteName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  const hyphenated = siteName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  let from = 0;
+  let to = hyphenated.length;
+  while (from < to && hyphenated[from] === "-") from++;
+  while (to > from && hyphenated[to - 1] === "-") to--;
+  const slug = hyphenated.slice(from, to);
   return `${slug || "site"}-docs`;
 }
 

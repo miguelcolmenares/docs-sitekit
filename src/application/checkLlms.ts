@@ -16,7 +16,24 @@ export interface LlmsCheckInput {
 }
 
 const FIRST_LINE_H1 = /^# \S/;
-const LINK_TARGET = /\]\(([^)\s]+)\)/g;
+
+/**
+ * The targets of the Markdown links in a text: what sits between `](` and the next `)`, when it holds no
+ * space. One pass, without a pattern that tries again from every `](`, so a long run of them stays linear.
+ */
+function linkTargets(text: string): string[] {
+  const targets: string[] = [];
+  let at = text.indexOf("](");
+  while (at !== -1) {
+    const start = at + 2;
+    let end = start;
+    while (end < text.length && text[end] !== ")" && !/\s/.test(text[end]!)) end++;
+    if (text[end] === ")" && end > start) targets.push(text.slice(start, end));
+    // A later `](` before `end` would stop at the same character, so the scan goes on from there.
+    at = text.indexOf("](", Math.max(end, start));
+  }
+  return targets;
+}
 
 /**
  * The rules llms.txt must meet when the option is on. It starts with an H1, every link in it is a
@@ -31,8 +48,7 @@ export function checkLlms(text: string, input: LlmsCheckInput): string[] {
   }
 
   const prefix = absoluteUrl(input.origin, input.base);
-  for (const match of text.matchAll(LINK_TARGET)) {
-    const href = match[1]!;
+  for (const href of linkTargets(text)) {
     if (!href.startsWith(prefix)) {
       errors.push(`dist/${LLMS_FILE} links to ${href}, which is not an address of this site.`);
       continue;
