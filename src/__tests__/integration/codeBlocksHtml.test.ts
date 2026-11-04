@@ -162,8 +162,9 @@ describe("code blocks, rendered by the real markdown package", () => {
 /** The text of the `code` element of a block: what the copy button copies. */
 function text(block: string): string {
   const code = /<code[^>]*>([\s\S]*?)<\/code>/.exec(block)![1]!;
-  return code
-    .replace(/<[^>]+>/g, "")
-    .replace(/&#x26;/g, "&")
-    .replace(/&#x3C;/g, "<");
+  // One pass, so a character that an entity gives is never read again as a tag or as another entity.
+  return code.replace(/<[^>]*>|&#x(?:26|3C);/gi, (found) => {
+    if (found.startsWith("<")) return "";
+    return found.toLowerCase() === "&#x26;" ? "&" : "<";
+  });
 }

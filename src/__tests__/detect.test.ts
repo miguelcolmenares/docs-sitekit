@@ -22,6 +22,17 @@ describe("parseGitHubUrl", () => {
     });
   });
 
+  it("rejects a malformed address, and does it fast on a long run of separators", () => {
+    expect(parseGitHubUrl("https://github.com/me")).toBeUndefined();
+    expect(parseGitHubUrl("https://github.com/me/proj/extra")).toBeUndefined();
+    expect(parseGitHubUrl("https://github.com/me/pro j")).toBeUndefined();
+    expect(parseGitHubUrl("github.com")).toBeUndefined();
+    const started = Date.now();
+    expect(parseGitHubUrl(`github.com/${"::".repeat(50_000)}`)).toBeUndefined();
+    expect(parseGitHubUrl(`${"github.com/".repeat(20_000)}x`)).toBeUndefined();
+    expect(Date.now() - started).toBeLessThan(1000);
+  });
+
   it("returns undefined for other hosts and for nothing", () => {
     expect(parseGitHubUrl("https://bitbucket.org/me/proj.git")).toBeUndefined();
     expect(parseGitHubUrl(undefined)).toBeUndefined();

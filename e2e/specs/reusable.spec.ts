@@ -22,7 +22,7 @@ test.describe("variables and snippets", () => {
     expect(version).toMatch(/^\d+\.\d+\.\d+$/);
 
     await expect(page).toHaveTitle(
-      new RegExp(`Using @demo/widget ${version.replace(/\./g, "\\.")}`),
+      new RegExp(`Using @demo/widget ${version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`),
     );
     await expect(page.locator("h1")).toHaveText(`Using @demo/widget ${version}`);
     await expect(

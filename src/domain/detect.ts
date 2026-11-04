@@ -35,9 +35,19 @@ export interface GitHubRepository {
 /** Read `https://github.com/o/r.git`, `git@github.com:o/r.git` and `git+https://…` into owner and name. */
 export function parseGitHubUrl(value: string | undefined): GitHubRepository | undefined {
   if (!value) return undefined;
-  const match = /github\.com[:/]+([^/\s]+)\/([^/\s]+?)(?:\.git)?\/?$/i.exec(value.trim());
-  if (!match) return undefined;
-  const [, owner, name] = match as unknown as [string, string, string];
+  const text = value.trim();
+  const host = text.toLowerCase().indexOf("github.com");
+  if (host < 0) return undefined;
+  // After the host come the `:` or `/` separators, then `owner/name`, with an optional `.git` and `/`.
+  let start = host + "github.com".length;
+  if (text[start] !== ":" && text[start] !== "/") return undefined;
+  while (text[start] === ":" || text[start] === "/") start++;
+  const path = text.slice(start);
+  const parts = (path.endsWith("/") ? path.slice(0, -1) : path).split("/");
+  if (parts.length !== 2 || parts.some((part) => part === "" || /\s/.test(part))) return undefined;
+  const [owner, last] = parts as [string, string];
+  const name =
+    last.length > ".git".length && last.endsWith(".git") ? last.slice(0, -".git".length) : last;
   return { owner, name, url: `https://github.com/${owner}/${name}` };
 }
 
