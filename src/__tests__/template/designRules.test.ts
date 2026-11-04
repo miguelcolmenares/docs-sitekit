@@ -258,4 +258,23 @@ describe("how the page loads, enforced", () => {
       false,
     );
   });
+
+  it("an aside is a labelled landmark or a note: an unlabelled one clashes with the other asides of the page (issue #69)", () => {
+    const asides = siteFiles.flatMap((file) =>
+      [...read(file).matchAll(/<aside\b[^>]*>/g)].map((match) => ({ file, tag: match[0] })),
+    );
+    expect(asides.length).toBeGreaterThan(0);
+    const unnamed = asides
+      .filter(({ tag }) => !/aria-label=/.test(tag) && !/role="note"/.test(tag))
+      .map(({ file, tag }) => `${name(file)}: ${tag}`);
+    expect(unnamed).toEqual([]);
+  });
+
+  it("the search button is named by its visible text, not by an aria-label that could differ from it (issue #69)", () => {
+    const header = read(join(SRC, "presentation", "components", "site", "SiteHeader.astro"));
+    const button = header.match(/<button[^>]*data-search-open[\s\S]*?<\/button>/)?.[0] ?? "";
+    expect(button).not.toBe("");
+    expect(button).not.toMatch(/aria-label=/);
+    expect(button).toMatch(/<span class="sr-only sm:not-sr-only">Search<\/span>/); // the name at every width
+  });
 });

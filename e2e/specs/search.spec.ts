@@ -170,7 +170,10 @@ for (const phone of PHONES) {
       const box = await trigger(page).boundingBox();
       expect(box!.width).toBeGreaterThanOrEqual(44);
       expect(box!.height).toBeGreaterThanOrEqual(44);
-      await expect(trigger(page).locator("span")).toBeHidden();
+      // The word is still there for screen readers (sr-only, 1 px), so the check is its size, not its visibility.
+      const word = await trigger(page).locator("span").boundingBox();
+      expect(word?.width ?? 0).toBeLessThanOrEqual(1);
+      expect(word?.height ?? 0).toBeLessThanOrEqual(1);
     });
 
     test("the dialog fills the screen, and the page does not scroll sideways behind it", async ({
