@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **The footer line names the site without the copyright sign and the year, and "Built with" links to the microsite.** The legal line of the footer reads `docs-sitekit · MIT licensed · v0.2.2`, the name, then the license and the version, with no `©` and no year. The credit "Built with docs-sitekit" links to [miguelcolmenares.com/docs-sitekit](https://miguelcolmenares.com/docs-sitekit/) instead of the repository. The kit's own site is named `docs-sitekit` in its `sitekit.config.json`. A generated site takes its name from `package.json`, the repository or the folder, as before. A site generated earlier gets this after `SiteFooter.tsx` and `BaseLayout.astro` are copied from this version, or with `sitekit upgrade`.
+- **CodeQL also runs on every push to `main`.** A scan of a pull request does not close an alert on `main`, so the eight alerts fixed by the previous change stayed open until the next Monday scan. The workflow now analyses `main` after each merge.
 
 ### Fixed
 
