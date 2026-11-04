@@ -273,19 +273,20 @@ test.describe("mobile menu", () => {
 });
 
 test.describe("accessibility", () => {
+  // Desktop width, with the WCAG 2.1 A and AA rules and the best practices. Label in Name (WCAG 2.5.3) and
+  // landmark-unique are in those sets only: the search button and the two asides of the doc layout failed them
+  // before the fix in issue #69, and one of them is serious. Nothing is exempt here, so any finding fails.
   for (const route of [ROUTES[0]!, ROUTES[2]!, ROUTES[4]!]) {
-    test(`${route.path} has no serious or critical axe violations`, async ({ page }) => {
+    test(`${route.path} has no axe violation at desktop width`, async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 720 });
       await page.goto(route.path);
       const results = await new AxeBuilder({ page })
-        .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+        .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"])
         .analyze();
-      const serious = results.violations.filter(
-        (violation) => violation.impact === "serious" || violation.impact === "critical",
-      );
       expect(
-        serious.map(
+        results.violations.map(
           (violation) =>
-            `${violation.id}: ${violation.nodes.length} node(s), e.g. ${violation.nodes[0]?.target.join(" ")}`,
+            `${violation.impact} ${violation.id}: ${violation.nodes.length} node(s), e.g. ${violation.nodes[0]?.target.join(" ")}`,
         ),
       ).toEqual([]);
     });
