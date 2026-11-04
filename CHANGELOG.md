@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Seven more CodeQL alerts, four of them polynomial regular expressions.** `absoluteUrl` (in `llms.ts`, which every generated site carries), `parseGitHubUrl`, `packageName` and the link reader of `check` for `llms.txt` no longer use a pattern that tries again from every position, so a long run of one character stays linear. They have tests with long inputs. The test helper of the code block HTML tests now reads tags and entities in one pass, and the e2e test of reusable content escapes the version for a `RegExp` with every metacharacter. A site generated earlier gets the `absoluteUrl` fix after `llms.ts` is copied from this version, or with `sitekit upgrade`. The alert on `scripts/configReference.ts` is a false positive: the backslash in a Markdown code span is literal, so only the pipe is escaped there.
+
 ## [0.2.2] - 2026-10-31
 
 ### Changed
