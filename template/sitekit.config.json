@@ -6,7 +6,8 @@
     "base": "/docs-sitekit/",
     "repository": "https://github.com/miguelcolmenares/docs-sitekit",
     "license": "MIT",
-    "installCommand": "npx docs-sitekit init"
+    "installCommand": "npx docs-sitekit init",
+    "image": "/social.png"
   },
   "hero": {
     "badge": "Astro \u00b7 Tailwind \u00b7 shadcn/ui \u00b7 lucide",
