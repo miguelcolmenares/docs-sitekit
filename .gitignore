@@ -13,3 +13,5 @@ template/node_modules/
 template/dist/
 template/.astro/
 .sitekit-docs-*
+# Drawn by the docs workflow with social-card-action, never committed or shipped
+template/public/social.png

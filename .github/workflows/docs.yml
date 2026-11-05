@@ -55,6 +55,14 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix template
       - run: npm run build
+      # The picture a shared link shows, drawn with our own action. It goes to template/public, so it is in the build
+      # and nowhere else: it is not committed and it never reaches a generated site.
+      - uses: miguelcolmenares/social-card-action@8927027164b0022e3ba12c0736ce575d547fe4ce # v0.1.0
+        with:
+          path: template/public/social.png
+          name: docs-sitekit
+          description: Design system and scaffold for documentation microsites on GitHub Pages.
+          host: miguelcolmenares.com/docs-sitekit
       - run: npm run build
         working-directory: template
       # The CLI from this commit, not a published one, so the site is checked by the code it documents.

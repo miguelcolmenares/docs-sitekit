@@ -25,6 +25,7 @@
     "!template/dist",
     "!template/.astro",
     "!template/sitekit.config.json",
+    "!template/public/social.png",
     "!template/src/examples",
     "!template/src/presentation/layouts/collections",
     "README.md",
