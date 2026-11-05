@@ -34,6 +34,61 @@ What it changes, on the pages of the built site:
 > [!TIP]
 > On GitHub Pages a project site is served under the name of the repository, so `base` is `/repository-name/`. A site at the root of its domain uses `/`.
 
+## The social image
+
+When a link to the site is shared, the chat or the feed can show a picture with it. The kit draws none: it carries no image library for it, and the picture is made once, by you, so it says what you want it to say. [social-card-action](https://github.com/miguelcolmenares/social-card-action) draws one for you, in the style of this kit, and the section below shows how. Set `image` and every page names the picture with `og:image` and `twitter:image`, and asks for a large card.
+
+```json title="sitekit.config.json" {6-7}
+{
+  "site": {
+    "name": "Acme",
+    "description": "Acme runs background jobs for your app.",
+    "url": "https://acme.example",
+    "image": "/social.png",
+    "imageAlt": "Acme runs background jobs, with the logo on a dark background."
+  }
+}
+```
+
+- **`image`** is a path such as `/social.png`, which names a file in `public/` and gets the `base`, or a full `https` address, which is used as it is. Use a PNG of 1200 by 630 pixels, the size the networks show large. The kit gives no width or height, because it cannot know them.
+- **`imageAlt`** is the text of the picture for a screen reader. Without it the text is the name and the description of the site, joined with a colon.
+
+Without `image` the pages name no picture, and `twitter:card` stays `summary`.
+
+### Draw the picture with social-card-action
+
+[social-card-action](https://github.com/miguelcolmenares/social-card-action) is a GitHub Action that draws a 1200 by 630 PNG from the name and the description of the repository, in the dark colors of this kit, with the host at the foot. It runs in the job and adds nothing to your site or your `package.json`. Draw the card into the `public/` folder of the site, commit it, and name it with `image`:
+
+```yaml title=".github/workflows/social-card.yml"
+name: Social card
+
+on: workflow_dispatch
+
+permissions:
+  contents: write
+
+jobs:
+  card:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - id: card
+        uses: miguelcolmenares/social-card-action@v0.1.0
+        with:
+          path: site/public/social.png
+      - if: steps.card.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/public/social.png
+          git commit -m "Update the social card"
+          git push
+```
+
+Then set `"image": "/social.png"` in the `site` block of `sitekit.config.json`, as in the example above.
+
+Run the workflow again after you change the description of the repository. The action leaves the file alone when the picture is the same, so it makes no empty commit. A repository that protects `main` needs a pull request instead of the push. The card uses the Latin letters of Geist, so a name in another alphabet needs a picture of your own.
+
 ## The hero
 
 ```json title="sitekit.config.json" {6-7}

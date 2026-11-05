@@ -126,6 +126,7 @@ check("tarball has the CLI, the template, the registry and the workflow", () => 
     "template/src/domain/config.ts",
     "template/src/domain/codeBlocks.ts",
     "template/src/infrastructure/codeBlocks.ts",
+    "template/src/domain/socialImage.ts",
     "template/src/presentation/code/copyCode.ts",
     "template/src/styles/code.css",
     "template/scripts/build-tokens.mjs",
@@ -758,6 +759,15 @@ process.stdout.write(firstBuild.stdout);
 process.stderr.write(firstBuild.stderr);
 assert(firstBuild.status === 0, "the build of the generated site failed");
 const dist = join(SITE, "dist");
+check("a site without site.image names no picture, and keeps the small card", () => {
+  const html = readFileSync(join(dist, "docs", "getting-started", "index.html"), "utf8");
+  assert(!existsSync(join(dist, "og.png")), "the build drew a card nobody asked for");
+  assert(!html.includes("og:image"), "the page names a picture the site does not have");
+  assert(
+    html.includes('<meta name="twitter:card" content="summary">'),
+    "twitter:card is not summary",
+  );
+});
 const read = (path) => readFileSync(join(dist, path), "utf8");
 
 check(
@@ -1205,6 +1215,8 @@ withLinks.nav = [
   { label: "Contact", href: "mailto:team@widget.example" },
   { label: "Top", href: "#main" },
 ];
+// A picture of the owner's own, as an address: the page names this address.
+withLinks.site.image = "https://cdn.widget.example/card.png";
 withLinks.footer = {
   links: [
     { label: "Status", href: "/changelog/" },
@@ -1222,6 +1234,15 @@ try {
 } finally {
   writeFileSync(configPath, savedConfig);
 }
+check("a site with site.image links that picture, with a large card", () => {
+  const html = readFileSync(join(NAV_SITE, "index.html"), "utf8");
+  assert(
+    html.includes('<meta property="og:image" content="https://cdn.widget.example/card.png">'),
+    "og:image is not the configured address",
+  );
+  assert(!html.includes("og:image:width"), "a width was given for a picture of unknown size");
+  assert(html.includes('<meta name="twitter:card" content="summary_large_image">'), "twitter:card");
+});
 check("a path of nav and footer.links gets the base, and the other links are not changed", () => {
   const html = readFileSync(join(NAV_SITE, "index.html"), "utf8");
   for (const href of [
