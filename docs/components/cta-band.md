@@ -18,4 +18,4 @@ The band at the end of a page: a headline, an optional sentence and command, and
 
 ## Source
 
-- [`CtaBand.astro`](../../template/src/presentation/components/site/CtaBand.astro)
+- [`cta-band.astro`](../../template/src/presentation/components/site/cta-band.astro)

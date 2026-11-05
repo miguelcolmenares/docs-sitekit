@@ -15,8 +15,8 @@ This guide builds a small configurator. The visitor types a title and sets a few
 The text of the snippet is made by a function with no browser in it. The page calls it on the server, so it is sent with the default snippet already in place, and the script calls it again each time the form changes.
 
 <!-- prettier-ignore-start -->
-<!-- recipe-file: tool-page site/src/presentation/tools/heroSnippet.ts -->
-```ts title="site/src/presentation/tools/heroSnippet.ts"
+<!-- recipe-file: tool-page site/src/presentation/tools/hero-snippet.ts -->
+```ts title="site/src/presentation/tools/hero-snippet.ts"
 /** What the form on the page collects. */
 export interface HeroChoices {
   /** The headline of the home page. */
@@ -77,9 +77,9 @@ export function heroProblems(choices: HeroChoices): string[] {
 <!-- recipe-file: tool-page site/src/pages/configurator.astro -->
 ```astro title="site/src/pages/configurator.astro"
 ---
-import { buttonVariants } from "../presentation/components/ui/button";
-import BaseLayout from "../presentation/layouts/BaseLayout.astro";
-import { DEFAULT_CHOICES, heroSnippet } from "../presentation/tools/heroSnippet";
+import { buttonVariants } from "@/presentation/components/ui/button";
+import BaseLayout from "@/presentation/layouts/base-layout.astro";
+import { DEFAULT_CHOICES, heroSnippet } from "@/presentation/tools/hero-snippet";
 
 // The page is sent with the default choices already in place, so it reads without JavaScript.
 const choices = DEFAULT_CHOICES;
@@ -281,8 +281,8 @@ const targets = [
 </style>
 
 <script>
-  import { heroProblems, heroSnippet } from "../presentation/tools/heroSnippet";
-  import type { HeroChoices } from "../presentation/tools/heroSnippet";
+  import { heroProblems, heroSnippet } from "@/presentation/tools/hero-snippet";
+  import type { HeroChoices } from "@/presentation/tools/hero-snippet";
 
   const root = document.querySelector<HTMLElement>("[data-tool]")!;
   const form = root.querySelector<HTMLFormElement>("[data-form]")!;
@@ -353,4 +353,4 @@ The tests are in the group `recipe tool-page` of `e2e/specs/recipes.spec.ts`. Th
 - Every request goes to the site, and nothing is logged as an error.
 - The page follows the dark and the light theme, with the colors of the tokens, and every text reaches WCAG AA in both.
 
-`src/__tests__/recipes.test.ts` tests `heroSnippet.ts` on its own, and checks that the snippet it writes is accepted by the real config schema.
+`src/__tests__/recipes.test.ts` tests `hero-snippet.ts` on its own, and checks that the snippet it writes is accepted by the real config schema.

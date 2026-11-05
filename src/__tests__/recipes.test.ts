@@ -5,7 +5,7 @@ import {
   DEFAULT_CHOICES,
   heroProblems,
   heroSnippet,
-} from "../../e2e/recipes/tool-page/site/src/presentation/tools/heroSnippet";
+} from "../../e2e/recipes/tool-page/site/src/presentation/tools/hero-snippet";
 import { callModule } from "./support/esm";
 
 const ROOT = join(__dirname, "..", "..");
@@ -52,7 +52,7 @@ describe("the files of a recipe", () => {
   it("are listed for each recipe, and an unknown recipe says which ones there are", () => {
     expect(recipeFiles("tool-page").map((file) => file.path)).toEqual([
       "site/src/pages/configurator.astro",
-      "site/src/presentation/tools/heroSnippet.ts",
+      "site/src/presentation/tools/hero-snippet.ts",
     ]);
     expect(() => recipeFiles("nope")).toThrow(/no recipe "nope".*brand-and-layout, collection/);
   });

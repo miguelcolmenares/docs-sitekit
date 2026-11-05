@@ -4,6 +4,8 @@ export interface FileSystem {
   isDirectory(path: string): boolean;
   readText(path: string): string;
   writeText(path: string, content: string): void;
+  /** Deletes a file. A file that is not there is not an error. */
+  remove(path: string): void;
   /** Every file under a directory, as paths relative to it, with forward slashes. */
   listFiles(directory: string): string[];
 }

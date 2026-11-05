@@ -24,7 +24,7 @@ const END = "<!-- brands:end -->";
 const defaults = {
   curated: join(ROOT, "scripts", "brands", "curated.json"),
   allowlist: join(ROOT, "scripts", "brands", "allowlist.json"),
-  out: join(ROOT, "template", "src", "domain", "brands", "brandData.ts"),
+  out: join(ROOT, "template", "src", "domain", "brands", "brand-data.ts"),
   notices: join(ROOT, "THIRD_PARTY_NOTICES.md"),
 };
 
@@ -125,7 +125,7 @@ export function renderNotices(brands, version) {
     "",
     "### Brand logos",
     "",
-    `The logos in \`template/src/domain/brands/brandData.ts\` are path data from [Simple Icons](https://simpleicons.org) ${version}, ` +
+    `The logos in \`template/src/domain/brands/brand-data.ts\` are path data from [Simple Icons](https://simpleicons.org) ${version}, ` +
       `a collection released under CC0 1.0. They are copied into the module at build time, so a generated site loads nothing from any host.`,
     "",
     "The marks belong to their owners. Their use here is to name the product or service, and does not suggest endorsement by or " +

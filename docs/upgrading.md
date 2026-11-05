@@ -65,6 +65,21 @@ diff site/src/styles/prose.css site/src/styles/prose.css.sitekit-new
 Your file is never overwritten in this case, so nothing is lost if you leave it for later. The lock keeps the old hash of that file,
 so the next upgrade finds the same conflict until your file is the new version.
 
+## A file the kit renamed
+
+From 0.3.0 every file of the kit has a lowercase kebab-case name: `SiteHeader.astro` is `site-header.astro`, and `buildDocuments.ts` is
+`build-documents.ts`. The upgrade finds the old name in the lock and moves the file for you:
+
+- **A file you did not edit** is deleted under the old name, and the new version is written under the new one. The report lists it
+  with an arrow, `site/src/…/SiteHeader.astro → site/src/…/site-header.astro`.
+- **A file you edited** is moved to the new name with your changes, and the kit's version is next to it as `.sitekit-new`, as in any
+  other conflict. The lock keeps the hash of the version you started from, so the next upgrade still sees your edits.
+- **A file you deleted** is not brought back under the new name.
+
+Imports inside the template now go through `@/`, which is the `src/` folder of the site, so `import { loadSite } from "../../infrastructure"`
+is `import { loadSite } from "@/infrastructure"`. A file of your own that imports a renamed file by its old name needs the new name. The
+build says which file and which import.
+
 ## What it never touches
 
 - **Your content.** `docs/`, `examples/`, `README.md` and `CHANGELOG.md` are not in the lock.

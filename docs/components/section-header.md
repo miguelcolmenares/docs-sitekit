@@ -17,4 +17,4 @@ The top of a section: a short eyebrow in mono type, a heading and a lede. Childr
 
 ## Source
 
-- [`SectionHeader.tsx`](../../template/src/presentation/components/site/SectionHeader.tsx)
+- [`section-header.tsx`](../../template/src/presentation/components/site/section-header.tsx)

@@ -93,4 +93,4 @@ export const endpoints = {
 
 ## A site generated earlier
 
-A site made with an earlier version keeps its own copy of the template, so it draws these blocks only after these files are copied from this version: `domain/codeBlocks.ts`, `infrastructure/codeBlocks.ts`, `presentation/code/copyCode.ts`, `styles/code.css`, the change in `infrastructure/renderMarkdown.ts`, the script and the change in `presentation/layouts/DocPage.astro`, the import in `styles/global.css`, the removed band and button rules in `styles/prose.css`, and the three `code-` colors of `design/tokens.json` in both color sets.
+A site made with an earlier version keeps its own copy of the template, so it draws these blocks only after these files are copied from this version: `domain/code-blocks.ts`, `infrastructure/code-blocks.ts`, `presentation/code/copy-code.ts`, `styles/code.css`, the change in `infrastructure/render-markdown.ts`, the script and the change in `presentation/layouts/doc-page.astro`, the import in `styles/global.css`, the removed band and button rules in `styles/prose.css`, and the three `code-` colors of `design/tokens.json` in both color sets.

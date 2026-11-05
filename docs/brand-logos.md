@@ -85,7 +85,7 @@ Colors in the file are ignored, the logo is drawn in the text color. You are res
 
 ## The licence gate
 
-The kit does not ship a logo on the memory of anyone about its licence. `npm run build:brands` in the repository of the kit reads the pinned `simple-icons` package (version `16.36.0`, exact, a development dependency of the kit only) and writes `template/src/domain/brands/brandData.ts`, with the licence of each icon. The list of brands is `scripts/brands/curated.json`.
+The kit does not ship a logo on the memory of anyone about its licence. `npm run build:brands` in the repository of the kit reads the pinned `simple-icons` package (version `16.36.0`, exact, a development dependency of the kit only) and writes `template/src/domain/brands/brand-data.ts`, with the licence of each icon. The list of brands is `scripts/brands/curated.json`.
 
 - Simple Icons is CC0, and an icon that has its own licence says so in its `license` field. An icon whose licence is not CC0 fails the script.
 - The way out is an entry in `scripts/brands/allowlist.json`, with the `license`, the `author` and the `attribution` text. The entry must name the same licence the icon has. Then the attribution is written to the module and to `THIRD_PARTY_NOTICES.md`.

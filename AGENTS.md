@@ -37,8 +37,15 @@ and `src/presentation/cli.ts` is the composition root.
 
 ## Naming
 
-Components `PascalCase.tsx` (`.astro` when they host an interactive island). Hooks `useThing.ts`. Everything else `camelCase.ts`.
-Tests `src/__tests__/<unit>.test.ts`, template tests in `src/__tests__/template/`, specs in `e2e/specs/<topic>.spec.ts`.
+File and folder names are lowercase kebab-case, in every folder: `site-header.tsx`, `build-documents.ts`, `use-copy-code.ts`,
+`src/presentation/side-card/`. Only the names of exports are CamelCase: components and types in PascalCase, functions and constants in
+camelCase, so `site-header.tsx` exports `SiteHeader`. A `.astro` file is a component too, and it is kebab-case as well.
+Tests `src/__tests__/<unit>.test.ts`, template tests in `src/__tests__/template/`, specs in `e2e/specs/<topic>.spec.ts`, all kebab-case.
+
+Inside `template/src/`, an import that leaves its folder goes through the `@/` alias, which is `template/src/`, and through the barrel
+of the layer: `import { loadSite } from "@/infrastructure"`, not `"../../infrastructure"`. A file of the same folder is `./x`. The CLI in
+`src/` imports relatively, because a test loads the CLI and the template in one program, where `@/` could not mean both. A test that
+reaches into `template/` imports it by a relative path. The code of a recipe in `e2e/recipes/` is template code and uses `@/`.
 
 ## Tests
 
@@ -71,7 +78,7 @@ and measured in the browser on every route; the meter is itself tested against p
 - Every key of the config schema needs a `.describe()`: `npm run build:docs` fails without one, and writes `docs/configuration.md`, which a test
   compares with the schema. Run it after changing a key, and do not edit that page by hand.
 - **A registry entry has a component page or a reason it has none** (`docs/components.md`), and a page is made of four things that agree: the `example` pointer, the files in `template/src/examples/<name>/`, `docs/components/<name>.md` and its group in `template/sitekit.config.json`. Every prop of a component with a page needs a TSDoc comment, or `npm run build:docs` fails. The example is one `.astro` file that is both rendered and shown as text (`?raw`).
-- **Kit-only paths** (`KIT_ONLY_PATHS` in `packagedTemplate.ts`, and the same paths negated in `files` of `package.json`) never reach the package or a generated site. `verify-package` checks both.
+- **Kit-only paths** (`KIT_ONLY_PATHS` in `packaged-template.ts`, and the same paths negated in `files` of `package.json`) never reach the package or a generated site. `verify-package` checks both.
 - **A color transition is not a color.** The browser tests wait for `document.getAnimations()` before they measure contrast.
 - **A guide of "Extending your site" is a recipe, and a recipe is a test.** A folder in `e2e/recipes/<name>/` with the layout of the repository (`site/...`, `notes/...`). `scripts/recipes.mjs` copies the files, merges `site/sitekit.config.json` into the config (lists are added to, not replaced) and applies a `.diff` with `git apply`, so a change to a file of the kit is a diff and fails when the file moves. `verify-package` (section 5d) applies the recipes to a site made by `init` and runs the commands the page names; `e2e/specs/recipes.spec.ts` drives the built site (group `recipe <name>`); the page `docs/extend-<name>.md` shows the files with `<!-- recipe-file: <name> <path> -->` markers that `npm run build:docs` fills, and says "How it is tested". A recipe adds no package to the site. The Tailwind `accent` is the quiet surface of shadcn/ui and `brand` is the accent of the tokens.
 - Do not edit `template/src/styles/tokens.css`: change `design/tokens.json` and run `npm run build:tokens`. A generated site has the same command: `template/scripts/build-tokens.mjs` is the function, and `scripts/build-tokens.mjs` adds the preview themes of the kit.

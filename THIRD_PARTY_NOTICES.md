@@ -39,7 +39,7 @@ SOFTWARE.
 
 ### Brand logos
 
-The logos in `template/src/domain/brands/brandData.ts` are path data from [Simple Icons](https://simpleicons.org) 16.36.0, a collection released under CC0 1.0. They are copied into the module at build time, so a generated site loads nothing from any host.
+The logos in `template/src/domain/brands/brand-data.ts` are path data from [Simple Icons](https://simpleicons.org) 16.36.0, a collection released under CC0 1.0. They are copied into the module at build time, so a generated site loads nothing from any host.
 
 The marks belong to their owners. Their use here is to name the product or service, and does not suggest endorsement by or affiliation with those owners. The collection's [disclaimer](https://github.com/simple-icons/simple-icons/blob/develop/DISCLAIMER.md) asks users to check each brand's guidelines before use; the module keeps the `guidelines` and `source` links where Simple Icons has them.
 

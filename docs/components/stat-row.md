@@ -22,4 +22,4 @@ A row of numbers for a project page: downloads, a version, the Node versions it 
 
 ## Source
 
-- [`StatRow.tsx`](../../template/src/presentation/components/site/StatRow.tsx)
+- [`stat-row.tsx`](../../template/src/presentation/components/site/stat-row.tsx)

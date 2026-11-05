@@ -18,5 +18,5 @@ The trail from the home page to the current page, built on the `Breadcrumb` of s
 
 ## Source
 
-- [`Breadcrumbs.tsx`](../../template/src/presentation/components/site/Breadcrumbs.tsx)
+- [`breadcrumbs.tsx`](../../template/src/presentation/components/site/breadcrumbs.tsx)
 - [`breadcrumb.tsx`](../../template/src/presentation/components/ui/breadcrumb.tsx)

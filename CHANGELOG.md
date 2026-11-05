@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Every file is named in lowercase kebab-case, and the template imports its own layers through `@/`.** `SiteHeader.astro` is now
+  `site-header.astro`, `buildDocuments.ts` is `build-documents.ts`, `src/presentation/sideCard/` is `src/presentation/side-card/`, in the
+  template, the tests, the e2e specs and the scripts. Only the names of exports are CamelCase. Inside `template/src/`, an import that leaves
+  its folder is `@/infrastructure` and not `../../infrastructure`. A generated site changes in the same way, so this is a release that
+  touches every file of a site. `sitekit upgrade` moves the files for you: a file you did not edit gets the new name and the new version,
+  and a file you edited moves with your changes and the new version next to it to merge. A file of your own that imports a renamed file by
+  its old name needs the new name. The `FileSystem` port of the CLI has a new `remove`, and the result of an upgrade has a new `renamed`
+  list.
+
 ## [0.2.4] - 2026-11-05
 
 ### Added

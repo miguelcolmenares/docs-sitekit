@@ -129,15 +129,15 @@ describe("every recipe applied to a site made by init", () => {
     const written = apply("tool-page", repo);
     expect(written).toEqual([
       "site/src/pages/configurator.astro",
-      "site/src/presentation/tools/heroSnippet.ts",
+      "site/src/presentation/tools/hero-snippet.ts",
     ]);
     for (const path of written) expect(existsSync(join(repo, path))).toBe(true);
   });
 
   it("says which recipe and which file when a change does not apply", () => {
-    rmSync(join(site, "src", "presentation", "components", "site", "StatRow.tsx"));
+    rmSync(join(site, "src", "presentation", "components", "site", "stat-row.tsx"));
     expect(() => apply("component", repo)).toThrow(
-      /Recipe "component": site\/src\/presentation\/components\/site\/StatRow\.tsx\.diff does not apply/,
+      /Recipe "component": site\/src\/presentation\/components\/site\/stat-row\.tsx\.diff does not apply/,
     );
   });
 });
@@ -166,7 +166,7 @@ describe("recipe collection", () => {
 });
 
 describe("recipe component", () => {
-  const STAT_ROW = "src/presentation/components/site/StatRow.tsx";
+  const STAT_ROW = "src/presentation/components/site/stat-row.tsx";
 
   it("add restores the file, keeps it once it was changed, and upgrade keeps it too", () => {
     rmSync(join(site, STAT_ROW));

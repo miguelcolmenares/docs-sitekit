@@ -22,7 +22,7 @@ The paths in the guides start at the root of your repository. The site is in `si
 | `site/sitekit.config.json`          | The closed config. Every key is in the [configuration reference](./configuration.md). |
 | `site/src/pages/`                   | The routes. A file here is a page, and an `.astro` file can be your own.              |
 | `site/src/presentation/components/` | The components. They are copied into your site, so you can change them.               |
-| `site/src/presentation/layouts/`    | `BaseLayout.astro` (header, footer, theme) and the layouts of the documents.          |
+| `site/src/presentation/layouts/`    | `base-layout.astro` (header, footer, theme) and the layouts of the documents.         |
 | `site/design/tokens.json`           | The colors, radius, fonts and widths. See [Design tokens](./design-tokens.md).        |
 | `site/brands/`                      | Your own logos, as `.svg` files.                                                      |
 

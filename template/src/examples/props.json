@@ -124,7 +124,7 @@
   ],
   "hero": [
     {
-      "label": "Props of Hero",
+      "label": "Props of hero",
       "rows": [
         {
           "name": "badge",
@@ -164,7 +164,7 @@
   ],
   "cta-band": [
     {
-      "label": "Props of CtaBand",
+      "label": "Props of cta-band",
       "rows": [
         {
           "name": "title",
@@ -660,7 +660,7 @@
   ],
   "catalog-filter": [
     {
-      "label": "Props of CatalogFilter",
+      "label": "Props of catalog-filter",
       "rows": [
         {
           "name": "tags",

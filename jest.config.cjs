@@ -13,12 +13,17 @@ const transform = {
   ],
 };
 
+// The template imports its own layers with `@/`, which is its `src/`. The CLI in `src/` uses relative imports, because a test
+// loads both in one program, where two meanings of `@/` could not both hold.
+const moduleNameMapper = { "^@/(.*)$": "<rootDir>/template/src/$1" };
+
 module.exports = {
   projects: [
     {
       displayName: "unit",
       testEnvironment: "node",
       transform,
+      moduleNameMapper,
       testMatch: [
         "<rootDir>/src/__tests__/*.test.ts",
         "<rootDir>/src/__tests__/*.test.tsx",
@@ -30,6 +35,7 @@ module.exports = {
       displayName: "integration",
       testEnvironment: "node",
       transform,
+      moduleNameMapper,
       testMatch: [
         "<rootDir>/src/__tests__/integration/*.test.ts",
         "<rootDir>/src/__tests__/integration/*.test.tsx",

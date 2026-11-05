@@ -1,5 +1,5 @@
 import type { Brand, BrandGlyph } from "./brand";
-import { BRANDS } from "./brandData";
+import { BRANDS } from "./brand-data";
 
 /** An `icon` value of the config, read: a lucide icon, a brand that ships, or a logo the author added. */
 export type IconRef =

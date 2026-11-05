@@ -21,4 +21,4 @@ A table for a reference page written in Astro: a column of code names, a type, a
 
 ## Source
 
-- [`ReferenceTable.tsx`](../../template/src/presentation/components/site/ReferenceTable.tsx)
+- [`reference-table.tsx`](../../template/src/presentation/components/site/reference-table.tsx)

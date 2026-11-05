@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { fileURLToPath } from "node:url";
-import { runCli } from "./runCli";
+import { runCli } from "./run-cli";
 
 // The only file that knows where it is installed: dist/cli.js sits next to template/.
 const templateRoot = fileURLToPath(new URL("../template/", import.meta.url));

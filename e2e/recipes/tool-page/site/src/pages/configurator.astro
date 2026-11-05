@@ -1,7 +1,7 @@
 ---
-import { buttonVariants } from "../presentation/components/ui/button";
-import BaseLayout from "../presentation/layouts/BaseLayout.astro";
-import { DEFAULT_CHOICES, heroSnippet } from "../presentation/tools/heroSnippet";
+import { buttonVariants } from "@/presentation/components/ui/button";
+import BaseLayout from "@/presentation/layouts/base-layout.astro";
+import { DEFAULT_CHOICES, heroSnippet } from "@/presentation/tools/hero-snippet";
 
 // The page is sent with the default choices already in place, so it reads without JavaScript.
 const choices = DEFAULT_CHOICES;
@@ -203,8 +203,8 @@ const targets = [
 </style>
 
 <script>
-  import { heroProblems, heroSnippet } from "../presentation/tools/heroSnippet";
-  import type { HeroChoices } from "../presentation/tools/heroSnippet";
+  import { heroProblems, heroSnippet } from "@/presentation/tools/hero-snippet";
+  import type { HeroChoices } from "@/presentation/tools/hero-snippet";
 
   const root = document.querySelector<HTMLElement>("[data-tool]")!;
   const form = root.querySelector<HTMLFormElement>("[data-form]")!;
