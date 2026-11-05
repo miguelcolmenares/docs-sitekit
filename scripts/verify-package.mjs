@@ -126,6 +126,9 @@ check("tarball has the CLI, the template, the registry and the workflow", () => 
     "template/src/domain/config.ts",
     "template/src/domain/codeBlocks.ts",
     "template/src/infrastructure/codeBlocks.ts",
+    "template/src/infrastructure/socialCard.ts",
+    "template/src/domain/socialCard.ts",
+    "template/src/pages/[name].png.ts",
     "template/src/presentation/code/copyCode.ts",
     "template/src/styles/code.css",
     "template/scripts/build-tokens.mjs",
@@ -758,6 +761,24 @@ process.stdout.write(firstBuild.stdout);
 process.stderr.write(firstBuild.stderr);
 assert(firstBuild.status === 0, "the build of the generated site failed");
 const dist = join(SITE, "dist");
+const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+// The width and the height of a PNG are the 4-byte integers after its signature, its length and its "IHDR" type.
+const pngSize = (bytes) => ({ width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) });
+check("the build draws the social card at og.png, and a page points to it", () => {
+  const card = readFileSync(join(dist, "og.png"));
+  assert([...card.subarray(0, 8)].join() === PNG_SIGNATURE.join(), "og.png is not a PNG");
+  assert(JSON.stringify(pngSize(card)) === JSON.stringify({ width: 1200, height: 630 }), "og.png");
+  const html = readFileSync(join(dist, "docs", "getting-started", "index.html"), "utf8");
+  for (const tag of [
+    '<meta property="og:image" content="https://demo.github.io/widget/og.png">',
+    '<meta property="og:image:width" content="1200">',
+    '<meta property="og:image:type" content="image/png">',
+    '<meta name="twitter:card" content="summary_large_image">',
+    '<meta name="twitter:image" content="https://demo.github.io/widget/og.png">',
+  ]) {
+    assert(html.includes(tag), `the page has no ${tag}`);
+  }
+});
 const read = (path) => readFileSync(join(dist, path), "utf8");
 
 check(
@@ -1205,6 +1226,8 @@ withLinks.nav = [
   { label: "Contact", href: "mailto:team@widget.example" },
   { label: "Top", href: "#main" },
 ];
+// A picture of the owner's own, as an address: the card is not drawn, and the page names this address.
+withLinks.site.image = "https://cdn.widget.example/card.png";
 withLinks.footer = {
   links: [
     { label: "Status", href: "/changelog/" },
@@ -1222,6 +1245,15 @@ try {
 } finally {
   writeFileSync(configPath, savedConfig);
 }
+check("a site with site.image links that picture, and draws no card", () => {
+  assert(!existsSync(join(NAV_SITE, "og.png")), "the card was drawn for a site with an image");
+  const html = readFileSync(join(NAV_SITE, "index.html"), "utf8");
+  assert(
+    html.includes('<meta property="og:image" content="https://cdn.widget.example/card.png">'),
+    "og:image is not the configured address",
+  );
+  assert(!html.includes("og:image:width"), "a width was given for a picture of unknown size");
+});
 check("a path of nav and footer.links gets the base, and the other links are not changed", () => {
   const html = readFileSync(join(NAV_SITE, "index.html"), "utf8");
   for (const href of [
@@ -1552,6 +1584,11 @@ check("the upgrade replaces, keeps, adds and leaves the conflict for the owner t
     "the new version is not next to the owner's file",
   );
   assert(existsSync(siteFile("src/domain/llms.ts")), "a new file was not added");
+  assert(existsSync(siteFile("src/pages/[name].png.ts")), "the social card route was not added");
+  const oldPackage = JSON.parse(readFileSync(siteFile("package.json"), "utf8"));
+  for (const name of ["satori", "@resvg/resvg-js", "@fontsource/geist"]) {
+    assert(oldPackage.dependencies?.[name], `the upgrade did not add ${name}`);
+  }
   const after = snapshotOld();
   const touched = Object.keys({ ...before, ...after }).filter(
     (path) => before[path] !== after[path],
@@ -1593,6 +1630,7 @@ check("the upgraded site builds, is still without search and llms.txt, and passe
     "the site gained a search index",
   );
   assert(!existsSync(join(OLD_SITE, "dist", "llms.txt")), "the site gained llms.txt");
+  assert(existsSync(join(OLD_SITE, "dist", "og.png")), "the upgraded site draws no social card");
   const oldPage = readFileSync(
     join(OLD_SITE, "dist", "docs", "getting-started", "index.html"),
     "utf8",

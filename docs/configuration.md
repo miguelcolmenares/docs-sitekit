@@ -23,6 +23,8 @@ The identity of the site and where it is published.
 | `site.repository` | string (URL) | none | any | The address of the repository. The header, the footer and `llms.txt` link to it, and `check` asks GitHub for its visibility. |
 | `site.license` | string | none | any | The license of the project, shown in the footer. |
 | `site.version` | string | none | any | A version to show in the footer. When it is missing, the site reads it from the `package.json` of the repository. |
+| `site.image` | string | none | any | The picture a link to the site shows, such as `/social.png`, a file in `public/`, or a full `https` address. Without it the kit draws a 1200 by 630 card from the name and the description, at `og.png`. |
+| `site.imageAlt` | string | none | any | The alt text of the social picture. Without it the text is the name and the description of the site. |
 | `site.installCommand` | string | none | any | The command the hero and the closing band offer to copy, for example `npm install my-package`. |
 
 ## hero

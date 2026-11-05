@@ -1,6 +1,6 @@
 ---
 import "../../styles/global.css";
-import { llmsUrl, markdownUrl, repositoryLink, withSiteBase } from "../../domain";
+import { llmsUrl, markdownUrl, repositoryLink, socialImageAlt, socialImageUrl, withSiteBase, SOCIAL_CARD_HEIGHT, SOCIAL_CARD_WIDTH } from "../../domain";
 import { loadSite } from "../../infrastructure";
 import { SiteFooter } from "../components/site/SiteFooter";
 import MobileMenu from "../components/site/MobileMenu.astro";
@@ -27,6 +27,11 @@ const alternate = copy ? markdownUrl(config.site.url, copy.route) : undefined;
 const { title, description = config.site.description } = Astro.props;
 const pageTitle = title ? `${title} · ${config.site.name}` : `${config.site.name}: ${config.site.description}`;
 const canonical = new URL(Astro.url.pathname, config.site.url).toString();
+// The picture a link shows. Without `site.image` it is the card the build draws, whose size is known; a configured
+// picture has no size the kit can know, so its width and height are left out.
+const socialImage = socialImageUrl(config.site.url, config.site.base, config.site.image);
+const drawnCard = config.site.image === undefined;
+const socialAlt = socialImageAlt(config.site);
 
 // The theme a page is drawn with before any script runs. `system` has no answer until a script reads the OS
 // preference, so the page then has no attribute and the CSS media query picks the light set.
@@ -76,7 +81,14 @@ const columns = [
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={config.site.name} />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={socialImage} />
+    {drawnCard && <meta property="og:image:width" content={String(SOCIAL_CARD_WIDTH)} />}
+    {drawnCard && <meta property="og:image:height" content={String(SOCIAL_CARD_HEIGHT)} />}
+    {drawnCard && <meta property="og:image:type" content="image/png" />}
+    <meta property="og:image:alt" content={socialAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content={socialAlt} />
     <link rel="preload" href={sansFont} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={monoFont} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href={href("favicon.svg")} type="image/svg+xml" />

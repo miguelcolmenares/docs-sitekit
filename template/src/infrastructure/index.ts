@@ -7,6 +7,7 @@ export * from "./repositoryVersion";
 export * from "./remarkCallouts";
 export * from "./remarkRewriteLinks";
 export * from "./siteConfig";
+export * from "./socialCard";
 export * from "./renderMarkdown";
 export * from "./loadSite";
 export * from "./reportFindings";

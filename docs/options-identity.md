@@ -34,6 +34,27 @@ What it changes, on the pages of the built site:
 > [!TIP]
 > On GitHub Pages a project site is served under the name of the repository, so `base` is `/repository-name/`. A site at the root of its domain uses `/`.
 
+## The social card
+
+When a link to the site is shared, the chat or the feed shows a picture with it. Every page says which picture, with `og:image` and `twitter:image`, and asks for a large card. Without `image` the build draws the picture for the site: a 1200 by 630 PNG at `/og.png`, with the name in bold, the description under it in three lines at most, and the host at the foot. The colors are the dark ones of `design/tokens.json`. The card is made from the name and the description, so there is nothing to draw by hand.
+
+```json title="sitekit.config.json" {6-7}
+{
+  "site": {
+    "name": "Acme",
+    "description": "Acme runs background jobs for your app.",
+    "url": "https://acme.example",
+    "image": "/social.png",
+    "imageAlt": "Acme runs background jobs, with the logo on a dark background."
+  }
+}
+```
+
+- **`image`** replaces the generated card. A path such as `/social.png` names a file in `public/`, and the build adds the `base` to it. A full `https` address is used as it is. With `image` set, the kit writes no `og.png`, and it gives no width or height, because it cannot know them. Use a PNG of 1200 by 630 pixels, the size the networks show large.
+- **`imageAlt`** is the text of the picture for a screen reader. Without it the text is the name and the description of the site, joined with a colon.
+
+The generated card uses the Latin letters of Geist. A name written in another alphabet shows boxes where its letters should be, so a site with such a name should set `image` to a picture of its own.
+
 ## The hero
 
 ```json title="sitekit.config.json" {6-7}

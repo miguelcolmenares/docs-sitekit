@@ -2,6 +2,7 @@ import { z } from "zod";
 import { iconProblem } from "./brands";
 import { DEFAULT_SEVERITY, FINDING_DESCRIPTIONS, FINDING_KINDS, isFindingKind } from "./findings";
 import { EDIT_HOSTS } from "./editLink";
+import { socialImageProblem } from "./socialCard";
 
 const link = z.strictObject({
   label: z.string().min(1).describe("The text of the link."),
@@ -143,6 +144,24 @@ export const siteConfigSchema = z
           .optional()
           .describe(
             "A version to show in the footer. When it is missing, the site reads it from the `package.json` of the repository.",
+          ),
+        image: z
+          .string()
+          .min(1)
+          .superRefine((value, context) => {
+            const problem = socialImageProblem(value);
+            if (problem) context.addIssue({ code: "custom", message: problem });
+          })
+          .optional()
+          .describe(
+            "The picture a link to the site shows, such as `/social.png`, a file in `public/`, or a full `https` address. Without it the kit draws a 1200 by 630 card from the name and the description, at `og.png`.",
+          ),
+        imageAlt: z
+          .string()
+          .min(1)
+          .optional()
+          .describe(
+            "The alt text of the social picture. Without it the text is the name and the description of the site.",
           ),
         installCommand: z
           .string()

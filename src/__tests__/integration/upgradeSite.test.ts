@@ -1,8 +1,16 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { initSite, LOCK_FILE } from "../../application";
+import { initSite, LOCK_FILE, NEW_VERSION_SUFFIX } from "../../application";
 import type { SiteLock, TemplateSource } from "../../application";
 import { nodeEnvironment, nodeFileSystem, packagedTemplate, sha256 } from "../../infrastructure";
 import { runCli } from "../../presentation";
@@ -21,17 +29,29 @@ const ONLY_YOU_CHANGED = "src/domain/glob.ts";
  * files the kit has changed since. It is the current template with those differences, so the test
  * stays true to the real files without a copy of an old release in the repository.
  */
+/** The dependencies and the files of the social card, which the older template does not have. */
+const CARD_DEPENDENCIES = ["satori", "@resvg/resvg-js", "@fontsource/geist"];
+const CARD_FILES = ["src/pages/[name].png.ts", "src/infrastructure/socialCard.ts"];
+
 function olderTemplate(): TemplateSource {
   const files = current
     .files()
     .filter(
-      (file) => !/search|llms|Llms/.test(file.path) && file.path !== "src/pages/[name].json.ts",
+      (file) =>
+        !/search|llms|Llms/.test(file.path) &&
+        file.path !== "src/pages/[name].json.ts" &&
+        !CARD_FILES.includes(file.path),
     )
-    .map((file) =>
-      file.path === KIT_CHANGED || file.path === BOTH_CHANGED
+    .map((file) => {
+      if (file.path === "package.json") {
+        const pkg = JSON.parse(file.content) as { dependencies: Record<string, string> };
+        for (const name of CARD_DEPENDENCIES) delete pkg.dependencies[name];
+        return { ...file, content: `${JSON.stringify(pkg, null, 2)}\n` };
+      }
+      return file.path === KIT_CHANGED || file.path === BOTH_CHANGED
         ? { ...file, content: `${file.content}/* an older line */\n` }
-        : file,
-    );
+        : file;
+    });
   return { ...current, files: () => files, version: () => "0.1.0" };
 }
 
@@ -205,5 +225,90 @@ describe("sitekit upgrade on real files", () => {
     const { code, err } = upgrade("--dir", "other");
     expect(code).toBe(1);
     expect(err).toContain("Only a site made by `sitekit init` can be upgraded");
+  });
+});
+
+describe("sitekit upgrade adds the social card dependencies", () => {
+  const sitePackage = () =>
+    JSON.parse(readFileSync(join(SITE(), "package.json"), "utf8")) as {
+      name: string;
+      dependencies: Record<string, string>;
+      devDependencies: Record<string, string>;
+    };
+  const kitPackage = () =>
+    JSON.parse(readFileSync(join(TEMPLATE_ROOT, "package.json"), "utf8")) as {
+      dependencies: Record<string, string>;
+    };
+
+  it("replaces a package.json you did not edit, so the dependencies come with the kit", () => {
+    expect(sitePackage().dependencies.satori).toBeUndefined();
+    const name = sitePackage().name;
+    const { out } = upgrade();
+    expect(out).toContain("replaced");
+    for (const dependency of CARD_DEPENDENCIES) {
+      expect(sitePackage().dependencies[dependency]).toBe(kitPackage().dependencies[dependency]);
+    }
+    // The name the site has is kept, not the one the kit would derive.
+    expect(sitePackage().name).toBe(name);
+  });
+
+  it("adds them to a package.json you edited, keeps your own dependencies and your ranges", () => {
+    const edited = sitePackage();
+    edited.dependencies["left-pad"] = "^1.3.0";
+    edited.dependencies["@resvg/resvg-js"] = "2.0.0";
+    writeFileSync(join(SITE(), "package.json"), `${JSON.stringify(edited, null, 2)}\n`);
+    git(root, "add", "-A");
+    git(root, "commit", "-q", "-m", "Add my own dependency");
+
+    const before = snapshot(root);
+    const dry = upgrade("--dry-run");
+    expect(snapshot(root)).toEqual(before);
+    expect(dry.out).toContain("would be added");
+    expect(dry.out).toContain("satori");
+
+    const { out } = upgrade();
+    const merged = sitePackage();
+    expect(merged.dependencies["left-pad"]).toBe("^1.3.0");
+    expect(merged.dependencies["@resvg/resvg-js"]).toBe("2.0.0");
+    expect(merged.dependencies.satori).toBe(kitPackage().dependencies.satori);
+    expect(merged.dependencies["@fontsource/geist"]).toBe(
+      kitPackage().dependencies["@fontsource/geist"],
+    );
+    expect(Object.keys(merged.dependencies)).toEqual([...Object.keys(merged.dependencies)].sort());
+    expect(out).toContain(`+ site/package.json: satori`);
+    expect(out).toContain("Run `npm install` in site/");
+    expect(out).not.toContain("✓ site/package.json");
+    // The rest of the manifest is the kit's, so there is nothing to merge by hand.
+    expect(out).not.toContain("! site/package.json");
+    expect(existsSync(join(SITE(), `package.json${NEW_VERSION_SUFFIX}`))).toBe(false);
+  });
+
+  it("still asks for a merge when the kit changed something other than the dependencies", () => {
+    const edited = sitePackage() as unknown as { scripts: Record<string, string> };
+    edited.scripts = { build: "astro build --verbose" };
+    writeFileSync(join(SITE(), "package.json"), `${JSON.stringify(edited, null, 2)}\n`);
+    git(root, "add", "-A");
+    git(root, "commit", "-q", "-m", "Change a script");
+    const { out } = upgrade();
+    // The kit's dependencies are merged in, and the script the owner wrote stays.
+    expect(sitePackage().dependencies.satori).toBe(kitPackage().dependencies.satori);
+    expect(JSON.parse(readFileSync(join(SITE(), "package.json"), "utf8")).scripts.build).toBe(
+      "astro build --verbose",
+    );
+    expect(out).toContain("! site/package.json");
+  });
+
+  it("does not add the same dependencies a second time", () => {
+    const edited = sitePackage();
+    edited.dependencies["left-pad"] = "^1.3.0";
+    writeFileSync(join(SITE(), "package.json"), `${JSON.stringify(edited, null, 2)}\n`);
+    git(root, "add", "-A");
+    git(root, "commit", "-q", "-m", "Add my own dependency");
+    upgrade();
+    git(root, "add", "-A");
+    git(root, "commit", "-q", "-m", "Upgrade");
+    const { out } = upgrade();
+    expect(out).not.toContain("satori");
+    expect(sitePackage().dependencies["left-pad"]).toBe("^1.3.0");
   });
 });
