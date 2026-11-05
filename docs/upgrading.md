@@ -79,9 +79,7 @@ files of that feature.
 
 `package.json` and `package-lock.json` are compared like any other file, with the name and description your site already has, so the
 name is not a change. If the kit changed the dependencies and you did not edit those files, they are replaced and you run
-`npm install` in the site folder. If you did edit `package.json`, it is not replaced: the dependencies the kit now needs are added to
-it with the ranges the kit uses, and your own dependencies and ranges stay as they are. The upgrade says which ones it added. Run
-`npm install` afterwards, so that `package-lock.json` has them too.
+`npm install` in the site folder.
 
 ## After the upgrade
 

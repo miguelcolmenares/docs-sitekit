@@ -2,7 +2,7 @@ import { z } from "zod";
 import { iconProblem } from "./brands";
 import { DEFAULT_SEVERITY, FINDING_DESCRIPTIONS, FINDING_KINDS, isFindingKind } from "./findings";
 import { EDIT_HOSTS } from "./editLink";
-import { socialImageProblem } from "./socialCard";
+import { socialImageProblem } from "./socialImage";
 
 const link = z.strictObject({
   label: z.string().min(1).describe("The text of the link."),
@@ -154,7 +154,7 @@ export const siteConfigSchema = z
           })
           .optional()
           .describe(
-            "The picture a link to the site shows, such as `/social.png`, a file in `public/`, or a full `https` address. Without it the kit draws a 1200 by 630 card from the name and the description, at `og.png`.",
+            "The picture a link to the site shows, such as `/social.png`, a file in `public/`, or a full `https` address. Use a PNG of 1200 by 630 pixels. Without it the pages name no picture.",
           ),
         imageAlt: z
           .string()

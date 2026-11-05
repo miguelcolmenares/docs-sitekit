@@ -9,7 +9,7 @@ export * from "./links";
 export * from "./sideCard";
 export * from "./siteHref";
 export * from "./slug";
-export * from "./socialCard";
+export * from "./socialImage";
 export * from "./document";
 export * from "./glob";
 export * from "./groups";

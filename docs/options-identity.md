@@ -34,9 +34,9 @@ What it changes, on the pages of the built site:
 > [!TIP]
 > On GitHub Pages a project site is served under the name of the repository, so `base` is `/repository-name/`. A site at the root of its domain uses `/`.
 
-## The social card
+## The social image
 
-When a link to the site is shared, the chat or the feed shows a picture with it. Every page says which picture, with `og:image` and `twitter:image`, and asks for a large card. Without `image` the build draws the picture for the site: a 1200 by 630 PNG at `/og.png`, with the name in bold, the description under it in three lines at most, and the host at the foot. The colors are the dark ones of `design/tokens.json`. The card is made from the name and the description, so there is nothing to draw by hand.
+When a link to the site is shared, the chat or the feed can show a picture with it. The kit draws none: it carries no image library for it, and the picture is made once, by you, so it says what you want it to say. Set `image` and every page names the picture with `og:image` and `twitter:image`, and asks for a large card.
 
 ```json title="sitekit.config.json" {6-7}
 {
@@ -50,10 +50,10 @@ When a link to the site is shared, the chat or the feed shows a picture with it.
 }
 ```
 
-- **`image`** replaces the generated card. A path such as `/social.png` names a file in `public/`, and the build adds the `base` to it. A full `https` address is used as it is. With `image` set, the kit writes no `og.png`, and it gives no width or height, because it cannot know them. Use a PNG of 1200 by 630 pixels, the size the networks show large.
+- **`image`** is a path such as `/social.png`, which names a file in `public/` and gets the `base`, or a full `https` address, which is used as it is. Use a PNG of 1200 by 630 pixels, the size the networks show large. The kit gives no width or height, because it cannot know them.
 - **`imageAlt`** is the text of the picture for a screen reader. Without it the text is the name and the description of the site, joined with a colon.
 
-The generated card uses the Latin letters of Geist. A name written in another alphabet shows boxes where its letters should be, so a site with such a name should set `image` to a picture of its own.
+Without `image` the pages name no picture, and `twitter:card` stays `summary`.
 
 ## The hero
 

@@ -200,10 +200,6 @@ function describeUpgrade(result: UpgradeResult, siteDir: string): string {
     lines.push(
       `  + ${siteDir}/sitekit.config.json: "${option.key}": ${JSON.stringify(option.value)} (${now ? "would keep" : "keeps"} the site as it was)`,
     );
-  for (const dependency of result.dependencies)
-    lines.push(
-      `  + ${siteDir}/package.json: ${dependency.name} ${dependency.range} (${now ? "would be " : ""}added, you had edited the file)`,
-    );
   lines.push(
     "",
     `${result.replaced.length} replaced, ${result.added.length} added, ${result.kept.length} kept, ${result.conflicts.length} to merge, ${result.unchanged.length} already current.`,
@@ -212,7 +208,7 @@ function describeUpgrade(result: UpgradeResult, siteDir: string): string {
   const next: string[] = [];
   if (result.dryRun) next.push("Run `sitekit upgrade` to apply these changes.");
   else {
-    if (result.replaced.length + result.added.length + result.dependencies.length > 0)
+    if (result.replaced.length + result.added.length > 0)
       next.push(
         `Run \`npm install\` in ${siteDir}/, then \`npm run build\` and \`sitekit check\`.`,
       );

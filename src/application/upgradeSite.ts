@@ -35,12 +35,6 @@ export interface AddedOption {
   value: unknown;
 }
 
-/** A dependency the kit adds to a `package.json` that you edited: the name and the range the kit uses. */
-export interface AddedDependency {
-  name: string;
-  range: string;
-}
-
 /** What an upgrade did, or in a dry run what it would do. Paths are relative to the repository root. */
 export interface UpgradeResult {
   /** The version in the site's lock, which is the kit that last wrote its files. */
@@ -66,11 +60,6 @@ export interface UpgradeResult {
   retired: string[];
   /** Options added to `sitekit.config.json` with the value that keeps the site as it was. */
   options: AddedOption[];
-  /**
-   * Dependencies the kit needs that were added to your `package.json`, which you had edited. Your own dependencies
-   * and versions are not changed. The file is `package.json` of the site.
-   */
-  dependencies: AddedDependency[];
   /** The deploy workflow, when it still pins the old version. The upgrade never edits it. */
   workflowPinned?: string;
 }
@@ -143,68 +132,6 @@ function readLock(fs: FileSystem, path: string, siteDir: string): SiteLock {
 }
 
 /**
- * The site's `package.json` with the dependencies of the kit's manifest added where the site has none of that name.
- * A dependency the site already has keeps the site's range, and nothing else of the file is changed. Returns the
- * site's text unchanged, with no additions, when a file cannot be read as JSON.
- */
-function mergeKitDependencies(
-  siteText: string,
-  kitText: string,
-): { content: string; added: AddedDependency[] } {
-  const none = { content: siteText, added: [] };
-  let site: Record<string, unknown>;
-  let kit: Record<string, unknown>;
-  try {
-    site = JSON.parse(siteText) as Record<string, unknown>;
-    kit = JSON.parse(kitText) as Record<string, unknown>;
-  } catch {
-    return none;
-  }
-  const added: AddedDependency[] = [];
-  for (const section of ["dependencies", "devDependencies"] as const) {
-    const wanted = kit[section] as Record<string, string> | undefined;
-    if (!wanted) continue;
-    const have = { ...((site[section] as Record<string, string> | undefined) ?? {}) };
-    const missing = Object.entries(wanted).filter(([name]) => !(name in have));
-    if (missing.length === 0) continue;
-    for (const [name, range] of missing) {
-      have[name] = range;
-      added.push({ name, range });
-    }
-    site[section] = Object.fromEntries(Object.entries(have).sort(([a], [b]) => a.localeCompare(b)));
-  }
-  if (added.length === 0) return none;
-  return { content: `${JSON.stringify(site, null, 2)}\n`, added };
-}
-
-/** A JSON text with its keys sorted at every level, so two objects compare equal whatever order they were written in. */
-function canonicalJson(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
-  if (value && typeof value === "object") {
-    const entries = Object.entries(value as Record<string, unknown>).sort(([a], [b]) =>
-      a.localeCompare(b),
-    );
-    return `{${entries.map(([key, inner]) => `${JSON.stringify(key)}:${canonicalJson(inner)}`).join(",")}}`;
-  }
-  return JSON.stringify(value);
-}
-
-/** Whether two manifests are the same once their dependency sections are left out. A text that is not JSON is not. */
-function sameExceptDependencies(first: string, second: string): boolean {
-  try {
-    const strip = (text: string) => {
-      const pkg = JSON.parse(text) as Record<string, unknown>;
-      delete pkg.dependencies;
-      delete pkg.devDependencies;
-      return canonicalJson(pkg);
-    };
-    return strip(first) === strip(second);
-  } catch {
-    return false;
-  }
-}
-
-/**
  * The name and description of the site's own `package.json`. The new manifests are rendered with
  * them, so a name that was derived when the site was made is not a change made by the kit.
  */
@@ -261,7 +188,6 @@ export function upgradeSite(deps: UpgradeDeps, options: UpgradeOptions): Upgrade
     deleted: [],
     retired: [],
     options: [],
-    dependencies: [],
   };
 
   const identity = siteIdentity(fs, siteAbs);
@@ -295,20 +221,6 @@ export function upgradeSite(deps: UpgradeDeps, options: UpgradeOptions): Upgrade
     if (!present) {
       result.deleted.push(shown);
       continue;
-    }
-    if (file.path === "package.json" && hash(fs.readText(target)) !== locked) {
-      // You edited the manifest, so it is not replaced. The dependencies the kit now needs are added to it. When the
-      // only difference left from the kit is those dependencies, there is nothing to merge by hand and no conflict.
-      const merged = mergeKitDependencies(fs.readText(target), content);
-      if (merged.added.length > 0) {
-        writes.push({ path: target, content: merged.content });
-        result.dependencies.push(...merged.added);
-      }
-      if (sameExceptDependencies(merged.content, content)) {
-        lock.files[file.path] = newHash;
-        result.unchanged.push(shown);
-        continue;
-      }
     }
     const currentHash = hash(fs.readText(target));
     if (currentHash === newHash) {

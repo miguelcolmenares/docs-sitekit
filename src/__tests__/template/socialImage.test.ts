@@ -3,21 +3,11 @@ import {
   socialImageAlt,
   socialImageProblem,
   socialImageUrl,
-  truncateAtWord,
 } from "../../../template/src/domain";
 
 const ORIGIN = "https://user.github.io";
 
 describe("socialImageUrl", () => {
-  it("is the generated card at the site base when the site has no image", () => {
-    expect(socialImageUrl(ORIGIN, "/")).toBe("https://user.github.io/og.png");
-    expect(socialImageUrl(ORIGIN, "/widget/")).toBe("https://user.github.io/widget/og.png");
-  });
-
-  it("takes the trailing slash off the origin, as the other absolute addresses do", () => {
-    expect(socialImageUrl(`${ORIGIN}/`, "/widget/")).toBe("https://user.github.io/widget/og.png");
-  });
-
   it.each([
     ["/social.png", "/widget/social.png"],
     ["social.png", "/widget/social.png"],
@@ -82,30 +72,5 @@ describe("socialImageAlt", () => {
     expect(socialImageAlt({ name: "Acme", description: "Jobs.", imageAlt: "  Acme logo  " })).toBe(
       "Acme logo",
     );
-  });
-});
-
-describe("truncateAtWord", () => {
-  it("returns a text that fits, with its spaces collapsed", () => {
-    expect(truncateAtWord("  Background   jobs.\n Done. ", 100)).toBe("Background jobs. Done.");
-  });
-
-  it("cuts at a word and ends with an ellipsis, within the limit", () => {
-    const text = "one two three four five six seven eight nine ten";
-    const cut = truncateAtWord(text, 20);
-    expect(cut.endsWith("…")).toBe(true);
-    expect(Array.from(cut).length).toBeLessThanOrEqual(20);
-    expect(cut).toBe("one two three four…");
-  });
-
-  it("cuts a single long word where it must, and keeps the limit", () => {
-    const cut = truncateAtWord("a".repeat(50), 10);
-    expect(cut).toBe(`${"a".repeat(9)}…`);
-  });
-
-  it("counts characters, not UTF-16 units, so an accent or a symbol is one character", () => {
-    const cut = truncateAtWord("ñandú ".repeat(10), 12);
-    expect(Array.from(cut).length).toBeLessThanOrEqual(12);
-    expect(cut.endsWith("…")).toBe(true);
   });
 });

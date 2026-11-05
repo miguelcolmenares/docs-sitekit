@@ -63,21 +63,18 @@ The marks belong to their owners. Their use here is to name the product or servi
 
 These are installed from the public npm registry. They are not copied into this repository, and each keeps its own license.
 
-| Package                                                                                             | License    | Used for                                           |
-| --------------------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------- |
-| [Astro](https://astro.build) and its integrations                                                   | MIT        | The static site framework                          |
-| [Tailwind CSS](https://tailwindcss.com)                                                             | MIT        | Styling                                            |
-| [React](https://react.dev)                                                                          | MIT        | Components                                         |
-| [Radix UI](https://www.radix-ui.com) (`radix-ui`)                                                   | MIT        | Accessible primitives under the shadcn/ui parts    |
-| [lucide-react](https://lucide.dev)                                                                  | ISC        | Icons                                              |
-| [class-variance-authority](https://cva.style)                                                       | Apache-2.0 | Component variants                                 |
-| [clsx](https://github.com/lukeed/clsx), [tailwind-merge](https://github.com/dcastil/tailwind-merge) | MIT        | Class names                                        |
-| [Zod](https://zod.dev)                                                                              | MIT        | The config schema                                  |
-| [gray-matter](https://github.com/jonschlinkert/gray-matter)                                         | MIT        | Markdown frontmatter                               |
-| [Geist](https://vercel.com/font) via `@fontsource-variable/geist` and `geist-mono`                  | OFL-1.1    | The typefaces, served from the site itself         |
-| [Satori](https://github.com/vercel/satori)                                                          | MPL-2.0    | Laying out the social card as SVG, at build time   |
-| [resvg](https://github.com/yisibl/resvg-js) (`@resvg/resvg-js`)                                     | MPL-2.0    | Turning the social card into a PNG, at build time  |
-| Geist static files via `@fontsource/geist`                                                          | OFL-1.1    | The letters of the social card, read at build time |
+| Package                                                                                             | License    | Used for                                        |
+| --------------------------------------------------------------------------------------------------- | ---------- | ----------------------------------------------- |
+| [Astro](https://astro.build) and its integrations                                                   | MIT        | The static site framework                       |
+| [Tailwind CSS](https://tailwindcss.com)                                                             | MIT        | Styling                                         |
+| [React](https://react.dev)                                                                          | MIT        | Components                                      |
+| [Radix UI](https://www.radix-ui.com) (`radix-ui`)                                                   | MIT        | Accessible primitives under the shadcn/ui parts |
+| [lucide-react](https://lucide.dev)                                                                  | ISC        | Icons                                           |
+| [class-variance-authority](https://cva.style)                                                       | Apache-2.0 | Component variants                              |
+| [clsx](https://github.com/lukeed/clsx), [tailwind-merge](https://github.com/dcastil/tailwind-merge) | MIT        | Class names                                     |
+| [Zod](https://zod.dev)                                                                              | MIT        | The config schema                               |
+| [gray-matter](https://github.com/jonschlinkert/gray-matter)                                         | MIT        | Markdown frontmatter                            |
+| [Geist](https://vercel.com/font) via `@fontsource-variable/geist` and `geist-mono`                  | OFL-1.1    | The typefaces, served from the site itself      |
 
 Development and test only, never shipped: Simple Icons (CC0-1.0, read by `npm run build:brands`), Playwright (Apache-2.0), axe-core and `@axe-core/playwright` (MPL-2.0), Jest, ESLint, Prettier, tsdown.
 
