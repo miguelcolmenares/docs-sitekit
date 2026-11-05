@@ -16,4 +16,4 @@ A list of commands and what each one does, in two columns from the `md` width an
 
 ## Source
 
-- [`CommandTable.tsx`](../../template/src/presentation/components/site/CommandTable.tsx)
+- [`command-table.tsx`](../../template/src/presentation/components/site/command-table.tsx)

@@ -15,7 +15,7 @@ tags: [Setup, Guide]
 ---
 ```
 
-The index layout, `CollectionIndex.astro`, uses it and is yours to edit. In the preview above the cards carry the `data-filter-item`, `data-filter-tags` and `data-filter-text` attributes that the script reads. A page shows one bar, because the script takes the first one. The preview changes the address of this page, as the filter does on an index.
+The index layout, `collection-index.astro`, uses it and is yours to edit. In the preview above the cards carry the `data-filter-item`, `data-filter-tags` and `data-filter-text` attributes that the script reads. A page shows one bar, because the script takes the first one. The preview changes the address of this page, as the filter does on an index.
 
 - **It appears only when a page of the index has a tag.** An index without tags looks and works as before.
 - **The text field** keeps the cards that contain every word, in the title, the description or the tags, whatever the case and the accents.
@@ -33,5 +33,5 @@ The index layout, `CollectionIndex.astro`, uses it and is yours to edit. In the 
 
 ## Source
 
-- [`CatalogFilter.astro`](../../template/src/presentation/components/site/CatalogFilter.astro)
-- [`catalogFilter.ts`](../../template/src/presentation/filter/catalogFilter.ts)
+- [`catalog-filter.astro`](../../template/src/presentation/components/site/catalog-filter.astro)
+- [`catalog-filter.ts`](../../template/src/presentation/filter/catalog-filter.ts)

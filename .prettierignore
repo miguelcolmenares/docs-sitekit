@@ -7,7 +7,7 @@ template/.astro
 template/dist
 e2e/.build
 template/src/styles/tokens.css
-template/src/domain/brands/brandData.ts
+template/src/domain/brands/brand-data.ts
 docs/configuration.md
 template/src/examples/props.json
-template/src/examples/host/previewTheme.css
+template/src/examples/host/preview-theme.css

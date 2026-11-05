@@ -124,13 +124,13 @@ check("tarball has the CLI, the template, the registry and the workflow", () => 
     "template/astro.config.ts",
     "template/_github/workflows/docs.yml",
     "template/src/domain/config.ts",
-    "template/src/domain/codeBlocks.ts",
-    "template/src/infrastructure/codeBlocks.ts",
-    "template/src/domain/socialImage.ts",
-    "template/src/presentation/code/copyCode.ts",
+    "template/src/domain/code-blocks.ts",
+    "template/src/infrastructure/code-blocks.ts",
+    "template/src/domain/social-image.ts",
+    "template/src/presentation/code/copy-code.ts",
     "template/src/styles/code.css",
     "template/scripts/build-tokens.mjs",
-    "template/src/presentation/components/site/Hero.astro",
+    "template/src/presentation/components/site/hero.astro",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
   ]) {
@@ -731,8 +731,8 @@ write(
   join(SITE, "src", "pages", "reference.astro"),
   [
     "---",
-    'import { ReferenceTable } from "../presentation/components/site/ReferenceTable";',
-    'import BaseLayout from "../presentation/layouts/BaseLayout.astro";',
+    'import { ReferenceTable } from "@/presentation/components/site/reference-table";',
+    'import BaseLayout from "@/presentation/layouts/base-layout.astro";',
     "const rows = [",
     '  { name: "search.enabled", type: "boolean", default: "true", allowed: "true, false", text: "Turn search on. Off, the site has no search button, no dialog and no index." },',
     '  { name: "theme.default", type: "string", default: \'"dark"\', allowed: \'"dark", "light", "system"\', text: "The theme a visitor sees first." },',
@@ -1128,7 +1128,7 @@ check("list shows the registry", () => {
   assert(sitekit(["list"]).includes("command-box"), "command-box is not listed");
 });
 check("add keeps a component you edited, and add --force restores it", () => {
-  const file = join(SITE, "src", "presentation", "components", "site", "Callout.tsx");
+  const file = join(SITE, "src", "presentation", "components", "site", "callout.tsx");
   writeFileSync(file, "// edited by the user\n");
   const kept = sitekit(["add", "callout"]);
   assert(
@@ -1313,12 +1313,12 @@ const commitRecipes = (message) => {
 };
 commitRecipes("A site made by init");
 
-const STAT_ROW = join(RECIPE_SITE, "src", "presentation", "components", "site", "StatRow.tsx");
+const STAT_ROW = join(RECIPE_SITE, "src", "presentation", "components", "site", "stat-row.tsx");
 check(
   "component: add restores a component that was deleted, and keeps it once you changed it",
   () => {
     rmSync(STAT_ROW);
-    assert(/StatRow\.tsx/.test(recipeKit(["add", "stat-row"])), "add did not write StatRow.tsx");
+    assert(/stat-row\.tsx/.test(recipeKit(["add", "stat-row"])), "add did not write stat-row.tsx");
     assert(
       readFileSync(STAT_ROW, "utf8").includes("text-fg-bright"),
       "the restored file is not the kit's",
@@ -1338,7 +1338,7 @@ check(
     const output = recipeKit(["upgrade"]);
     assert(
       output.includes(
-        "= site/src/presentation/components/site/StatRow.tsx (you changed it, the kit did not, kept)",
+        "= site/src/presentation/components/site/stat-row.tsx (you changed it, the kit did not, kept)",
       ),
       `got: ${output}`,
     );
@@ -1573,6 +1573,17 @@ check("the upgrade replaces, keeps, adds and leaves the conflict for the owner t
     "the new version is not next to the owner's file",
   );
   assert(existsSync(siteFile("src/domain/llms.ts")), "a new file was not added");
+  // A site made by 0.1.0 has PascalCase and camelCase names. The upgrade moves each file to its kebab-case name. The listing
+  // is read from the folder, because on a file system that ignores case `existsSync` would find the old name too.
+  const headerNames = readdirSync(siteFile("src/presentation/components/site"));
+  assert(
+    headerNames.includes("site-header.astro"),
+    "the upgrade did not give site-header.astro its new name",
+  );
+  assert(
+    !headerNames.includes("SiteHeader.astro"),
+    "the upgrade left SiteHeader.astro under its old name",
+  );
   const after = snapshotOld();
   const touched = Object.keys({ ...before, ...after }).filter(
     (path) => before[path] !== after[path],

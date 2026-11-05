@@ -11,6 +11,8 @@ const PHONES = [
   { name: "390 wide (iPhone)", width: 390, height: 844 },
 ];
 
+// The module of the dialog (`search-dialog.ts`), not the inline script chunk of the `.astro` file that carries the same stem.
+const SEARCH_MODULE = /\/search-dialog\.[\w-]+\.js$/;
 const dialog = (page: Page) => page.locator("[data-search-dialog][open]");
 const input = (page: Page) => page.getByRole("combobox", { name: "Search the docs" });
 const trigger = (page: Page) => page.getByRole("button", { name: "Search", exact: true });
@@ -26,7 +28,8 @@ async function openSearch(page: Page) {
 function searchRequests(page: Page): string[] {
   const seen: string[] = [];
   page.on("request", (request: Request) => {
-    if (/search-index\.json|searchDialog/.test(request.url())) seen.push(request.url());
+    if (/search-index\.json|\/search-dialog\.[\w-]+\.js$/.test(request.url()))
+      seen.push(request.url());
   });
   return seen;
 }
@@ -226,7 +229,7 @@ test.describe("loading", () => {
     await page.keyboard.type("install");
     await expect(page.locator("[data-search-status]")).toHaveText(/result/);
     expect(seen.filter((url) => url.endsWith("search-index.json"))).toHaveLength(1);
-    expect(seen.filter((url) => url.includes("searchDialog"))).toHaveLength(1);
+    expect(seen.filter((url) => SEARCH_MODULE.test(url))).toHaveLength(1);
   });
 
   test("the first focus of the button loads the code, and the index waits for the open", async ({
@@ -235,7 +238,7 @@ test.describe("loading", () => {
     const seen = searchRequests(page);
     await page.goto(`${BASE}docs/getting-started/`, { waitUntil: "networkidle" });
     await trigger(page).focus();
-    await expect.poll(() => seen.some((url) => url.includes("searchDialog"))).toBe(true);
+    await expect.poll(() => seen.some((url) => SEARCH_MODULE.test(url))).toBe(true);
     expect(seen.some((url) => url.endsWith("search-index.json"))).toBe(false);
     await trigger(page).click();
     await expect.poll(() => seen.some((url) => url.endsWith("search-index.json"))).toBe(true);

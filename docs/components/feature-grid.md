@@ -17,4 +17,4 @@ Features as cards, two columns from the `md` width. Each has an icon, a short ey
 
 ## Source
 
-- [`FeatureGrid.tsx`](../../template/src/presentation/components/site/FeatureGrid.tsx)
+- [`feature-grid.tsx`](../../template/src/presentation/components/site/feature-grid.tsx)

@@ -48,48 +48,48 @@
     },
     "tone-badge": {
       "description": "The only way to show a status color.",
-      "files": ["src/presentation/components/site/ToneBadge.tsx"],
+      "files": ["src/presentation/components/site/tone-badge.tsx"],
       "requires": ["cn"],
       "example": "src/examples/tone-badge"
     },
     "icon": {
       "description": "A lucide icon by its kebab-case name, or a brand logo as brand:<slug>.",
       "files": [
-        "src/presentation/components/site/Icon.tsx",
+        "src/presentation/components/site/icon.tsx",
         "src/domain/brands/index.ts",
         "src/domain/brands/brand.ts",
-        "src/domain/brands/brandData.ts",
+        "src/domain/brands/brand-data.ts",
         "src/domain/brands/icons.ts",
-        "src/domain/brands/customSvg.ts"
+        "src/domain/brands/custom-svg.ts"
       ],
       "requires": [],
       "example": "src/examples/icon"
     },
     "section-header": {
       "description": "Mono eyebrow, heading and lede.",
-      "files": ["src/presentation/components/site/SectionHeader.tsx"],
+      "files": ["src/presentation/components/site/section-header.tsx"],
       "requires": ["cn"],
       "example": "src/examples/section-header"
     },
     "command-box": {
       "description": "A copyable shell command.",
-      "files": ["src/presentation/components/site/CommandBox.tsx"],
+      "files": ["src/presentation/components/site/command-box.tsx"],
       "requires": ["cn"],
       "example": "src/examples/command-box"
     },
     "item-card": {
       "description": "ItemCard and CardGrid for catalogs.",
-      "files": ["src/presentation/components/site/ItemCard.tsx"],
+      "files": ["src/presentation/components/site/item-card.tsx"],
       "requires": ["cn", "tone-badge"],
       "example": "src/examples/item-card"
     },
     "catalog-filter": {
       "description": "A text field and tag buttons that narrow the cards of an index page, with the state in the address.",
       "files": [
-        "src/presentation/components/site/CatalogFilter.astro",
-        "src/presentation/filter/catalogFilter.ts",
+        "src/presentation/components/site/catalog-filter.astro",
+        "src/presentation/filter/catalog-filter.ts",
         "src/domain/filter/index.ts",
-        "src/domain/filter/catalogFilter.ts",
+        "src/domain/filter/catalog-filter.ts",
         "src/domain/filter/tags.ts"
       ],
       "requires": [],
@@ -97,87 +97,87 @@
     },
     "feature-grid": {
       "description": "Icon, eyebrow, title and text.",
-      "files": ["src/presentation/components/site/FeatureGrid.tsx"],
+      "files": ["src/presentation/components/site/feature-grid.tsx"],
       "requires": ["icon"],
       "example": "src/examples/feature-grid"
     },
     "stat-row": {
       "description": "Two to five numbers, each with a label and a note.",
-      "files": ["src/presentation/components/site/StatRow.tsx"],
+      "files": ["src/presentation/components/site/stat-row.tsx"],
       "requires": [],
       "example": "src/examples/stat-row"
     },
     "page-info": {
       "description": "The line at the foot of a page: an edit link and the date of the last change.",
-      "files": ["src/presentation/components/site/PageInfo.tsx"],
+      "files": ["src/presentation/components/site/page-info.tsx"],
       "requires": [],
       "example": "src/examples/page-info"
     },
     "side-card": {
       "description": "A card of metadata, links and tags beside the text of a detail page, collapsed on a phone.",
       "files": [
-        "src/presentation/components/site/SideCard.tsx",
-        "src/presentation/sideCard/sideCard.ts",
-        "src/domain/sideCard.ts"
+        "src/presentation/components/site/side-card.tsx",
+        "src/presentation/side-card/side-card.ts",
+        "src/domain/side-card.ts"
       ],
       "requires": ["catalog-filter"],
       "example": "src/examples/side-card"
     },
     "reference-table": {
       "description": "A table for a reference: names in code, a type, a default, allowed values and a text, in a scrollable region.",
-      "files": ["src/presentation/components/site/ReferenceTable.tsx"],
+      "files": ["src/presentation/components/site/reference-table.tsx"],
       "requires": [],
       "example": "src/examples/reference-table"
     },
     "flow-diagram": {
       "description": "Steps in a row that stack on small screens.",
-      "files": ["src/presentation/components/site/FlowDiagram.tsx"],
+      "files": ["src/presentation/components/site/flow-diagram.tsx"],
       "requires": [],
       "example": "src/examples/flow-diagram"
     },
     "command-table": {
       "description": "A command and what it does.",
-      "files": ["src/presentation/components/site/CommandTable.tsx"],
+      "files": ["src/presentation/components/site/command-table.tsx"],
       "requires": [],
       "example": "src/examples/command-table"
     },
     "callout": {
       "description": "A note, a tip, an important point, a warning or a caution.",
-      "files": ["src/presentation/components/site/Callout.tsx"],
+      "files": ["src/presentation/components/site/callout.tsx"],
       "requires": ["cn"],
       "example": "src/examples/callout"
     },
     "breadcrumbs": {
       "description": "Breadcrumb trail for a page.",
-      "files": ["src/presentation/components/site/Breadcrumbs.tsx"],
+      "files": ["src/presentation/components/site/breadcrumbs.tsx"],
       "requires": ["breadcrumb"],
       "example": "src/examples/breadcrumbs"
     },
     "mobile-menu": {
       "description": "Navigation dialog for small screens, a native dialog and a few lines of script. The layout renders it, and the button in the site header opens it.",
-      "files": ["src/presentation/components/site/MobileMenu.astro"],
+      "files": ["src/presentation/components/site/mobile-menu.astro"],
       "requires": ["icon"]
     },
     "site-header": {
       "description": "Sticky translucent header.",
-      "files": ["src/presentation/components/site/SiteHeader.astro"],
+      "files": ["src/presentation/components/site/site-header.astro"],
       "requires": ["button", "icon", "mobile-menu"]
     },
     "hero": {
       "description": "Badge, headline, lede, command and actions.",
-      "files": ["src/presentation/components/site/Hero.astro"],
+      "files": ["src/presentation/components/site/hero.astro"],
       "requires": ["button", "command-box", "tone-badge"],
       "example": "src/examples/hero"
     },
     "cta-band": {
       "description": "Closing headline with a command and actions.",
-      "files": ["src/presentation/components/site/CtaBand.astro"],
+      "files": ["src/presentation/components/site/cta-band.astro"],
       "requires": ["button", "command-box"],
       "example": "src/examples/cta-band"
     },
     "site-footer": {
       "description": "Brand, link columns and a legal bar.",
-      "files": ["src/presentation/components/site/SiteFooter.tsx"],
+      "files": ["src/presentation/components/site/site-footer.tsx"],
       "requires": [],
       "example": "src/examples/site-footer"
     }

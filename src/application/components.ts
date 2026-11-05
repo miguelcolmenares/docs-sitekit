@@ -1,6 +1,6 @@
 import { joinPath } from "./paths";
-import { LOCK_FILE } from "./initSite";
-import type { SiteLock } from "./initSite";
+import { LOCK_FILE } from "./init-site";
+import type { SiteLock } from "./init-site";
 import type { ComponentRegistry, FileSystem, TemplateSource } from "./ports";
 
 /** A component's name and what it is for, as `sitekit list` shows it. */

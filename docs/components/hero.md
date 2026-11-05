@@ -18,4 +18,4 @@ The first screen of the home page: a badge, a headline, a lede, a command to cop
 
 ## Source
 
-- [`Hero.astro`](../../template/src/presentation/components/site/Hero.astro)
+- [`hero.astro`](../../template/src/presentation/components/site/hero.astro)

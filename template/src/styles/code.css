@@ -1,5 +1,5 @@
 /* Code blocks: a title bar, highlighted and diff lines, and the copy button. The block is a `.code-block` that holds
-   the `pre`, written by the transformers in infrastructure/codeBlocks.ts. Its colors are the code tokens, so the
+   the `pre`, written by the transformers in infrastructure/code-blocks.ts. Its colors are the code tokens, so the
    contrast tests cover them. */
 .prose-site .code-block {
   position: relative;

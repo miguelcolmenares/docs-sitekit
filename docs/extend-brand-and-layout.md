@@ -37,14 +37,14 @@ The logo is drawn as an inline SVG filled with `currentColor`, hidden from assis
 
 ## A layout for a collection
 
-The pages of a collection are drawn by `DocPage.astro`. To draw the pages of one collection in your own way, add a layout named after the `id` of the collection in `site/src/presentation/layouts/collections/`. Nothing else is registered: the route looks for the file by that name, and uses `DocPage` when there is none.
+The pages of a collection are drawn by `doc-page.astro`. To draw the pages of one collection in your own way, add a layout named after the `id` of the collection in `site/src/presentation/layouts/collections/`. Nothing else is registered: the route looks for the file by that name, and uses `DocPage` when there is none.
 
 <!-- prettier-ignore-start -->
 <!-- recipe-file: brand-and-layout site/src/presentation/layouts/collections/examples.astro -->
 ```astro title="site/src/presentation/layouts/collections/examples.astro"
 ---
 import type { ComponentProps } from "astro/types";
-import DocPage from "../DocPage.astro";
+import DocPage from "@/presentation/layouts/doc-page.astro";
 
 // The pages of the collection "examples" use this layout, because its file is named after the id of the collection.
 // It takes the props of DocPage, draws DocPage, and puts more in its slot.

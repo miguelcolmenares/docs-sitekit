@@ -19,4 +19,4 @@ A command in a box, with a button that copies it. The text is in the HTML, and t
 
 ## Source
 
-- [`CommandBox.tsx`](../../template/src/presentation/components/site/CommandBox.tsx)
+- [`command-box.tsx`](../../template/src/presentation/components/site/command-box.tsx)

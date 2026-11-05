@@ -7,7 +7,7 @@
 // `data-theme` attribute, which is what a visitor without JavaScript gets with `theme.default` "system".
 //
 // It also writes the color sets for a part of a page: `[data-preview-theme="dark"]` and `[data-preview-theme="light"]`,
-// in template/src/examples/host/previewTheme.css, which only the component pages of this project use. A preview there
+// in template/src/examples/host/preview-theme.css, which only the component pages of this project use. A preview there
 // can show a component in the other theme without leaving the page.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -16,7 +16,7 @@ import { checkThemeParity, declarations, renderTokens } from "../template/script
 const ROOT = resolve(import.meta.dirname, "..");
 const SOURCE = join(ROOT, "template", "design", "tokens.json");
 const TARGET = join(ROOT, "template", "src", "styles", "tokens.css");
-const PREVIEW_TARGET = join(ROOT, "template", "src", "examples", "host", "previewTheme.css");
+const PREVIEW_TARGET = join(ROOT, "template", "src", "examples", "host", "preview-theme.css");
 
 /** The two color sets again, each under an attribute that can be put on any element. */
 export function renderPreviewThemes(tokens) {
@@ -43,7 +43,7 @@ const outputs = [
   {
     target: PREVIEW_TARGET,
     css: renderPreviewThemes(tokens),
-    name: "template/src/examples/host/previewTheme.css",
+    name: "template/src/examples/host/preview-theme.css",
   },
 ];
 if (process.argv.includes("--check")) {

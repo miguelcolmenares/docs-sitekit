@@ -19,4 +19,4 @@ The footer of every page: the brand with a sentence and a command, one column of
 
 ## Source
 
-- [`SiteFooter.tsx`](../../template/src/presentation/components/site/SiteFooter.tsx)
+- [`site-footer.tsx`](../../template/src/presentation/components/site/site-footer.tsx)

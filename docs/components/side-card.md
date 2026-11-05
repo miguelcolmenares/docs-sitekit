@@ -21,5 +21,5 @@ Its script belongs to the page, so a page shows one card. On a phone the card sh
 
 ## Source
 
-- [`SideCard.tsx`](../../template/src/presentation/components/site/SideCard.tsx)
-- [`sideCard.ts`](../../template/src/presentation/sideCard/sideCard.ts)
+- [`side-card.tsx`](../../template/src/presentation/components/site/side-card.tsx)
+- [`side-card.ts`](../../template/src/presentation/side-card/side-card.ts)

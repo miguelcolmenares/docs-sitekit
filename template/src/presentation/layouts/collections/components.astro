@@ -1,17 +1,17 @@
 ---
-import type { Document } from "../../../domain";
-import { loadSite, renderMarkdown } from "../../../infrastructure";
+import type { Document } from "@/domain";
+import { loadSite, renderMarkdown } from "@/infrastructure";
 import registry from "../../../../registry.json";
-import { PAGE_BY_NAME } from "../../../examples/catalog";
-import type { PageSpec } from "../../../examples/catalog";
-import { exampleFor } from "../../../examples/host/examples";
-import { fencedCode } from "../../../examples/host/fence";
-import ExampleBlock from "../../../examples/host/ExampleBlock.astro";
-import props from "../../../examples/props.json";
-import { CommandBox } from "../../components/site/CommandBox";
-import { ReferenceTable } from "../../components/site/ReferenceTable";
-import type { ReferenceRow } from "../../components/site/ReferenceTable";
-import DocPage from "../DocPage.astro";
+import { PAGE_BY_NAME } from "@/examples/catalog";
+import type { PageSpec } from "@/examples/catalog";
+import { exampleFor } from "@/examples/host/examples";
+import { fencedCode } from "@/examples/host/fence";
+import ExampleBlock from "@/examples/host/example-block.astro";
+import props from "@/examples/props.json";
+import { CommandBox } from "@/presentation/components/site/command-box";
+import { ReferenceTable } from "@/presentation/components/site/reference-table";
+import type { ReferenceRow } from "@/presentation/components/site/reference-table";
+import DocPage from "@/presentation/layouts/doc-page.astro";
 
 // The layout of the pages of the "components" collection: the page of a document, with a live preview, the code
 // that produced it, the command to add it, a table of its props and each of its variants before the text.
@@ -120,5 +120,5 @@ const code = "wrap-anywhere rounded border border-border bg-surface-2 px-1.5 py-
 </DocPage>
 
 <script>
-  import "../../../examples/host/exampleTabs";
+  import "@/examples/host/example-tabs";
 </script>

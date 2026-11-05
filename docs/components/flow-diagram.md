@@ -17,4 +17,4 @@ A process as steps in a row, each with a phase, a title, a detail and a command.
 
 ## Source
 
-- [`FlowDiagram.tsx`](../../template/src/presentation/components/site/FlowDiagram.tsx)
+- [`flow-diagram.tsx`](../../template/src/presentation/components/site/flow-diagram.tsx)

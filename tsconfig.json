@@ -14,6 +14,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "noEmit": true,
+    "paths": { "@/*": ["./template/src/*"] },
     "types": ["node", "jest"]
   },
   "include": ["src", "e2e", "scripts", "*.config.ts"],

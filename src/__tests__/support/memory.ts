@@ -35,6 +35,10 @@ export class MemoryFileSystem implements FileSystem {
     this.files.set(path, content);
   }
 
+  remove(path: string): void {
+    this.files.delete(path);
+  }
+
   listFiles(directory: string): string[] {
     const prefix = `${directory.replace(/\/$/, "")}/`;
     return [...this.files.keys()]
@@ -68,7 +72,7 @@ export const registry: ComponentRegistry = {
   components: {
     cn: { description: "helper", files: ["src/cn.ts"], requires: [] },
     button: { description: "button", files: ["src/button.tsx"], requires: ["cn"] },
-    hero: { description: "hero", files: ["src/Hero.astro"], requires: ["button", "cn"] },
+    hero: { description: "hero", files: ["src/hero.astro"], requires: ["button", "cn"] },
   },
 };
 
@@ -99,7 +103,7 @@ export function fakeTemplate(
         'import { cn } from "@/infrastructure/cn";\nimport { Slot } from "radix-ui";\nexport const Button = () => null;\n',
     },
     {
-      path: "src/Hero.astro",
+      path: "src/hero.astro",
       content: "---\nimport { Button } from './button';\n---\n<section />\n",
     },
   ];

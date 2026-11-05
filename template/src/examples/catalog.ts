@@ -73,7 +73,7 @@ export const PAGES: readonly PageSpec[] = [
   {
     name: "tone-badge",
     title: "ToneBadge",
-    tables: [props(`${SITE}/ToneBadge.tsx`, "ToneBadge")],
+    tables: [props(`${SITE}/tone-badge.tsx`, "ToneBadge")],
     variants: [
       {
         id: "tones",
@@ -90,7 +90,7 @@ export const PAGES: readonly PageSpec[] = [
   {
     name: "icon",
     title: "Icon",
-    tables: [props(`${SITE}/Icon.tsx`, "Icon")],
+    tables: [props(`${SITE}/icon.tsx`, "Icon")],
     variants: [
       {
         id: "brand",
@@ -112,7 +112,7 @@ export const PAGES: readonly PageSpec[] = [
   {
     name: "section-header",
     title: "SectionHeader",
-    tables: [props(`${SITE}/SectionHeader.tsx`, "SectionHeader")],
+    tables: [props(`${SITE}/section-header.tsx`, "SectionHeader")],
     variants: [
       {
         id: "page-heading",
@@ -129,7 +129,7 @@ export const PAGES: readonly PageSpec[] = [
   {
     name: "hero",
     title: "Hero",
-    tables: [props(`${SITE}/Hero.astro`, "Props")],
+    tables: [props(`${SITE}/hero.astro`, "Props")],
     variants: [
       {
         id: "minimal",
@@ -141,7 +141,7 @@ export const PAGES: readonly PageSpec[] = [
   {
     name: "cta-band",
     title: "CtaBand",
-    tables: [props(`${SITE}/CtaBand.astro`, "Props")],
+    tables: [props(`${SITE}/cta-band.astro`, "Props")],
     variants: [
       {
         id: "minimal",
@@ -154,8 +154,8 @@ export const PAGES: readonly PageSpec[] = [
     name: "site-footer",
     title: "SiteFooter",
     tables: [
-      props(`${SITE}/SiteFooter.tsx`, "SiteFooter"),
-      fields(`${SITE}/SiteFooter.tsx`, "FooterColumn"),
+      props(`${SITE}/site-footer.tsx`, "SiteFooter"),
+      fields(`${SITE}/site-footer.tsx`, "FooterColumn"),
     ],
     variants: [
       {
@@ -168,7 +168,10 @@ export const PAGES: readonly PageSpec[] = [
   {
     name: "item-card",
     title: "ItemCard",
-    tables: [props(`${SITE}/ItemCard.tsx`, "ItemCard"), props(`${SITE}/ItemCard.tsx`, "CardGrid")],
+    tables: [
+      props(`${SITE}/item-card.tsx`, "ItemCard"),
+      props(`${SITE}/item-card.tsx`, "CardGrid"),
+    ],
     variants: [
       {
         id: "badge",
@@ -186,8 +189,8 @@ export const PAGES: readonly PageSpec[] = [
     name: "feature-grid",
     title: "FeatureGrid",
     tables: [
-      props(`${SITE}/FeatureGrid.tsx`, "FeatureGrid"),
-      fields(`${SITE}/FeatureGrid.tsx`, "FeatureItem"),
+      props(`${SITE}/feature-grid.tsx`, "FeatureGrid"),
+      fields(`${SITE}/feature-grid.tsx`, "FeatureItem"),
     ],
     variants: [
       {
@@ -200,7 +203,7 @@ export const PAGES: readonly PageSpec[] = [
   {
     name: "stat-row",
     title: "StatRow",
-    tables: [props(`${SITE}/StatRow.tsx`, "StatRow"), fields(`${SITE}/StatRow.tsx`, "StatItem")],
+    tables: [props(`${SITE}/stat-row.tsx`, "StatRow"), fields(`${SITE}/stat-row.tsx`, "StatItem")],
     variants: [
       {
         id: "with-notes",
@@ -223,8 +226,8 @@ export const PAGES: readonly PageSpec[] = [
     name: "flow-diagram",
     title: "FlowDiagram",
     tables: [
-      props(`${SITE}/FlowDiagram.tsx`, "FlowDiagram"),
-      fields(`${SITE}/FlowDiagram.tsx`, "FlowStep"),
+      props(`${SITE}/flow-diagram.tsx`, "FlowDiagram"),
+      fields(`${SITE}/flow-diagram.tsx`, "FlowStep"),
     ],
     variants: [
       {
@@ -237,7 +240,7 @@ export const PAGES: readonly PageSpec[] = [
   {
     name: "callout",
     title: "Callout",
-    tables: [props(`${SITE}/Callout.tsx`, "Callout")],
+    tables: [props(`${SITE}/callout.tsx`, "Callout")],
     variants: [
       {
         id: "kinds",
@@ -251,9 +254,9 @@ export const PAGES: readonly PageSpec[] = [
     name: "side-card",
     title: "SideCard",
     tables: [
-      props(`${SITE}/SideCard.tsx`, "SideCard"),
-      fields(`${SITE}/SideCard.tsx`, "SideCardRow"),
-      fields(`${SITE}/SideCard.tsx`, "SideCardLink"),
+      props(`${SITE}/side-card.tsx`, "SideCard"),
+      fields(`${SITE}/side-card.tsx`, "SideCardRow"),
+      fields(`${SITE}/side-card.tsx`, "SideCardLink"),
     ],
     variants: [],
   },
@@ -261,8 +264,8 @@ export const PAGES: readonly PageSpec[] = [
     name: "reference-table",
     title: "ReferenceTable",
     tables: [
-      props(`${SITE}/ReferenceTable.tsx`, "ReferenceTable"),
-      fields(`${SITE}/ReferenceTable.tsx`, "ReferenceRow"),
+      props(`${SITE}/reference-table.tsx`, "ReferenceTable"),
+      fields(`${SITE}/reference-table.tsx`, "ReferenceRow"),
     ],
     variants: [
       {
@@ -276,8 +279,8 @@ export const PAGES: readonly PageSpec[] = [
     name: "command-table",
     title: "CommandTable",
     tables: [
-      props(`${SITE}/CommandTable.tsx`, "CommandTable"),
-      fields(`${SITE}/CommandTable.tsx`, "CommandRow"),
+      props(`${SITE}/command-table.tsx`, "CommandTable"),
+      fields(`${SITE}/command-table.tsx`, "CommandRow"),
     ],
     variants: [
       {
@@ -290,7 +293,7 @@ export const PAGES: readonly PageSpec[] = [
   {
     name: "command-box",
     title: "CommandBox",
-    tables: [props(`${SITE}/CommandBox.tsx`, "CommandBox")],
+    tables: [props(`${SITE}/command-box.tsx`, "CommandBox")],
     variants: [
       {
         id: "label",
@@ -302,7 +305,7 @@ export const PAGES: readonly PageSpec[] = [
   {
     name: "breadcrumbs",
     title: "Breadcrumbs",
-    tables: [props(`${SITE}/Breadcrumbs.tsx`, "Breadcrumbs")],
+    tables: [props(`${SITE}/breadcrumbs.tsx`, "Breadcrumbs")],
     variants: [
       {
         id: "current-only",
@@ -314,15 +317,15 @@ export const PAGES: readonly PageSpec[] = [
   {
     name: "catalog-filter",
     title: "CatalogFilter",
-    tables: [props(`${SITE}/CatalogFilter.astro`, "Props")],
+    tables: [props(`${SITE}/catalog-filter.astro`, "Props")],
     variants: [],
   },
   {
     name: "page-info",
     title: "PageInfo",
     tables: [
-      props(`${SITE}/PageInfo.tsx`, "PageInfo"),
-      fields(`${SITE}/PageInfo.tsx`, "PageUpdated"),
+      props(`${SITE}/page-info.tsx`, "PageInfo"),
+      fields(`${SITE}/page-info.tsx`, "PageUpdated"),
     ],
     variants: [
       {

@@ -7,7 +7,7 @@ meta:
   - label: Install
     value: npx docs-sitekit add side-card
   - label: Layout
-    value: DocPage.astro
+    value: doc-page.astro
   - label: Frontmatter
     value: meta, links and tags
   - label: Phone
@@ -70,7 +70,7 @@ A page has a card when `meta` or `links` has at least one valid item. A page tha
 />
 ```
 
-`npx docs-sitekit add side-card` restores the component, its script, the rules that read the frontmatter, and the tag rules of the filter bar that they use. The layout that places it, `DocPage.astro`, is yours to edit.
+`npx docs-sitekit add side-card` restores the component, its script, the rules that read the frontmatter, and the tag rules of the filter bar that they use. The layout that places it, `doc-page.astro`, is yours to edit.
 
 ## Checks
 

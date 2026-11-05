@@ -18,5 +18,5 @@ An icon from `lucide-react` by its name in kebab-case, such as `shield-check`, o
 
 ## Source
 
-- [`Icon.tsx`](../../template/src/presentation/components/site/Icon.tsx)
+- [`icon.tsx`](../../template/src/presentation/components/site/icon.tsx)
 - [`domain/brands`](../../template/src/domain/brands/index.ts)

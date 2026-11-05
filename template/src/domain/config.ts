@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { iconProblem } from "./brands";
 import { DEFAULT_SEVERITY, FINDING_DESCRIPTIONS, FINDING_KINDS, isFindingKind } from "./findings";
-import { EDIT_HOSTS } from "./editLink";
-import { socialImageProblem } from "./socialImage";
+import { EDIT_HOSTS } from "./edit-link";
+import { socialImageProblem } from "./social-image";
 
 const link = z.strictObject({
   label: z.string().min(1).describe("The text of the link."),

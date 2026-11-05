@@ -18,4 +18,4 @@ A small pill with a text and one of four tones. A status color is chosen here an
 
 ## Source
 
-- [`ToneBadge.tsx`](../../template/src/presentation/components/site/ToneBadge.tsx)
+- [`tone-badge.tsx`](../../template/src/presentation/components/site/tone-badge.tsx)

@@ -18,4 +18,4 @@ A link card for a catalog: an optional badge, a title in mono type, a descriptio
 
 ## Source
 
-- [`ItemCard.tsx`](../../template/src/presentation/components/site/ItemCard.tsx)
+- [`item-card.tsx`](../../template/src/presentation/components/site/item-card.tsx)

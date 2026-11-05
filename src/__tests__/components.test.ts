@@ -53,7 +53,7 @@ describe("addComponent", () => {
       }),
     });
     const result = addComponent(deps(fs), { siteAbs: SITE, name: "hero" });
-    expect(result.written).toEqual(["src/cn.ts", "src/button.tsx", "src/Hero.astro"]);
+    expect(result.written).toEqual(["src/cn.ts", "src/button.tsx", "src/hero.astro"]);
     const lock = JSON.parse(fs.readText(`${SITE}/.sitekit.json`));
     expect(lock.files["src/cn.ts"]).toBe(sha(fs.readText(`${SITE}/src/cn.ts`)));
     expect(result.missingPackages).toEqual([]);

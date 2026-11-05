@@ -18,4 +18,4 @@ The line at the foot of a page: an "Edit this page" link to the source file on t
 
 ## Source
 
-- [`PageInfo.tsx`](../../template/src/presentation/components/site/PageInfo.tsx)
+- [`page-info.tsx`](../../template/src/presentation/components/site/page-info.tsx)

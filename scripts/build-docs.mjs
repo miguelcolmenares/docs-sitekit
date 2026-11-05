@@ -15,14 +15,14 @@ import { build } from "tsdown";
 const ROOT = resolve(import.meta.dirname, "..");
 const DEFAULT_OUT = join(ROOT, "docs", "configuration.md");
 
-/** Bundle scripts/configReference.ts and return the page it builds. */
+/** Bundle scripts/config-reference.ts and return the page it builds. */
 async function buildPage() {
   const dir = mkdtempSync(join(tmpdir(), "sitekit-docs-"));
   try {
     await build({
       cwd: ROOT,
       config: false,
-      entry: { configReference: join(ROOT, "scripts", "configReference.ts") },
+      entry: { configReference: join(ROOT, "scripts", "config-reference.ts") },
       outDir: dir,
       format: ["esm"],
       platform: "node",

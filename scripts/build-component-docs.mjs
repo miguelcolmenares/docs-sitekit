@@ -16,14 +16,14 @@ const ROOT = resolve(import.meta.dirname, "..");
 const TEMPLATE = join(ROOT, "template");
 const DEFAULT_OUT = join(TEMPLATE, "src", "examples", "props.json");
 
-/** Bundle scripts/componentProps.ts and the catalog, and return the JSON they build. */
+/** Bundle scripts/component-props.ts and the catalog, and return the JSON they build. */
 async function buildJson() {
   const dir = mkdtempSync(join(ROOT, ".sitekit-docs-"));
   try {
     await build({
       cwd: ROOT,
       config: false,
-      entry: { componentProps: join(ROOT, "scripts", "componentProps.ts") },
+      entry: { componentProps: join(ROOT, "scripts", "component-props.ts") },
       outDir: dir,
       format: ["esm"],
       platform: "node",

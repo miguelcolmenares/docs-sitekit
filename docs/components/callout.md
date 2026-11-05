@@ -18,4 +18,4 @@ A highlighted note inside a page, with five kinds. The same five also come from 
 
 ## Source
 
-- [`Callout.tsx`](../../template/src/presentation/components/site/Callout.tsx)
+- [`callout.tsx`](../../template/src/presentation/components/site/callout.tsx)
