@@ -383,3 +383,14 @@ test.describe("the examples", () => {
     }
   });
 });
+
+test.describe("the footer of the kit's own site", () => {
+  test("names the site docs-sitekit, with the license and the version, and no copyright sign", async ({
+    page,
+  }) => {
+    await page.goto(`${BASE}/docs/components/`);
+    const legal = page.locator("footer").locator("span").filter({ hasText: "MIT licensed" });
+    await expect(legal).toHaveText(/^docs-sitekit · MIT licensed · v\d+\.\d+\.\d+$/);
+    await expect(legal).not.toContainText("©");
+  });
+});

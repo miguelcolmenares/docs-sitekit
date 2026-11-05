@@ -40,6 +40,26 @@ test.describe("identity and the home page", () => {
     );
   });
 
+  test("the legal line reads the name, the license and the version, with no copyright sign or year", async ({
+    page,
+  }) => {
+    await page.goto(BASE);
+    const legal = page.locator("footer").locator("span").filter({ hasText: "MIT licensed" });
+    await expect(legal).toHaveText(/^widget · MIT licensed · v\d+\.\d+\.\d+$/);
+    await expect(legal).not.toContainText("©");
+  });
+
+  test("Built with docs-sitekit links to the microsite, not to the repository", async ({
+    page,
+  }) => {
+    await page.goto(BASE);
+    const credit = page.locator("footer").locator("span").filter({ hasText: "Built with" });
+    await expect(credit.getByRole("link", { name: "docs-sitekit" })).toHaveAttribute(
+      "href",
+      "https://miguelcolmenares.com/docs-sitekit/",
+    );
+  });
+
   test("a path of the hero gets the base, and the install command is offered with a copy button", async ({
     page,
   }) => {
