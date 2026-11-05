@@ -164,6 +164,24 @@ describe("readReference and buildReference", () => {
     expect(page).toContain("Flags \\| with a pipe.");
   });
 
+  it("keeps a pipe after a backslash inside its cell, and leaves other backslashes alone", () => {
+    const tricky = z.strictObject({
+      // `a\|b` in the text: a plain `\|` escape would turn it into `\\|`, and GFM would split the cell at the pipe.
+      either: z.string().describe("Matches a\\|b or c|d."),
+      path: z
+        .string()
+        .regex(/^\/([\w.-]+\/)*$/)
+        .describe("A path."),
+    });
+    const page = buildReference(tricky);
+    expect(page).toContain("Matches a\\\\\\|b or c\\|d.");
+    // The pattern of a key is shown as it is: one backslash each, not two.
+    expect(page).toContain("`^\\/([\\w.-]+\\/)*$`");
+    const row = page.split("\n").find((line) => line.startsWith("| `either` |"))!;
+    // Five cells (path, type, default, allowed, description): every pipe that is not escaped is a cell border.
+    expect(row.replace(/(\\\\)*\\\|/g, "").split("|").length).toBe(7);
+  });
+
   it("fails and names every key that has no description, at any depth", () => {
     const bare = z.strictObject({
       described: z.string().describe("Yes."),

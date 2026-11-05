@@ -149,7 +149,16 @@ export function readReference(schema: z.ZodType): Reference {
   return { groups, missing: out.missing };
 }
 
-const cell = (text: string) => text.replace(/\|/g, "\\|").replace(/\s+/g, " ").trim();
+/**
+ * One table cell. A pipe is escaped with a backslash, and the backslashes right before it are doubled: a text that already
+ * has `\|` would otherwise become `\\|`, where GFM reads the first backslash as escaping the second and the pipe splits the
+ * cell. Any other backslash is left alone, so a pattern in a code span (`^\/(\w+)$`) keeps its single backslashes.
+ */
+const cell = (text: string) =>
+  text
+    .replace(/(\\*)\|/g, (_all, slashes: string) => `${slashes}${slashes}\\|`)
+    .replace(/\s+/g, " ")
+    .trim();
 
 /** Write the reference page. The text has no padding, so it reads the same however a formatter aligns tables. */
 export function renderReference(groups: readonly ReferenceGroup[]): string {
