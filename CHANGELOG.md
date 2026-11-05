@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-11-05
+
 ### Added
 
 - **A site can name the picture a shared link shows.** The pages already said what they are with `og:title` and `og:description`, but gave no image, so a chat or a feed showed a bare link. Two new keys of `site` change it: `image` names a picture, a file in `public/` such as `/social.png` or a full `https` address, and `imageAlt` is its alt text. With `image` set, every page has `og:image`, `twitter:image` and their alt text, and `twitter:card` is `summary_large_image`. Without it nothing changes: no picture, and `summary`. The kit draws no card and adds no dependency, so a generated site weighs what it did; [social-card-action](https://github.com/miguelcolmenares/social-card-action) draws one in the style of the kit when you want it. The options page explains both keys, and the configuration reference lists them. Existing sites get the tags with `sitekit upgrade`, which replaces the layout.
