@@ -4,6 +4,7 @@
 @import "./tokens.css";
 @import "./prose.css";
 @import "./code.css";
+@import "./palette.css";
 
 /*
  * Fallback faces for the web fonts. A page is drawn with these until Geist arrives, and each is a local font
