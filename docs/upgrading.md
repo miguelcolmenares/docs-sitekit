@@ -80,6 +80,21 @@ Imports inside the template now go through `@/`, which is the `src/` folder of t
 is `import { loadSite } from "@/infrastructure"`. A file of your own that imports a renamed file by its old name needs the new name. The
 build says which file and which import.
 
+## A rule added to global.css
+
+The kit gives every button the pointer with one rule in the base layer of `styles/global.css`, because Tailwind 4 no longer does. A site
+that did not edit `global.css` gets the rule with `sitekit upgrade`. A site that did keeps its file, and the new version is written next to
+it as `global.css.sitekit-new`. Copy this rule into the `@layer base` block of your file, then delete the copy:
+
+```css
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+[role="tab"],
+summary {
+  cursor: pointer;
+}
+```
+
 ## What it never touches
 
 - **Your content.** `docs/`, `examples/`, `README.md` and `CHANGELOG.md` are not in the lock.

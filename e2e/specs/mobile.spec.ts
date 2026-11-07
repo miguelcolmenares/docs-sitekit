@@ -69,15 +69,19 @@ for (const phone of PHONES) {
         expect(ring).not.toBe("none");
       });
 
-      test("the copy button is a real touch target and never covers the code", async ({ page }) => {
+      test("the copy button is a real touch target, and the first line starts at the top of the box", async ({
+        page,
+      }) => {
         await page.goto(DOC);
         const block = page.locator(".code-block", { hasText: "configuration" });
         const button = block.getByRole("button", { name: "Copy code" });
         const box = (await button.boundingBox())!;
         expect(box.width).toBeGreaterThanOrEqual(44);
         expect(box.height).toBeGreaterThanOrEqual(44);
+        // The button floats in the corner: it does not push the code down.
+        const pre = (await block.locator("pre").boundingBox())!;
         const code = (await block.locator("pre code").boundingBox())!;
-        expect(box.y + box.height).toBeLessThanOrEqual(code.y + 1); // above the first line, not over it
+        expect(code.y - pre.y).toBeLessThanOrEqual(17);
       });
 
       test("code text stays readable: at least 13px, with a line height that breathes", async ({

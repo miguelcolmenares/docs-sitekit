@@ -28,7 +28,7 @@ function highlight(code: string, lang: string, raw?: string) {
 }
 
 describe("the code block transformers", () => {
-  it("wrap a block with no meta string in a div, with a hidden button and an empty status region", () => {
+  it("wrap a block with no meta string in a div, with a hidden icon button and an empty status region", () => {
     const { root, pre } = highlight("a\nb", "ts");
     const block = root.children[0] as El;
     expect(block.tagName).toBe("div");
@@ -42,10 +42,15 @@ describe("the code block transformers", () => {
         type: "button",
         hidden: true,
         ariaLabel: "Copy code",
-        dataCopy: "Copy",
+        dataCopy: "Copy code",
         dataCopied: "Copied",
       },
     });
+    // The copy and check icons are hidden from a screen reader, and only one of them shows at a time (in the style).
+    expect((button as El).children.map((icon) => (icon as El).properties)).toEqual([
+      expect.objectContaining({ className: ["icon-copy"], ariaHidden: "true" }),
+      expect.objectContaining({ className: ["icon-check"], ariaHidden: "true" }),
+    ]);
     expect(status).toMatchObject({
       tagName: "span",
       properties: { role: "status", ariaLive: "polite" },

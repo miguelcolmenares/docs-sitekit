@@ -194,8 +194,13 @@ describe.each(Object.keys(THEMES))("code highlight and diff tones, %s theme", (t
     expect(contrast(set.danger!, set["code-remove"]!)).toBeGreaterThanOrEqual(3);
   });
 
-  it("the copy button text (fg-muted on surface-3) reaches 4.5:1", () => {
-    expect(contrast(set["fg-muted"]!, set["surface-3"]!)).toBeGreaterThanOrEqual(4.5);
+  it("the copy icon (fg-muted) reaches 3:1 on the code and on the title bar, where it sits at rest", () => {
+    expect(contrast(set["fg-muted"]!, set.surface!)).toBeGreaterThanOrEqual(3);
+    expect(contrast(set["fg-muted"]!, set["surface-2"]!)).toBeGreaterThanOrEqual(3);
+  });
+
+  it("the copy icon on hover (fg-bright on surface-3) reaches 4.5:1", () => {
+    expect(contrast(set["fg-bright"]!, set["surface-3"]!)).toBeGreaterThanOrEqual(4.5);
   });
 });
 

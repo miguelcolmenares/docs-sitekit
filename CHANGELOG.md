@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The copy button of a code block is an icon over the corner of the code, and the band above the code is gone.** The button was a bordered text button, "Copy", in a band of 3 rem above every block without a title, and the title bar kept 5 rem clear for it. It is a 44 px square with a copy icon, with no border or fill at rest, and the icon becomes a check for 1.6 seconds after a copy, as the name becomes "Copied". The name is `aria-label`: "Copy code" in place of the text "Copy". The first line of a block starts at the top of the box, with or without a title. A long line keeps some room at its right end, so it reads clear of the button. A site generated earlier gets it after the files listed in [code blocks](docs/code-blocks.md#a-site-generated-earlier) are copied from this version, or with `sitekit upgrade` when they were not edited.
+
 - **Every file is named in lowercase kebab-case, and the template imports its own layers through `@/`.** `SiteHeader.astro` is now
   `site-header.astro`, `buildDocuments.ts` is `build-documents.ts`, `src/presentation/sideCard/` is `src/presentation/side-card/`, in the
   template, the tests, the e2e specs and the scripts. Only the names of exports are CamelCase. Inside `template/src/`, an import that leaves
@@ -17,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and a file you edited moves with your changes and the new version next to it to merge. A file of your own that imports a renamed file by
   its old name needs the new name. The `FileSystem` port of the CLI has a new `remove`, and the result of an upgrade has a new `renamed`
   list.
+
+### Fixed
+
+- **Buttons show the pointer again.** Tailwind 4 no longer sets `cursor: pointer` on buttons, as version 3 did, so the theme switch, the copy buttons and the tabs of an example showed the arrow. One rule in the base layer of `global.css` gives the pointer to every `button`, every `[role="button"]` and `[role="tab"]` and every `summary`, and not to a disabled button, so no component needs its own class. A site generated earlier gets the rule with `sitekit upgrade` when it did not edit `global.css`, and by adding the rule by hand when it did (see [Upgrading](docs/upgrading.md)).
 
 ## [0.2.4] - 2026-11-05
 

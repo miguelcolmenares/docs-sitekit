@@ -74,7 +74,9 @@ A block in the `diff` language does the same with the `+` and `-` at the start o
 
 ## The copy button
 
-Every block has a copy button. It is a real button, so it works with the keyboard, it has the name "Copy code", and its target is 44 px high. After a copy it says "Copied" for a moment, and a polite status region announces the same word to a screen reader.
+Every block has a copy button: a copy icon in the top right corner, over the code. It is a real button, so it works with the keyboard, it has the name "Copy code", and its target is 44 px square. The icon has no border or fill until the pointer is over it, and it has a focus ring for the keyboard. After a copy the icon becomes a check mark, the name becomes "Copied", and a polite status region announces the same word to a screen reader, all for a moment.
+
+The button takes no room of its own. The first line of a block starts at the top of the box, with or without a title, and the title bar keeps only the room the button needs. A line keeps some room at its right end, so the end of a long line can be read clear of the button.
 
 The button copies the text of the code exactly as the block shows it. The comments of `[!code ++]` and `[!code --]` are not in it, and neither are the signs drawn in the margin. A block in the `diff` language is copied as it is written, with its `+` and `-`, because that is the text of the patch. The removed lines of a marked block are copied too, since the block shows them.
 
@@ -93,4 +95,4 @@ export const endpoints = {
 
 ## A site generated earlier
 
-A site made with an earlier version keeps its own copy of the template, so it draws these blocks only after these files are copied from this version: `domain/code-blocks.ts`, `infrastructure/code-blocks.ts`, `presentation/code/copy-code.ts`, `styles/code.css`, the change in `infrastructure/render-markdown.ts`, the script and the change in `presentation/layouts/doc-page.astro`, the import in `styles/global.css`, the removed band and button rules in `styles/prose.css`, and the three `code-` colors of `design/tokens.json` in both color sets.
+A site made with an earlier version keeps its own copy of the template, so it draws these blocks only after these files are copied from this version: `domain/code-blocks.ts`, `infrastructure/code-blocks.ts`, `infrastructure/callout-icons.ts` (it now also draws the copy and check icons), `presentation/code/copy-code.ts`, `styles/code.css`, the change in `infrastructure/render-markdown.ts`, the script and the change in `presentation/layouts/doc-page.astro`, the import in `styles/global.css`, the removed band and button rules in `styles/prose.css`, and the three `code-` colors of `design/tokens.json` in both color sets. `sitekit upgrade` copies them when the files were not edited.

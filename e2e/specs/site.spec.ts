@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 const BASE = "/widget/";
 const ROUTES = [
@@ -178,15 +178,44 @@ test.describe("keyboard and navigation", () => {
   });
 });
 
+test.describe("the pointer on the controls", () => {
+  const cursor = (locator: Locator) => locator.evaluate((node) => getComputedStyle(node).cursor);
+
+  test("the theme switch, the install command of the hero and the copy button of a code block show the pointer", async ({
+    page,
+  }) => {
+    await page.goto(BASE);
+    expect(await cursor(page.locator("[data-theme-switch]").first())).toBe("pointer");
+    expect(await cursor(page.getByRole("button", { name: /Copy command/ }).first())).toBe(
+      "pointer",
+    );
+    await page.goto(`${BASE}docs/getting-started/`);
+    expect(await cursor(page.getByRole("button", { name: "Copy code" }).first())).toBe("pointer");
+  });
+
+  test("a disabled button keeps the default cursor", async ({ page }) => {
+    await page.goto(BASE);
+    await page.evaluate(() => {
+      const button = document.createElement("button");
+      button.id = "disabled-probe";
+      button.disabled = true;
+      button.textContent = "Disabled";
+      document.body.append(button);
+    });
+    expect(await cursor(page.locator("#disabled-probe"))).not.toBe("pointer");
+  });
+});
+
 test.describe("copy buttons", () => {
   test.use({ permissions: ["clipboard-read", "clipboard-write"] });
 
   test("a code block gets a copy button that copies its code", async ({ page }) => {
     await page.goto(`${BASE}docs/getting-started/`);
-    const button = page.getByRole("button", { name: "Copy code" }).first();
-    await expect(button).toBeVisible();
+    // The name changes with the copy, so the button is found by its class after the click.
+    const button = page.locator(".copy-code").first();
+    await expect(button).toHaveAccessibleName("Copy code");
     await button.click();
-    await expect(button).toHaveText("Copied");
+    await expect(button).toHaveAccessibleName("Copied");
     expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
       "npm install @demo/widget",
     );

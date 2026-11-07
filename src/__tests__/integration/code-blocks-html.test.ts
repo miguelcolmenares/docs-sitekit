@@ -85,8 +85,10 @@ describe("code blocks, rendered by the real markdown package", () => {
     const [plain] = blocks();
     expect(plain).toMatch(/^<div class="code-block"><pre\b/);
     expect(plain).toContain('<button type="button" class="copy-code" aria-label="Copy code"');
-    expect(plain).toMatch(/<button[^>]* hidden>Copy<\/button>/);
-    expect(plain).toContain('data-copy="Copy" data-copied="Copied"');
+    expect(plain).toMatch(/<button[^>]* hidden>/);
+    expect(plain).toMatch(/<svg[^>]*class="icon-copy"[^>]*aria-hidden="true"/);
+    expect(plain).toMatch(/<svg[^>]*class="icon-check"[^>]*aria-hidden="true"/);
+    expect(plain).toContain('data-copy="Copy code" data-copied="Copied"');
     expect(plain).toContain('<span class="code-status" role="status" aria-live="polite"></span>');
     expect(plain).not.toContain("<figcaption");
     expect(plain).not.toMatch(/data-(highlighted|diff|sign)/);

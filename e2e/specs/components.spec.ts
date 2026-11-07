@@ -184,6 +184,18 @@ for (const spec of PAGES) {
 }
 
 test.describe("the tabs", () => {
+  test("the tabs of an example show the pointer, as the buttons of the site do", async ({
+    page,
+  }) => {
+    await page.goto(url("command-box"));
+    const block = blocks(page).first();
+    for (const name of ["Preview", "Code"] as const) {
+      expect(await tab(block, name).evaluate((node) => getComputedStyle(node).cursor)).toBe(
+        "pointer",
+      );
+    }
+  });
+
   const first = (page: Page) => blocks(page).first();
 
   test("are a tab list with aria-selected, a roving tabindex and panels that belong to them", async ({
