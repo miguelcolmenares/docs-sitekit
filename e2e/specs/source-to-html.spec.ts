@@ -21,6 +21,22 @@ const overflow = (page: Page) =>
 const section = (page: Page) =>
   page.locator("section", { has: page.getByRole("heading", { name: SECTION_TITLE, exact: true }) });
 
+/**
+ * Scroll the section to the reader, then wait until its island has loaded (Astro removes `ssr` from it). A press before
+ * that does nothing, as on any page where a button waits for `client:visible`, so the tests wait for it first.
+ */
+async function ready(page: Page) {
+  await section(page).locator("[data-st-bar]").scrollIntoViewIfNeeded();
+  await page.waitForFunction(
+    () => {
+      const island = document.querySelector("astro-island[component-export='SourceToHtmlTabs']");
+      return island !== null && !island.hasAttribute("ssr");
+    },
+    undefined,
+    { timeout: 10_000 },
+  );
+}
+
 test.describe("the Markdown sample on the home page", () => {
   test.use({ baseURL: OWN });
 
@@ -46,6 +62,7 @@ test.describe("the Markdown sample on the home page", () => {
 
   test("the sample buttons change the source and the preview together", async ({ page }) => {
     await page.goto(OWN);
+    await ready(page);
     const home = section(page);
     await home.getByRole("button", { name: "Callout and link" }).click();
     await expect(home.getByRole("button", { name: "Callout and link" })).toHaveAttribute(
@@ -63,6 +80,7 @@ test.describe("the Markdown sample on the home page", () => {
     page,
   }) => {
     await page.goto(OWN);
+    await ready(page);
     const home = section(page);
     const preview = home.getByRole("tab", { name: "Preview" });
     await preview.focus();
@@ -123,6 +141,7 @@ test.describe("the Markdown sample on the home page", () => {
     await observeVitals(page);
     await page.goto(OWN);
     await page.waitForLoadState("networkidle");
+    await ready(page);
     const home = section(page);
     const before = await home.locator(".st-stack").first().boundingBox();
     await home.getByRole("button", { name: "Code block" }).click();
