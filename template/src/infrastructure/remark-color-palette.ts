@@ -63,9 +63,13 @@ function tokenNode(entry: PaletteEntry): Node {
   ]);
 }
 
-/** The whole palette: one block with a polite status region for the copy messages, then a group per title. */
-function paletteNode(groups: PaletteGroup[]): Node {
+/**
+ * The whole palette: one block with a polite status region for the copy messages, then a group per title. The block
+ * loads its script itself, from the site's base, so only a page with a palette downloads it.
+ */
+function paletteNode(groups: PaletteGroup[], base: string): Node {
   return element("div", { className: ["color-palette"], dataColorPalette: "" }, [
+    element("script", { type: "module", src: `${base}palette-copy.js` }, []),
     element("p", { className: ["palette-status"], role: "status" }, []),
     ...groups.map((group) =>
       element("section", { className: ["palette-group"] }, [
@@ -81,7 +85,7 @@ function paletteNode(groups: PaletteGroup[]): Node {
  * from its `design/tokens.json`. GitHub hides the comment, so the same file reads there as a page with its tables.
  * Any other HTML is left as it is. A page that asks for the palette in a site with no tokens fails the build.
  */
-export function remarkColorPalette(options: { tokens?: TokenColors }) {
+export function remarkColorPalette(options: { tokens?: TokenColors; base: string }) {
   const visit = (node: Node) => {
     if (!node.children) return;
     node.children = node.children.map((child) => {
@@ -90,7 +94,7 @@ export function remarkColorPalette(options: { tokens?: TokenColors }) {
           throw new Error(
             `A page asks for the color palette, but this site has no design/tokens.json to read it from.`,
           );
-        return paletteNode(colorPalette(options.tokens));
+        return paletteNode(colorPalette(options.tokens), options.base);
       }
       visit(child);
       return child;

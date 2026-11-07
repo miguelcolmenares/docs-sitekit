@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { COLOR_PALETTE_MARKER, colorPalette } from "../../../template/src/domain";
 import type { TokenColors } from "../../../template/src/domain";
@@ -31,7 +31,7 @@ function nodes(node: Node): Node[] {
 /** The palette a page renders from a token file, through the remark plugin. */
 function render(source: TokenColors): Node {
   const tree = root(paragraph("Before."), html(COLOR_PALETTE_MARKER), paragraph("After."));
-  remarkColorPalette({ tokens: source })(tree);
+  remarkColorPalette({ tokens: source, base: "/site/" })(tree);
   return tree;
 }
 
@@ -93,6 +93,12 @@ describe("remarkColorPalette", () => {
     });
   });
 
+  it("loads its own script from the base of the site, which the repository ships", () => {
+    const script = nodes(render(tokens)).find((node) => node.data?.hName === "script");
+    expect(script?.data?.hProperties).toEqual({ type: "module", src: "/site/palette-copy.js" });
+    expect(existsSync(join(ROOT, "template", "public", "palette-copy.js"))).toBe(true);
+  });
+
   it("renders a swatch and a copy button for each value of the file, and nothing else", () => {
     const copies = nodes(render(tokens))
       .map((node) => node.data?.hProperties?.dataPaletteCopy)
@@ -134,12 +140,12 @@ describe("remarkColorPalette", () => {
 
   it("leaves any other HTML, and a page without the marker, as they are", () => {
     const tree = root(html("<!-- a note -->"), paragraph("Text."));
-    remarkColorPalette({ tokens })(tree);
+    remarkColorPalette({ tokens, base: "/site/" })(tree);
     expect(tree.children).toEqual([html("<!-- a note -->"), paragraph("Text.")]);
   });
 
   it("fails the build when a page asks for the palette in a site with no tokens", () => {
     const tree = root(html(COLOR_PALETTE_MARKER));
-    expect(() => remarkColorPalette({})(tree)).toThrow(/design\/tokens\.json/);
+    expect(() => remarkColorPalette({ base: "/site/" })(tree)).toThrow(/design\/tokens\.json/);
   });
 });

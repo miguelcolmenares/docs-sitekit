@@ -63,7 +63,7 @@ export async function renderMarkdown(
     remarkPlugins: [
       [remarkRewriteLinks, options],
       [remarkCallouts, {}],
-      [remarkColorPalette, { tokens: options.colorTokens }],
+      [remarkColorPalette, { tokens: options.colorTokens, base: options.base }],
     ],
     rehypePlugins: [rehypeExternalLinks],
   });

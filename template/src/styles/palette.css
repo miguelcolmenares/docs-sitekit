@@ -60,19 +60,21 @@
   border-radius: var(--sk-radius-sm);
 }
 .prose-site .palette-value {
+  display: grid;
+  gap: 0.1rem;
   margin: 0.4rem 0 0;
   font-size: 12px;
   color: var(--sk-fg-muted);
-  overflow-wrap: anywhere;
 }
+/* A hex code is one unit: it never breaks in the middle, so it reads the same at 320px and on desktop. */
 .prose-site .palette-value code {
   font-size: 12px;
+  white-space: nowrap;
   color: var(--sk-fg);
   background: none;
   padding: 0;
 }
 .prose-site .palette-set {
-  margin-right: 0.35rem;
   color: var(--sk-fg-dim);
 }
 /* The copy button: 44px high, the same look as the copy buttons of the code blocks. */
