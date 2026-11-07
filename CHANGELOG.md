@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-07
+
 ### Added
 
 - **A link of the footer can open in a new tab.** `footer.links[].external: true` opens the link in a new tab, with `rel="noopener noreferrer"` and an arrow after the label, as the link to the repository does. The flag is not a default: a web address without it still opens in the same tab, so a site that has such links does not change. The `nav` links have no `external`, and they still reject it. The footer section of `docs/options-navigation.md` shows the key.
