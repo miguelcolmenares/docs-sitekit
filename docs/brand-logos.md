@@ -95,12 +95,14 @@ site/
       {
         "label": "VS Code Marketplace",
         "href": "https://marketplace.visualstudio.com/items?itemName=acme.tool",
-        "icon": "brand:custom/vscode-marketplace"
+        "icon": "brand:custom/vscode-marketplace",
+        "external": true
       },
       {
         "label": "Open VSX",
         "href": "https://open-vsx.org/extension/acme/tool",
-        "icon": "brand:custom/open-vsx"
+        "icon": "brand:custom/open-vsx",
+        "external": true
       }
     ]
   }
