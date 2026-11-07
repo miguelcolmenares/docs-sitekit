@@ -18,7 +18,8 @@ Only the buttons run JavaScript, and that is loaded when the component is visibl
 
 The samples come from the config key `demo`, one entry for each sample: its button label, the path of the file it stands for,
 and the Markdown file, which is read from the site folder. Three or four samples make the component. Without the key the home
-page has no section.
+page has no section. The home page reads the samples with `renderDemo` of `loadSite`, which a site made by `init` has. A site made
+earlier needs that function and the key before the component can show anything.
 
 The preview is a picture of the page, so it is not part of the page. Its ids are prefixed, so they do not repeat the ids of the
 page, its links are text, and its headings are not read as headings. The samples are not documents of the site, so the search
