@@ -150,7 +150,9 @@ test.describe("the Markdown sample on the home page", () => {
     const after = await home.locator(".st-stack").first().boundingBox();
     expect(after?.height).toBe(before?.height);
     const vitals = await readVitals(page);
-    expect(vitals.cls).toBe(0);
+    // The height of the stack is compared exactly above. CI measured 0.00001 here once, a sub-pixel rounding of the
+    // page and not a move of the sample, so the layout shift is held to a thousandth, far below the 0.01 of vitals.spec.ts.
+    expect(vitals.cls).toBeLessThan(0.001);
   });
 
   test("passes axe in the section, in both themes", async ({ page }) => {
