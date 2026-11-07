@@ -1,6 +1,7 @@
 ---
 import "./preview-theme.css";
 import "./preview-code.css";
+import { Icon } from "@/presentation/components/site/icon";
 
 interface Props {
   /** A name that is unique on the page, for the ids that tie a tab to its panel. */
@@ -31,9 +32,15 @@ const tab =
       type="button"
       data-example-theme
       aria-pressed="false"
-      class="inline-flex min-h-11 items-center rounded-md px-3 text-sm text-fg-muted transition-colors hover:text-fg-bright aria-pressed:text-fg-bright"
+      aria-label="Preview in the other theme"
+      class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-0 text-sm text-fg-muted transition-colors hover:text-fg-bright aria-pressed:text-fg-bright sm:px-3"
     >
-      Preview in the other theme
+      {/* On a phone the switch is a sun or a moon, the icon of the theme it names, as the header switch draws them. */}
+      <span class="inline-flex sm:hidden" aria-hidden="true">
+        <span class="theme-icon-sun inline-flex"><Icon name="sun" className="size-5" /></span>
+        <span class="theme-icon-moon inline-flex"><Icon name="moon" className="size-5" /></span>
+      </span>
+      <span data-example-theme-text class="hidden sm:inline">Preview in the other theme</span>
     </button>
   </div>
   <div role="tabpanel" id={`${id}-panel-preview`} aria-label="Preview" data-example-panel="preview">

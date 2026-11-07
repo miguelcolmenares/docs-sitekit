@@ -322,6 +322,97 @@ test.describe("the switch to the other theme", () => {
   });
 });
 
+test.describe("the switch on a phone", () => {
+  // The names are the ones of the switch on every width. On a phone the switch is an icon: a sun for the light theme and a
+  // moon for the dark one, the icon of the theme the switch names, as the header switch draws them.
+  const shownIcons = (node: Locator) =>
+    node.evaluate((button) =>
+      [...button.querySelectorAll("svg")]
+        .filter((svg) => svg.getBoundingClientRect().width > 0)
+        .map((svg) => svg.getAttribute("class") ?? ""),
+    );
+  const contrast = (foreground: string, background: string) => {
+    const channels = (css: string) =>
+      css
+        .match(/\d+(\.\d+)?/g)!
+        .slice(0, 3)
+        .map(Number);
+    const luminance = (css: string) =>
+      channels(css)
+        .map((v) => {
+          const c = v / 255;
+          return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        })
+        .reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index]!, 0);
+    const [hi, lo] = [luminance(foreground), luminance(background)].sort((a, b) => b - a) as [
+      number,
+      number,
+    ];
+    return (hi + 0.05) / (lo + 0.05);
+  };
+
+  for (const width of [320, 360, 390]) {
+    test(`is a sun on a dark page, on one row with the tabs, at ${width}px`, async ({ page }) => {
+      await page.addInitScript(() => localStorage.setItem("theme", "dark"));
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(url(STORY.name));
+      const block = blocks(page).first();
+      const bar = block.locator("[data-example-bar]");
+      const toggle = block.getByRole("button", { name: "Preview in the light theme" });
+      await expect(toggle).toHaveAttribute("aria-pressed", "false");
+      await expect(toggle.locator("[data-example-theme-text]")).toBeHidden();
+      expect(await shownIcons(toggle)).toHaveLength(1);
+      expect((await shownIcons(toggle))[0]).toMatch(/lucide-sun/);
+      // One row: the switch sits on the line of the tabs, and the bar is one control high, plus its border.
+      const barBox = await bar.boundingBox();
+      const tabBox = await tab(block, "Preview").boundingBox();
+      const box = await toggle.boundingBox();
+      expect(barBox!.height).toBeLessThanOrEqual(45);
+      expect(Math.round(box!.y)).toBe(Math.round(tabBox!.y));
+      expect(box!.width).toBeGreaterThanOrEqual(44);
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+      expect(await overflow(page)).toBeLessThanOrEqual(0);
+      // 3:1 for the icon, in its two states, against the bar.
+      const background = await bar.evaluate((node) => getComputedStyle(node).backgroundColor);
+      const colorOf = () => toggle.evaluate((node) => getComputedStyle(node).color);
+      expect(contrast(await colorOf(), background)).toBeGreaterThanOrEqual(3);
+      await toggle.click();
+      await expect(toggle).toHaveAttribute("aria-pressed", "true");
+      // The name keeps the theme of the preview, and the icon with it: they do not disagree.
+      expect(await shownIcons(toggle)).toHaveLength(1);
+      expect(contrast(await colorOf(), background)).toBeGreaterThanOrEqual(3);
+    });
+  }
+
+  test("is a moon on a light page, and follows the header switch", async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem("theme", "light"));
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.goto(url(STORY.name));
+    const block = blocks(page).first();
+    const toggle = block.getByRole("button", { name: "Preview in the dark theme" });
+    expect((await shownIcons(toggle))[0]).toMatch(/lucide-moon/);
+    await page.locator("header [data-theme-switch]").click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(block.getByRole("button", { name: "Preview in the light theme" })).toBeVisible();
+    expect(
+      (await shownIcons(block.getByRole("button", { name: "Preview in the light theme" })))[0],
+    ).toMatch(/lucide-sun/);
+  });
+
+  test("shows the sentence and no icon from `sm` up", async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem("theme", "dark"));
+    await page.setViewportSize({ width: 640, height: 900 });
+    await page.goto(url(STORY.name));
+    const block = blocks(page).first();
+    const toggle = block.getByRole("button", { name: "Preview in the light theme" });
+    await expect(toggle.locator("[data-example-theme-text]")).toBeVisible();
+    await expect(toggle.locator("[data-example-theme-text]")).toHaveText(
+      "Preview in the light theme",
+    );
+    expect(await shownIcons(toggle)).toEqual([]);
+  });
+});
+
 test.describe("the examples", () => {
   test("a long line of code scrolls inside its block, not the page, with the tab bar in place", async ({
     page,

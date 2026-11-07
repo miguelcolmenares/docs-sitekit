@@ -25,6 +25,7 @@ for (const block of document.querySelectorAll<HTMLElement>("[data-example]")) {
   );
   const stage = block.querySelector<HTMLElement>("[data-example-stage]")!;
   const toggle = block.querySelector<HTMLButtonElement>("[data-example-theme]")!;
+  const toggleText = toggle.querySelector<HTMLElement>("[data-example-theme-text]")!;
 
   const select = (name: string, focus = false) => {
     for (const tab of tabs) {
@@ -40,7 +41,10 @@ for (const block of document.querySelectorAll<HTMLElement>("[data-example]")) {
 
   const syncTheme = () => {
     const pressed = toggle.getAttribute("aria-pressed") === "true";
-    toggle.textContent = `Preview in the ${otherTheme()} theme`;
+    // The name is the aria-label. The visible text (from `sm` up) is updated, and the icon follows the theme by CSS.
+    const name = `Preview in the ${otherTheme()} theme`;
+    toggle.setAttribute("aria-label", name);
+    toggleText.textContent = name;
     if (pressed) stage.dataset.previewTheme = otherTheme();
     else delete stage.dataset.previewTheme;
   };
