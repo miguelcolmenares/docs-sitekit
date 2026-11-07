@@ -2,7 +2,8 @@ name: Docs
 
 on:
   push:
-    branches: [main]
+    # The default branch of the repository, written by `sitekit init` (`main` when it cannot be found).
+    branches: [__SITEKIT_BRANCH__]
     paths:
       [
         "site/**",

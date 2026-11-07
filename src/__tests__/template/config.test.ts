@@ -209,3 +209,50 @@ describe("parseSiteConfig stats", () => {
     ).toThrow(/color/);
   });
 });
+
+describe("parseSiteConfig footer links", () => {
+  const withFooter = (links: unknown[]) => ({ ...valid, footer: { links } });
+
+  it("accepts an icon on a footer link, a lucide name, a brand that ships, or a custom logo", () => {
+    const config = parseSiteConfig(
+      withFooter([
+        { label: "Status", href: "https://status.example", icon: "activity" },
+        { label: "GitLab", href: "https://gitlab.com/demo", icon: "brand:gitlab" },
+        { label: "Mark", href: "/docs/", icon: "brand:custom/mark" },
+        { label: "Plain", href: "/docs/" },
+      ]),
+    );
+    expect(config.footer.links.map((link) => link.icon)).toEqual([
+      "activity",
+      "brand:gitlab",
+      "brand:custom/mark",
+      undefined,
+    ]);
+  });
+
+  it("fails an unknown brand on a footer link, with the path of the link", () => {
+    expect(() =>
+      parseSiteConfig(
+        withFooter([{ label: "Store", href: "https://example.com", icon: "brand:nextjs" }]),
+      ),
+    ).toThrow(/footer\.links\.0\.icon: Unknown brand "nextjs"/);
+  });
+
+  it("fails an icon that is no icon name on a footer link", () => {
+    expect(() =>
+      parseSiteConfig(withFooter([{ label: "Store", href: "/", icon: "Not An Icon" }])),
+    ).toThrow(/footer\.links\.0\.icon: .*is not an icon name/);
+  });
+
+  it("rejects a key under a footer link that is not declared", () => {
+    expect(() =>
+      parseSiteConfig(withFooter([{ label: "Store", href: "/", color: "red" }])),
+    ).toThrow(/color/);
+  });
+
+  it("keeps nav links without an icon: the header menu is text", () => {
+    expect(() =>
+      parseSiteConfig({ ...valid, nav: [{ label: "Docs", href: "/docs/", icon: "book" }] }),
+    ).toThrow(/nav\.0[\s\S]*icon/);
+  });
+});

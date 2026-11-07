@@ -30,6 +30,8 @@ interface Setup {
   oldFiles?: TemplateFile[];
   newFiles?: TemplateFile[];
   uncommittedChanges?: boolean;
+  /** The default branch git reports, when it can name one. */
+  defaultBranch?: string;
   /** Edits the owner makes after `init`, as path -> text. */
   edits?: Record<string, string>;
   extra?: Record<string, string>;
@@ -39,6 +41,7 @@ function setup({
   oldFiles = OLD,
   newFiles = NEW,
   uncommittedChanges,
+  defaultBranch,
   edits = {},
   extra = {},
 }: Setup = {}) {
@@ -48,7 +51,11 @@ function setup({
     [`${ROOT}/CHANGELOG.md`]: "# Changelog\n",
     ...extra,
   });
-  const env = fakeEnv({ remoteUrl: "https://github.com/me/widget.git", uncommittedChanges });
+  const env = fakeEnv({
+    remoteUrl: "https://github.com/me/widget.git",
+    uncommittedChanges,
+    defaultBranch,
+  });
   initSite(
     { fs, env, template: fakeTemplate({ files: oldFiles, version: "0.1.0" }), hash: sha },
     { root: ROOT, siteDir: "site" },
@@ -230,6 +237,16 @@ describe("upgradeSite", () => {
       expect((config.site as { name: string }).name).toBe("widget");
     });
 
+    it("turns the edit link on the default branch the repository has, when git can name it", () => {
+      const { fs, upgrade } = setup({ defaultBranch: "master" });
+      upgrade();
+      const config = JSON.parse(fs.readText(`${SITE}/sitekit.config.json`)) as Record<
+        string,
+        unknown
+      >;
+      expect(config.editLink).toEqual({ enabled: false, branch: "master" });
+    });
+
     it("does not touch an option the owner has set", () => {
       const { fs, upgrade } = setup();
       const path = `${SITE}/sitekit.config.json`;
@@ -316,6 +333,14 @@ describe("upgradeSite", () => {
       const result = upgrade();
       expect(result.workflowPinned).toBe(".github/workflows/docs.yml");
       expect(fs.readText(`${ROOT}/.github/workflows/docs.yml`)).toBe(workflow);
+    });
+
+    it("leaves a branch the owner changed in the workflow as it is", () => {
+      const { fs, upgrade } = setup();
+      const path = `${ROOT}/.github/workflows/docs.yml`;
+      fs.writeText(path, "on:\n  push:\n    branches: [master]\n");
+      upgrade();
+      expect(fs.readText(path)).toBe("on:\n  push:\n    branches: [master]\n");
     });
 
     it("is not reported when the site is already at this version", () => {

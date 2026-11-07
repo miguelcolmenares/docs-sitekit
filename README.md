@@ -91,6 +91,9 @@ jobs:
         uses: actions/deploy-pages@v5
 ```
 
+`branches` names the default branch of the repository. `sitekit init` writes the branch it finds there, so a repository whose default branch is
+`master` gets `branches: [master]`, and `main` when it finds none.
+
 A release changes the changelog and the version in the footer, which is read from the repository's `package.json` on every build, so rebuilding is
 all it takes. For a package that publishes from a tag, add the same two jobs after the publish job and give the deploy job `needs: [publish, build]`.
 

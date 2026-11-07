@@ -1,4 +1,5 @@
 import { ArrowUpRight, Box } from "lucide-react";
+import type { BrandGlyph } from "@/domain/brands";
 import { Icon } from "./icon";
 
 /** A titled column of footer links. */
@@ -6,8 +7,8 @@ export interface FooterColumn {
   /** The heading of the column, and the name of its navigation. */
   title: string;
   /**
-   * The links. `icon` is a lucide name or `brand:<slug>`, drawn before the label, and `external` opens the link in
-   * a new tab.
+   * The links. `icon` is a lucide name, `brand:<slug>` or `brand:custom/<name>`, drawn before the label, and `external`
+   * opens the link in a new tab.
    */
   links: readonly { label: string; href: string; external?: boolean; icon?: string }[];
 }
@@ -18,6 +19,7 @@ export function SiteFooter({
   description,
   command,
   columns,
+  brands,
   license,
   version,
   credit,
@@ -30,6 +32,8 @@ export function SiteFooter({
   command?: string;
   /** The link columns, one grid track each. */
   columns: readonly FooterColumn[];
+  /** The custom logos of the site, by icon value (`brand:custom/<name>`). The page passes them in. */
+  brands?: Record<string, BrandGlyph>;
   /** The license, after the name in the legal line. */
   license?: string;
   /** Shown after the license, linked when `href` is given. */
@@ -72,7 +76,7 @@ export function SiteFooter({
                       {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       className="inline-flex min-h-11 items-center gap-1.5 text-sm text-fg-muted transition-colors hover:text-fg-bright md:min-h-8"
                     >
-                      {link.icon && <Icon name={link.icon} className="size-4" />}
+                      {link.icon && <Icon name={link.icon} brands={brands} className="size-4" />}
                       {link.label}
                       {link.external && <ArrowUpRight className="size-3.5" aria-hidden="true" />}
                     </a>

@@ -531,6 +531,26 @@ check("init refuses a folder that already has files", () => {
   assert(/already has files/.test(message), `got: ${message}`);
 });
 
+// A repository whose default branch is not main: the deploy workflow and the edit link must name that branch,
+// or the workflow never runs on a push and the link opens a file that does not exist on main.
+const MASTER_REPO = join(WORK, "master-repo");
+write(
+  join(MASTER_REPO, "package.json"),
+  JSON.stringify({ name: "@demo/widget", version: "1.2.3", description: "A widget." }),
+);
+run("git", ["init", "-q", "-b", "master"], { cwd: MASTER_REPO });
+run("git", ["remote", "add", "origin", "https://github.com/demo/widget.git"], { cwd: MASTER_REPO });
+check("init in a repository on master writes master into the workflow and the edit link", () => {
+  run("node", [CLI, "init"], { cwd: MASTER_REPO });
+  const workflow = readFileSync(join(MASTER_REPO, ".github", "workflows", "docs.yml"), "utf8");
+  assert(/^\s+branches: \[master\]$/m.test(workflow), "the workflow does not name master");
+  assert(!workflow.includes("__SITEKIT_BRANCH__"), "the branch placeholder was left in");
+  const { editLink } = JSON.parse(
+    readFileSync(join(MASTER_REPO, "site", "sitekit.config.json"), "utf8"),
+  );
+  assert(editLink?.branch === "master", `editLink: ${JSON.stringify(editLink)}`);
+});
+
 console.log("3/6 Check before the site is built");
 check("check fails while the repository visibility is unknown, instead of guessing", () => {
   let message = "";
@@ -1223,6 +1243,9 @@ withLinks.footer = {
     { label: "Footer with the base", href: "/widget/examples/" },
     { label: "Status page", href: "https://status.widget.example" },
     { label: "Footer contact", href: "mailto:status@widget.example" },
+    // Two icons: a lucide name, and a logo of the site's own brands folder (brands/mark.svg, see above).
+    { label: "Changelog feed", href: "/changelog/", icon: "rss" },
+    { label: "Our mark", href: "https://mark.widget.example", icon: "brand:custom/mark" },
   ],
 };
 writeFileSync(configPath, JSON.stringify(withLinks, null, 2));
@@ -1256,6 +1279,7 @@ check("a path of nav and footer.links gets the base, and the other links are not
     assert(html.includes(`href="${href}"`), `no link to ${href}`);
   }
   assert(!html.includes('href="/docs/getting-started/"'), "a nav path was left without the base");
+  assert(html.includes('class="lucide lucide-rss size-4"'), "the footer link draws no lucide icon");
   assert(!html.includes("/widget/widget/"), "a path that had the base got it twice");
 });
 

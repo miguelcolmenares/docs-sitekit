@@ -45,7 +45,8 @@ const defaultNav = [
   ...(has("changelog") ? [{ label: "Changelog", href: href("changelog/") }] : []),
 ];
 // A link of the config that is a path of this site gets the base, as the buttons of the hero do.
-const withBase = (link: { label: string; href: string }) => ({ ...link, href: withSiteBase(link.href, config.site.base) });
+// It keeps the other fields of the link, such as the icon of a footer link.
+const withBase = <T extends { href: string }>(link: T) => ({ ...link, href: withSiteBase(link.href, config.site.base) });
 const nav = config.nav.length > 0 ? config.nav.map(withBase) : defaultNav;
 const firstDoc = site.documents.find((document) => config.collections.some((collection) => collection.id === document.collection));
 const action = firstDoc ? { label: "Get started", href: firstDoc.route } : undefined;
@@ -146,6 +147,7 @@ const columns = [
       description={config.site.description}
       command={config.site.installCommand}
       columns={columns}
+      brands={site.customBrands}
       license={config.site.license}
       version={site.version ? { label: `v${site.version}`, href: has("changelog") ? href("changelog/") : undefined } : undefined}
       credit={{ prefix: "Built with", label: "docs-sitekit", href: "https://miguelcolmenares.com/docs-sitekit/" }}

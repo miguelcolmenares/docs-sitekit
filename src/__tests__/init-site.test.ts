@@ -86,6 +86,54 @@ describe("initSite", () => {
     );
   });
 
+  describe("the branch of the deploy workflow", () => {
+    const WORKFLOW = "on:\n  push:\n    branches: [__SITEKIT_BRANCH__]\n";
+
+    /** Init with the given default branch, and the workflow the packaged template has. */
+    function workflowFor(defaultBranch: string | undefined): string {
+      const { fs, deps } = setup();
+      initSite(
+        {
+          ...deps,
+          env: { ...deps.env, defaultBranch: () => defaultBranch },
+          template: fakeTemplate({ workflow: WORKFLOW }),
+        },
+        { root: ROOT, siteDir: "site" },
+      );
+      return fs.readText(`${ROOT}/.github/workflows/docs.yml`);
+    }
+
+    it("is the default branch of the repository, and the edit link opens the same branch", () => {
+      const { fs, deps } = setup();
+      initSite(
+        {
+          ...deps,
+          env: { ...deps.env, defaultBranch: () => "master" },
+          template: fakeTemplate({ workflow: WORKFLOW }),
+        },
+        { root: ROOT, siteDir: "site" },
+      );
+      expect(fs.readText(`${ROOT}/.github/workflows/docs.yml`)).toBe(
+        "on:\n  push:\n    branches: [master]\n",
+      );
+      expect(JSON.parse(fs.readText(`${ROOT}/site/sitekit.config.json`)).editLink.branch).toBe(
+        "master",
+      );
+    });
+
+    it("is main when git cannot name the branch, as before", () => {
+      expect(workflowFor(undefined)).toBe("on:\n  push:\n    branches: [main]\n");
+    });
+
+    it("keeps a name with a slash as it is", () => {
+      expect(workflowFor("release/v2")).toBe("on:\n  push:\n    branches: [release/v2]\n");
+    });
+
+    it.each(["1.x", "true", "null"])("quotes %s, which YAML would not read as text", (name) => {
+      expect(workflowFor(name)).toBe(`on:\n  push:\n    branches: [${JSON.stringify(name)}]\n`);
+    });
+  });
+
   it("leaves the edit link off without a repository address, and keeps the dates on", () => {
     const { fs, run } = setup({}, "");
     run();
