@@ -50,7 +50,7 @@ const panelClass = "min-w-0 max-h-[30rem] overflow-auto rounded-lg border border
             role="region"
             aria-label={`Markdown source of ${sample.label}, ${sample.title}`}
             tabindex="0"
-            class={panelClass}
+            class={`${panelClass} prose-site`}
             set:html={sample.source}
           />
         ))
@@ -79,7 +79,7 @@ const panelClass = "min-w-0 max-h-[30rem] overflow-auto rounded-lg border border
               role="region"
               aria-label={`HTML of ${sample.label}`}
               tabindex="0"
-              class={panelClass}
+              class={`${panelClass} prose-site`}
               set:html={sample.html}
             />
           </>
