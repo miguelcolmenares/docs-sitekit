@@ -32,6 +32,25 @@
     },
     { "value": "MIT", "label": "License", "note": "Written from scratch." }
   ],
+  "demo": {
+    "samples": [
+      {
+        "label": "Heading and list",
+        "title": "docs/getting-started.md",
+        "file": "src/examples/samples/getting-started.md"
+      },
+      {
+        "label": "Callout and link",
+        "title": "docs/callouts.md",
+        "file": "src/examples/samples/callouts.md"
+      },
+      {
+        "label": "Code block",
+        "title": "docs/code-blocks.md",
+        "file": "src/examples/samples/code-blocks.md"
+      }
+    ]
+  },
   "features": [
     {
       "icon": "layers",
@@ -140,7 +159,15 @@
         {
           "name": "Content",
           "tone": "success",
-          "items": ["item-card", "feature-grid", "stat-row", "flow-diagram", "callout", "side-card"]
+          "items": [
+            "item-card",
+            "feature-grid",
+            "stat-row",
+            "source-to-html",
+            "flow-diagram",
+            "callout",
+            "side-card"
+          ]
         },
         {
           "name": "Reference and commands",
