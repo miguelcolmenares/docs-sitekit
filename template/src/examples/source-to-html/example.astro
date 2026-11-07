@@ -1,0 +1,9 @@
+---
+import { loadSite } from "@/infrastructure";
+import SourceToHtml from "@/presentation/components/site/source-to-html.astro";
+
+// The samples of the home page, rendered by the same pipeline as a page: a site with a `demo` key gets them this way.
+const samples = await loadSite().renderDemo();
+---
+
+<SourceToHtml samples={samples ?? []} scope="example-source-to-html" />

@@ -223,6 +223,15 @@ export const PAGES: readonly PageSpec[] = [
     ],
   },
   {
+    name: "source-to-html",
+    title: "SourceToHtml",
+    tables: [
+      props(`${SITE}/source-to-html.astro`, "Props"),
+      props(`${SITE}/source-to-html-tabs.tsx`, "SourceToHtmlTabs"),
+    ],
+    variants: [],
+  },
+  {
     name: "flow-diagram",
     title: "FlowDiagram",
     tables: [

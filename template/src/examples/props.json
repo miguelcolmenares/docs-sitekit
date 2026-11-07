@@ -402,6 +402,41 @@
       ]
     }
   ],
+  "source-to-html": [
+    {
+      "label": "Props of source-to-html",
+      "rows": [
+        {
+          "name": "samples",
+          "type": "Sample[]",
+          "text": "Two to four samples. Each one is rendered at build time by the pipeline of a page, so the preview and the HTML are what the kit writes for that file.",
+          "default": "required"
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "text": "The start of the ids of the tabs and the panels. A page with two of these gives each one its own.",
+          "default": "\"source-to-html\""
+        }
+      ]
+    },
+    {
+      "label": "Props of SourceToHtmlTabs",
+      "rows": [
+        {
+          "name": "labels",
+          "type": "readonly string[]",
+          "text": "The name of each sample, in the order of the panels. Two to four.",
+          "default": "required"
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "text": "The start of the ids of the tabs and the panels. It must be the one that SourceToHtml was given."
+        }
+      ]
+    }
+  ],
   "flow-diagram": [
     {
       "label": "Props of FlowDiagram",
