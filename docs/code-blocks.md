@@ -74,7 +74,7 @@ A block in the `diff` language does the same with the `+` and `-` at the start o
 
 ## The copy button
 
-Every block has a copy button: a copy icon in the top right corner, over the code. It is a real button, so it works with the keyboard, it has the name "Copy code", and its target is 44 px square. The icon has no border or fill until the pointer is over it or the button has the focus. After a copy the icon becomes a check mark, the name becomes "Copied", and a polite status region announces the same word to a screen reader, all for a moment.
+Every block has a copy button: a copy icon in the top right corner, over the code. It is a real button, so it works with the keyboard, it has the name "Copy code", and its target is 44 px square. The icon has no border or fill until the pointer is over it, and it has a focus ring for the keyboard. After a copy the icon becomes a check mark, the name becomes "Copied", and a polite status region announces the same word to a screen reader, all for a moment.
 
 The button takes no room of its own. The first line of a block starts at the top of the box, with or without a title, and the title bar keeps only the room the button needs. A line keeps some room at its right end, so the end of a long line can be read clear of the button.
 
