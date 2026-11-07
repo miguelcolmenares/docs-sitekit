@@ -45,6 +45,22 @@ describe("readCustomBrands", () => {
     );
   });
 
+  it("reads the logo of a footer link, and fails when its file is missing", () => {
+    const withFooter = (icon: string) =>
+      parseSiteConfig({
+        site: { name: "Demo", description: "A demo", url: "https://me.github.io" },
+        hero: { title: "Demo", lede: "Lede", primary: { label: "Start", href: "/docs/" } },
+        footer: { links: [{ label: "Store", href: "https://example.com", icon }] },
+      });
+    add("store.svg", SVG);
+    expect(readCustomBrands(dir, withFooter("brand:custom/store"))).toEqual({
+      "brand:custom/store": { viewBox: "0 0 10 10", paths: [{ d: "M0 0h10v10H0z" }] },
+    });
+    expect(() => readCustomBrands(dir, withFooter("brand:custom/shop"))).toThrow(
+      /"brand:custom\/shop" has no file: add brands\/shop\.svg/,
+    );
+  });
+
   it("says when the folder does not exist", () => {
     expect(() => readCustomBrands(dir, config("brand:custom/acme"))).toThrow(
       /does not have any \.svg file yet/,

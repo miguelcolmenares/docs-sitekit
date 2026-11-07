@@ -1243,6 +1243,9 @@ withLinks.footer = {
     { label: "Footer with the base", href: "/widget/examples/" },
     { label: "Status page", href: "https://status.widget.example" },
     { label: "Footer contact", href: "mailto:status@widget.example" },
+    // Two icons: a lucide name, and a logo of the site's own brands folder (brands/mark.svg, see above).
+    { label: "Changelog feed", href: "/changelog/", icon: "rss" },
+    { label: "Our mark", href: "https://mark.widget.example", icon: "brand:custom/mark" },
   ],
 };
 writeFileSync(configPath, JSON.stringify(withLinks, null, 2));
@@ -1276,6 +1279,7 @@ check("a path of nav and footer.links gets the base, and the other links are not
     assert(html.includes(`href="${href}"`), `no link to ${href}`);
   }
   assert(!html.includes('href="/docs/getting-started/"'), "a nav path was left without the base");
+  assert(html.includes('class="lucide lucide-rss size-4"'), "the footer link draws no lucide icon");
   assert(!html.includes("/widget/widget/"), "a path that had the base got it twice");
 });
 

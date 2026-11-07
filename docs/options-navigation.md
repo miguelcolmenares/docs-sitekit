@@ -49,6 +49,25 @@ The `nav` does not change the footer. The Documentation column of the footer alw
 
 The links go in the Project column of the footer, after the link to the repository and `Report an issue`. They follow the same rule as the `nav`, see [The base on a link](#the-base-on-a-link).
 
+A link of the footer can have an `icon`, drawn before its label. It takes the same values as the `icon` of a feature: a lucide name, `brand:<slug>` for a logo the kit ships, or `brand:custom/<name>` for a logo you add to the `brands` folder, see [Brand logos](./brand-logos.md):
+
+```json title="sitekit.config.json"
+{
+  "footer": {
+    "links": [
+      { "label": "Status", "href": "https://status.acme.example", "icon": "activity" },
+      {
+        "label": "VS Code Marketplace",
+        "href": "https://marketplace.visualstudio.com/items?itemName=acme.tool",
+        "icon": "brand:custom/vscode-marketplace"
+      }
+    ]
+  }
+}
+```
+
+The icon is decoration: the label names the link, so the icon is hidden from assistive technology. A link keeps the height it has, 44 px on a phone, and a link without an `icon` is drawn as before. The `nav` does not take icons: the header menu is text, and a `nav` link with an `icon` fails the build.
+
 ## Collections and groups
 
 ```json title="sitekit.config.json" {8-15}

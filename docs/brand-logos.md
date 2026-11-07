@@ -19,7 +19,7 @@ The `icon` of a feature in `sitekit.config.json` is a [lucide](https://lucide.de
 }
 ```
 
-The same value works wherever the kit takes an icon: the `features` of the config, the `name` of the `Icon` component, `FeatureGrid`, and the `icon` of a footer link in `SiteFooter`.
+The same value works wherever the kit takes an icon: the `features` and the `footer.links` of the config, the `name` of the `Icon` component, `FeatureGrid`, and the `icon` of a footer link in `SiteFooter`.
 
 A logo is drawn as an inline SVG, filled with `currentColor`. It takes the color of the text around it, and the hover color of a link it is in. It is monochrome on purpose, the kit does not use brand colors. The page asks no host for it: the path data is part of the site, and the generated site has no new dependency.
 
@@ -77,10 +77,43 @@ The file is read as data, not copied. The kit keeps the `viewBox` and the `d` of
 
 Colors in the file are ignored, the logo is drawn in the text color. You are responsible for the right to use the logo and for following its owner's guidelines.
 
+## Logos of the package registries
+
+The kit does not ship a logo for the VS Code Marketplace or for Open VSX. The brands that ship come from Simple Icons, and it has no logo for either. Add the logo of each registry as your own, from the brand guidelines of its owner, and use it as a custom logo. A footer with a link to each one:
+
+```text
+site/
+  brands/
+    vscode-marketplace.svg
+    open-vsx.svg
+```
+
+```json title="sitekit.config.json"
+{
+  "footer": {
+    "links": [
+      {
+        "label": "VS Code Marketplace",
+        "href": "https://marketplace.visualstudio.com/items?itemName=acme.tool",
+        "icon": "brand:custom/vscode-marketplace"
+      },
+      {
+        "label": "Open VSX",
+        "href": "https://open-vsx.org/extension/acme/tool",
+        "icon": "brand:custom/open-vsx"
+      }
+    ]
+  }
+}
+```
+
+The rules of [Your own logo](#your-own-logo) apply to each file. The logos belong to their owners, so check their guidelines before you add one.
+
 ## Which brands are not shipped, and why
 
 - **AWS.** Its logo is governed by the AWS trademark guidelines and the Architecture Icons terms, and Simple Icons does not carry it. The kit ships no AWS mark. Download the official files from [the AWS Architecture Icons page](https://aws.amazon.com/architecture/icons/) and add the one you need as a custom logo.
 - **LinkedIn, Playwright and Visual Studio Code.** They are not in Simple Icons 16.36.0, the version the kit reads. Use a custom logo from the owner's brand page.
+- **The VS Code Marketplace and Open VSX.** Simple Icons 16.36.0 has no logo for either, so the kit ships none. See [Logos of the package registries](#logos-of-the-package-registries).
 - **PHP.** The logo is released by its author under CC BY-SA 4.0 ([php.net/download-logos](https://www.php.net/download-logos)), not CC0, so it is out of the default set.
 
 ## The licence gate

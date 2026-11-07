@@ -223,6 +223,11 @@
           "default": "required"
         },
         {
+          "name": "brands",
+          "type": "Record<string, BrandGlyph>",
+          "text": "The custom logos of the site, by icon value (brand:custom/<name>). The page passes them in."
+        },
+        {
           "name": "license",
           "type": "string",
           "text": "The license, after the name in the legal line."
@@ -251,7 +256,7 @@
         {
           "name": "links",
           "type": "readonly { label: string; href: string; external?: boolean; icon?: string; }[]",
-          "text": "The links. icon is a lucide name or brand:<slug>, drawn before the label, and external opens the link in a new tab.",
+          "text": "The links. icon is a lucide name, brand:<slug> or brand:custom/<name>, drawn before the label, and external opens the link in a new tab.",
           "default": "required"
         }
       ]

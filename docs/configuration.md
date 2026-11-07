@@ -76,9 +76,10 @@ The footer of every page.
 
 | Key | Type | Default | Allowed values | Description |
 | --- | --- | --- | --- | --- |
-| `footer.links` | array of object | `[]` | - | Extra links in the Project column of the footer, after the repository and the issues. A path that starts with `/` gets the site base. |
+| `footer.links` | array of object | `[]` | - | Extra links in the Project column of the footer, after the repository and the issues. A path that starts with `/` gets the site base. A link can have an `icon`, drawn before its label. |
 | `footer.links[].label` | string | required | any | The text of the link. |
 | `footer.links[].href` | string | required | any | Where the link goes: a path of the site such as `/docs/`, or a full URL. |
+| `footer.links[].icon` | string | none | any | An icon before the label: a lucide icon, `brand:<slug>` for a logo that ships, or `brand:custom/<name>` for your own logo in the `brands` folder. |
 
 ## theme
 

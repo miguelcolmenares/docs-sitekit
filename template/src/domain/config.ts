@@ -27,6 +27,15 @@ export const iconName = z
     "A lucide icon in kebab-case, such as `shield-check`, or a brand logo, such as `brand:github` or `brand:custom/my-logo`.",
   );
 
+/** A link of the footer: a link, with an icon drawn before its label. The header menu has no icons, so `nav` keeps `link`. */
+const footerLink = link.extend({
+  icon: iconName
+    .optional()
+    .describe(
+      "An icon before the label: a lucide icon, `brand:<slug>` for a logo that ships, or `brand:custom/<name>` for your own logo in the `brands` folder.",
+    ),
+});
+
 const feature = z.strictObject({
   icon: iconName,
   eyebrow: z.string().min(1).describe("A short mono label above the title."),
@@ -206,10 +215,10 @@ export const siteConfigSchema = z
     footer: z
       .strictObject({
         links: z
-          .array(link)
+          .array(footerLink)
           .default([])
           .describe(
-            "Extra links in the Project column of the footer, after the repository and the issues. A path that starts with `/` gets the site base.",
+            "Extra links in the Project column of the footer, after the repository and the issues. A path that starts with `/` gets the site base. A link can have an `icon`, drawn before its label.",
           ),
       })
       .default({ links: [] })
@@ -459,6 +468,8 @@ export type SiteConfig = z.infer<typeof siteConfigSchema>;
 export type CollectionConfig = z.infer<typeof collection>;
 /** A labelled link, used in the navigation and the footer. */
 export type NavLink = z.infer<typeof link>;
+/** A link of the footer, with an optional icon. */
+export type FooterLink = z.infer<typeof footerLink>;
 /** The color theme a site starts with. */
 export type ThemeDefault = SiteConfig["theme"]["default"];
 /** One card of the home page features section. */

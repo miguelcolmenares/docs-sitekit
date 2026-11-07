@@ -12,6 +12,7 @@ import {
   suggestBrands,
 } from "../../../template/src/domain";
 import { Icon } from "../../../template/src/presentation/components/site/icon";
+import { SiteFooter } from "../../../template/src/presentation/components/site/site-footer";
 
 // react-dom lives in the template, which has its own dependencies. Icon is a plain function of its
 // props, so it is called directly and its element is rendered to markup.
@@ -141,10 +142,50 @@ describe("the icon in the config", () => {
     expect(configIcons(parseSiteConfig(withIcon("brand:npm")))).toEqual(["brand:npm"]);
   });
 
+  it("lists the icons of the footer links after the features", () => {
+    const config = parseSiteConfig({
+      ...withIcon("brand:npm"),
+      footer: {
+        links: [
+          { label: "Store", href: "https://example.com", icon: "brand:custom/store" },
+          { label: "Plain", href: "/docs/" },
+        ],
+      },
+    });
+    expect(configIcons(config)).toEqual(["brand:npm", "brand:custom/store"]);
+  });
+
   it("has a message for every shape, none of them empty", () => {
     expect(iconProblem("brand:github")).toBeUndefined();
     expect(iconProblem("brand:custom/ok")).toBeUndefined();
     expect(iconProblem("brand:nope")).toMatch(/nope/);
+  });
+});
+
+describe("SiteFooter", () => {
+  const footer = (links: Parameters<typeof SiteFooter>[0]["columns"][number]["links"]) =>
+    renderToStaticMarkup(
+      SiteFooter({
+        name: "Demo",
+        columns: [{ title: "Project", links }],
+        brands: { "brand:custom/mark": { viewBox: "0 0 24 24", paths: [{ d: "M3 3h18v18H3z" }] } },
+      }),
+    );
+
+  it("draws the icon of a footer link before its label", () => {
+    const html = footer([
+      { label: "Store", href: "https://example.com", icon: "brand:custom/mark" },
+    ]);
+    // The first link is the brand, so the match starts at the column's navigation.
+    const link = /<nav[\s\S]*?<a [^>]*>(.*?)<\/a>/.exec(html)![1]!;
+    expect(link.indexOf("<svg")).toBe(0);
+    expect(link.indexOf("<svg")).toBeLessThan(link.indexOf("Store"));
+    expect(link).toContain('d="M3 3h18v18H3z"');
+  });
+
+  it("draws a link without an icon as it did before: text only", () => {
+    const html = footer([{ label: "Plain", href: "/docs/" }]);
+    expect(/<nav[\s\S]*?<a [^>]*>(.*?)<\/a>/.exec(html)![1]).toBe("Plain");
   });
 });
 

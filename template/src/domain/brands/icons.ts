@@ -123,7 +123,13 @@ export function repositoryLink(url: string): RepositoryLink {
   }
 }
 
-/** Every `icon` value the config uses, in order. */
-export function configIcons(config: { features: readonly { icon: string }[] }): string[] {
-  return config.features.map((feature) => feature.icon);
+/** Every `icon` value the config uses, in order: the features, then the links of the footer. */
+export function configIcons(config: {
+  features: readonly { icon: string }[];
+  footer?: { links: readonly { icon?: string }[] };
+}): string[] {
+  return [
+    ...config.features.map((feature) => feature.icon),
+    ...(config.footer?.links ?? []).flatMap((link) => (link.icon ? [link.icon] : [])),
+  ];
 }
