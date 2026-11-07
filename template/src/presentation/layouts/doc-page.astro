@@ -174,12 +174,26 @@ const sidebarButton =
                     <PanelRightOpen className="hidden size-5 group-aria-[expanded=false]:block" aria-hidden="true" />
                   </button>
                 </div>
-                <nav id="docs-toc" aria-label="On this page">
+                <nav
+                  id="docs-toc"
+                  aria-label="On this page"
+                  tabindex="0"
+                  data-on-this-page
+                  class="max-h-[calc(100dvh_-_10rem)] overflow-y-auto"
+                >
                   <p class="mb-3 font-mono text-[11px] tracking-[0.14em] text-fg-dim uppercase">On this page</p>
                   <ul class="space-y-1.5 text-sm">
                     {toc.map((heading) => (
-                      <li class={heading.depth === 3 ? "pl-3" : ""}>
-                        <a href={`#${heading.slug}`} class="text-fg-muted hover:text-fg-bright">{heading.text}</a>
+                      <li>
+                        <a
+                          href={`#${heading.slug}`}
+                          class:list={[
+                            "block border-l-2 border-transparent py-0.5 text-fg-muted hover:text-fg-bright aria-[current=location]:border-brand aria-[current=location]:text-brand",
+                            heading.depth === 3 ? "pl-6" : "pl-3",
+                          ]}
+                        >
+                          {heading.text}
+                        </a>
                       </li>
                     ))}
                   </ul>
@@ -216,8 +230,11 @@ const sidebarButton =
   import "@/presentation/code/copy-code";
   import { attachSideCard } from "@/presentation/side-card/side-card";
   import { attachSidebarToggles } from "@/presentation/sidebars/sidebar-toggle";
+  import { attachOnThisPage } from "@/presentation/on-this-page/on-this-page";
 
   const card = document.querySelector<HTMLElement>("[data-side-card]");
   if (card) attachSideCard(card);
   attachSidebarToggles();
+  const toc = document.querySelector<HTMLElement>("[data-on-this-page]");
+  if (toc) attachOnThisPage(toc);
 </script>

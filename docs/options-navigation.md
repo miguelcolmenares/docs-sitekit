@@ -134,6 +134,8 @@ Each sidebar has a button with an icon that hides it, so the text takes its room
 - With storage blocked, the buttons still work and the choice holds on that page only.
 - Without JavaScript both sidebars are shown and there are no buttons. On a phone there are no sidebars and no buttons.
 
+The heading of the page that the reader is in is marked in "On this page", with a line on its left and in the accent color. The mark follows the reader while the page scrolls, and a click on a link or a `#hash` in the address marks that link at once.
+
 ## Where the files are
 
 ```json title="sitekit.config.json"
