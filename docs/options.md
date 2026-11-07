@@ -8,15 +8,15 @@ Every example on these pages is a complete `sitekit.config.json` for the keys it
 
 ## The topics
 
-| I want to...                                        | Keys                                      | Page                                                  |
-| --------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------- |
-| Name the site and shape the home page               | `site`, `hero`, `features`, `stats`       | [Identity and the home page](./options-identity.md)   |
-| Set the menu, the footer, the collections and files | `nav`, `footer`, `collections`, `sources` | [Navigation and collections](./options-navigation.md) |
-| Choose the first theme a visitor sees               | `theme`                                   | [Theme and design](./options-theme.md)                |
-| Turn search and `llms.txt` on or off                | `search`, `llms`                          | [Search and llms.txt](./options-search-llms.md)       |
-| Decide what blocks a publish, and what is kept out  | `check`, `anonymize`, `vars`, `deploy`    | [Content checks and publishing](./options-checks.md)  |
-| Show an edit link and the date of the last change   | `editLink`, `lastUpdated`                 | [Edit link and dates](./options-edit-link.md)         |
-| Use a brand logo as an icon                         | `features[].icon`                         | [Brand logos](./options-brand-logos.md)               |
+| I want to...                                        | Keys                                        | Page                                                  |
+| --------------------------------------------------- | ------------------------------------------- | ----------------------------------------------------- |
+| Name the site and shape the home page               | `site`, `hero`, `features`, `stats`, `demo` | [Identity and the home page](./options-identity.md)   |
+| Set the menu, the footer, the collections and files | `nav`, `footer`, `collections`, `sources`   | [Navigation and collections](./options-navigation.md) |
+| Choose the first theme a visitor sees               | `theme`                                     | [Theme and design](./options-theme.md)                |
+| Turn search and `llms.txt` on or off                | `search`, `llms`                            | [Search and llms.txt](./options-search-llms.md)       |
+| Decide what blocks a publish, and what is kept out  | `check`, `anonymize`, `vars`, `deploy`      | [Content checks and publishing](./options-checks.md)  |
+| Show an edit link and the date of the last change   | `editLink`, `lastUpdated`                   | [Edit link and dates](./options-edit-link.md)         |
+| Use a brand logo as an icon                         | `features[].icon`                           | [Brand logos](./options-brand-logos.md)               |
 
 > [!NOTE]
 > The file is a closed contract. A key that is not in the schema fails the build and `sitekit check`, and the message names it. If you are not sure of a name, start from the reference.

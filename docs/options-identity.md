@@ -144,3 +144,31 @@ Each item is a card in the `Why Acme` section of the home page: the icon in a sq
 ```
 
 The items become a row of values under the hero, each with its label, and with the `note` under the value when there is one. The kit fetches nothing, so you write the numbers yourself. The list takes two to five items or none: one item fails the build with `stats: stats takes two to five items, or none`. Without the key the row is not drawn. See [StatRow](./components/stat-row.md) for the component.
+
+## The Markdown sample
+
+```json title="sitekit.config.json"
+{
+  "demo": {
+    "samples": [
+      {
+        "label": "Heading and list",
+        "title": "docs/getting-started.md",
+        "file": "samples/getting-started.md"
+      },
+      {
+        "label": "Callout and link",
+        "title": "docs/callouts.md",
+        "file": "samples/callouts.md"
+      },
+      {
+        "label": "Code block",
+        "title": "docs/code-blocks.md",
+        "file": "samples/code-blocks.md"
+      }
+    ]
+  }
+}
+```
+
+The home page can show one thing the kit does for every page: a Markdown file becomes HTML. The section has a button for each sample, and under it the Markdown source of the file, with its title, next to the page the file builds and the HTML of that page. The build renders each sample with the same code that renders a page, so what the visitor sees is what the kit writes. A `file` is read from the site folder, and its relative links are rewritten as they would be in the file named by its `title`. The list takes three or four samples: another number fails the build with `demo.samples takes three or four items`. Without the key the section is not drawn. See [SourceToHtml](./components/source-to-html.md) for the component.
