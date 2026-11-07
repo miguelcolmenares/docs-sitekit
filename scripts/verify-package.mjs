@@ -1246,6 +1246,8 @@ withLinks.footer = {
     // Two icons: a lucide name, and a logo of the site's own brands folder (brands/mark.svg, see above).
     { label: "Changelog feed", href: "/changelog/", icon: "rss" },
     { label: "Our mark", href: "https://mark.widget.example", icon: "brand:custom/mark" },
+    // A link to another site that opens in a new tab: the flag, as the repository link has it.
+    { label: "Marketplace", href: "https://marketplace.widget.example/widget", external: true },
   ],
 };
 writeFileSync(configPath, JSON.stringify(withLinks, null, 2));
