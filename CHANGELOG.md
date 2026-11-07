@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   its old name needs the new name. The `FileSystem` port of the CLI has a new `remove`, and the result of an upgrade has a new `renamed`
   list.
 
+### Fixed
+
+- **Buttons show the pointer again.** Tailwind 4 no longer sets `cursor: pointer` on buttons, as version 3 did, so the theme switch, the copy buttons and the tabs of an example showed the arrow. One rule in the base layer of `global.css` gives the pointer to every `button`, every `[role="button"]` and `[role="tab"]` and every `summary`, and not to a disabled button, so no component needs its own class. A site generated earlier gets the rule with `sitekit upgrade` when it did not edit `global.css`, and by adding the rule by hand when it did (see [Upgrading](docs/upgrading.md)).
+
 ## [0.2.4] - 2026-11-05
 
 ### Added

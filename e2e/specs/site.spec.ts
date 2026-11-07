@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 const BASE = "/widget/";
 const ROUTES = [
@@ -175,6 +175,34 @@ test.describe("keyboard and navigation", () => {
     await expect(
       page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Docs" }),
     ).toHaveAttribute("aria-current", "page");
+  });
+});
+
+test.describe("the pointer on the controls", () => {
+  const cursor = (locator: Locator) => locator.evaluate((node) => getComputedStyle(node).cursor);
+
+  test("the theme switch, the install command of the hero and the copy button of a code block show the pointer", async ({
+    page,
+  }) => {
+    await page.goto(BASE);
+    expect(await cursor(page.locator("[data-theme-switch]").first())).toBe("pointer");
+    expect(await cursor(page.getByRole("button", { name: /Copy command/ }).first())).toBe(
+      "pointer",
+    );
+    await page.goto(`${BASE}docs/getting-started/`);
+    expect(await cursor(page.getByRole("button", { name: "Copy code" }).first())).toBe("pointer");
+  });
+
+  test("a disabled button keeps the default cursor", async ({ page }) => {
+    await page.goto(BASE);
+    await page.evaluate(() => {
+      const button = document.createElement("button");
+      button.id = "disabled-probe";
+      button.disabled = true;
+      button.textContent = "Disabled";
+      document.body.append(button);
+    });
+    expect(await cursor(page.locator("#disabled-probe"))).not.toBe("pointer");
   });
 });
 
