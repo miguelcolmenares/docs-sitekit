@@ -72,19 +72,49 @@ beforeAll(() => {
 
 afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
+const NAMED_ENTITIES: Record<string, string> = { lt: "<", gt: ">", quot: '"', amp: "&" };
+
+/**
+ * Read the entities of a text in one pass, so a result such as `&amp;lt;` stays `&lt;` and is not read twice.
+ * Only the entities the pipeline writes are read: the four named ones and the numeric ones.
+ */
+function decodeEntities(text: string): string {
+  return text.replace(
+    /&(?:#x([0-9a-f]+)|#(\d+)|(lt|gt|quot|amp));/gi,
+    (_match, hex: string | undefined, dec: string | undefined, name: string | undefined) =>
+      hex !== undefined
+        ? String.fromCodePoint(parseInt(hex, 16))
+        : dec !== undefined
+          ? String.fromCodePoint(Number(dec))
+          : NAMED_ENTITIES[name!.toLowerCase()]!,
+  );
+}
+
+/**
+ * The text of some HTML: every tag is dropped by reading the characters, not by a pattern, and `glue` takes the
+ * place of each tag. The HTML here is written by the pipeline, so a `>` inside an attribute is always an entity.
+ */
+function textOf(html: string, glue = ""): string {
+  let text = "";
+  let inTag = false;
+  for (const char of html) {
+    if (char === "<") {
+      inTag = true;
+    } else if (char === ">" && inTag) {
+      inTag = false;
+      text += glue;
+    } else if (!inTag) {
+      text += char;
+    }
+  }
+  return text;
+}
+
 /** The text of the code element of a highlighted block, with its tags gone and its entities read. */
 function codeText(block: string): string {
   const code = /<code[^>]*>([\s\S]*?)<\/code>/.exec(block);
   if (!code) throw new Error("no code element in the block");
-  return code[1]!
-    .replace(/<[^>]+>/g, "")
-    .replace(/&#x([0-9a-f]+);/gi, (_match, hex: string) => String.fromCodePoint(parseInt(hex, 16)))
-    .replace(/&#(\d+);/g, (_match, dec: string) => String.fromCodePoint(Number(dec)))
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, "&");
+  return decodeEntities(textOf(code[1]!));
 }
 
 const collapse = (text: string) => text.replace(/\s+/g, " ").trim();
@@ -134,23 +164,11 @@ describe("the samples of the home page, rendered by the real pipeline", () => {
   });
 
   it("uses the same text in the preview as the page: no word of the sample is lost", () => {
+    const withoutButtons = (html: string) => html.replace(/<button[^>]*>[\s\S]*?<\/button>/g, "");
     output.samples.forEach((sample, index) => {
-      const text = collapse(
-        sample.preview
-          .replace(/<button[^>]*>[\s\S]*?<\/button>/g, "")
-          .replace(/<[^>]+>/g, " ")
-          .replace(/&amp;/g, "&")
-          .replace(/&lt;/g, "<")
-          .replace(/&gt;/g, ">")
-          .replace(/&quot;/g, '"'),
-      );
+      const text = collapse(decodeEntities(textOf(withoutButtons(sample.preview), " ")));
       const expected = collapse(
-        output.rendered[index]!.replace(/<button[^>]*>[\s\S]*?<\/button>/g, "")
-          .replace(/<[^>]+>/g, " ")
-          .replace(/&amp;/g, "&")
-          .replace(/&lt;/g, "<")
-          .replace(/&gt;/g, ">")
-          .replace(/&quot;/g, '"'),
+        decodeEntities(textOf(withoutButtons(output.rendered[index]!), " ")),
       );
       expect(text).toBe(expected);
     });
