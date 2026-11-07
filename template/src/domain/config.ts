@@ -27,12 +27,21 @@ export const iconName = z
     "A lucide icon in kebab-case, such as `shield-check`, or a brand logo, such as `brand:github` or `brand:custom/my-logo`.",
   );
 
-/** A link of the footer: a link, with an icon drawn before its label. The header menu has no icons, so `nav` keeps `link`. */
+/**
+ * A link of the footer: a link, with an icon drawn before its label, and an `external` flag that opens it in a new tab.
+ * The header menu has neither, so `nav` keeps `link`.
+ */
 const footerLink = link.extend({
   icon: iconName
     .optional()
     .describe(
       "An icon before the label: a lucide icon, `brand:<slug>` for a logo that ships, or `brand:custom/<name>` for your own logo in the `brands` folder.",
+    ),
+  external: z
+    .boolean()
+    .optional()
+    .describe(
+      "`true` opens the link in a new tab and draws an arrow after the label, for a link to another site. Left out, the link opens in the same tab.",
     ),
 });
 
@@ -250,7 +259,7 @@ export const siteConfigSchema = z
           .array(footerLink)
           .default([])
           .describe(
-            "Extra links in the Project column of the footer, after the repository and the issues. A path that starts with `/` gets the site base. A link can have an `icon`, drawn before its label.",
+            "Extra links in the Project column of the footer, after the repository and the issues. A path that starts with `/` gets the site base. A link can have an `icon`, drawn before its label, and `external: true` to open in a new tab.",
           ),
       })
       .default({ links: [] })

@@ -68,6 +68,24 @@ A link of the footer can have an `icon`, drawn before its label. It takes the sa
 
 The icon is decoration: the label names the link, so the icon is hidden from assistive technology. A link keeps the height it has, 44 px on a phone, and a link without an `icon` is drawn as before. The `nav` does not take icons: the header menu is text, and a `nav` link with an `icon` fails the build.
 
+A link to another site can open in a new tab with `external: true`. It gets `target="_blank"` and `rel="noopener noreferrer"`, and an arrow after the label, as the link to the repository has:
+
+```json title="sitekit.config.json"
+{
+  "footer": {
+    "links": [
+      {
+        "label": "Marketplace",
+        "href": "https://marketplace.visualstudio.com/items?itemName=acme.tool",
+        "external": true
+      }
+    ]
+  }
+}
+```
+
+The flag is not a default. A web address without `external` opens in the same tab, as it did before, so a site that has such links keeps them as they are. The arrow is decoration too, and it is hidden from assistive technology, so the name of the link is its label. The `nav` has no `external`: a header menu opens its links in the same tab, and a `nav` link with the key fails the build.
+
 ## Collections and groups
 
 ```json title="sitekit.config.json" {8-15}
