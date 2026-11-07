@@ -12,6 +12,10 @@ The site has two color sets with the same names: the dark set is the top-level `
 
 `npm run build:tokens` writes the dark set under `:root` and the light set under `:root[data-theme="light"]`. It also writes the light set for a page that has no `data-theme` attribute, under `prefers-color-scheme: light`. That is what a visitor without JavaScript gets with `theme.default` set to `system`. A test fails when a key is in one set and not in the other.
 
+The palette below shows every color token of both sets, each with its value in the dark and in the light set. The values are read from `design/tokens.json` when the site is built, so the palette cannot go stale. A copy button puts a value on the clipboard, and the page says what was copied.
+
+<!-- sitekit:color-palette -->
+
 ## Theme
 
 `theme.default` in `sitekit.config.json` sets the theme a visitor sees first. Its values and its default are in the [configuration reference](./configuration.md#theme).

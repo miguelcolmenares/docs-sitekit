@@ -40,7 +40,7 @@ npm run build:tokens
 
 `npm run build:tokens -- --check` fails when `tokens.css` does not match `tokens.json`, so a CI step can stop a change to one without the other. Before the command is run, the check fails and says `src/styles/tokens.css is out of date`.
 
-Everything that uses the brand color follows, and nothing else needs to change.
+Everything that uses the brand color follows, and nothing else needs to change. The [palette](./design-tokens.md#colors) of the design tokens page is read from the `design/tokens.json` of the site that builds it, so a site made with `init` shows its own colors there, and the new accent shows at once.
 
 ## Guard the contrast
 

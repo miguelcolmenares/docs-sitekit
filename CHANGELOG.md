@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **A link of the footer can have an icon.** `footer.links[].icon` takes the values an icon of a feature takes: a lucide name, `brand:<slug>` for a logo that ships, or `brand:custom/<name>` for your own logo in the `brands` folder. The icon is drawn before the label, and an unknown brand or a missing file fails the build, as it does for a feature. The `nav` links have no icon, and they still reject one. The kit ships no logo for the VS Code Marketplace or Open VSX: the brand logos page shows how to add your own. A site without an icon on its footer links does not change.
+- **The design tokens page shows the color palette.** Every color token of both sets is a swatch with its name and its hex value, in the dark and in the light set, grouped as the tokens are. The values are read from the site's own `design/tokens.json` when the site is built, so the palette cannot go stale, and a copy button puts a value on the clipboard and says what was copied. The page asks for it with one line, `<!-- sitekit:color-palette -->`, which GitHub hides, so the page there keeps its tables. The copy buttons appear only with JavaScript. An existing site gets the palette with `sitekit upgrade`, and a page that writes the line in a site without `design/tokens.json` fails the build.
 
 ### Changed
 
