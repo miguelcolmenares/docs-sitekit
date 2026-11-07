@@ -5,6 +5,7 @@ export * from "./git-history";
 export * from "./read-sources";
 export * from "./repository-version";
 export * from "./remark-callouts";
+export * from "./remark-color-palette";
 export * from "./remark-rewrite-links";
 export * from "./site-config";
 export * from "./render-markdown";

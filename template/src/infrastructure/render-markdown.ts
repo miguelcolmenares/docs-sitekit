@@ -1,7 +1,8 @@
 import { codeBlockTransformers } from "./code-blocks";
 import { remarkCallouts } from "./remark-callouts";
+import { remarkColorPalette } from "./remark-color-palette";
 import { remarkRewriteLinks } from "./remark-rewrite-links";
-import type { LinkContext } from "@/domain";
+import type { LinkContext, TokenColors } from "@/domain";
 
 /** A page body as HTML, with its headings for the table of contents. */
 export interface RenderedMarkdown {
@@ -41,7 +42,13 @@ function rehypeExternalLinks() {
  */
 export async function renderMarkdown(
   markdown: string,
-  options: { context: LinkContext; base: string; onWarning?: (message: string) => void },
+  options: {
+    context: LinkContext;
+    base: string;
+    /** The color tokens of the site, for a page that asks for the palette. */
+    colorTokens?: TokenColors;
+    onWarning?: (message: string) => void;
+  },
 ): Promise<RenderedMarkdown> {
   const { createMarkdownProcessor } = await import("@astrojs/markdown-remark");
   const processor = await createMarkdownProcessor({
@@ -56,6 +63,7 @@ export async function renderMarkdown(
     remarkPlugins: [
       [remarkRewriteLinks, options],
       [remarkCallouts, {}],
+      [remarkColorPalette, { tokens: options.colorTokens, base: options.base }],
     ],
     rehypePlugins: [rehypeExternalLinks],
   });

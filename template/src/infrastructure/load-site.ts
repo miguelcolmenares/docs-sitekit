@@ -1,6 +1,15 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { buildDocuments, buildPageMeta, publishedRoutes, validateContent } from "@/application";
 import { matchesAny, resolveCardLinks } from "@/domain";
-import type { BrandGlyph, ContentFinding, Document, LinkContext, SiteConfig } from "@/domain";
+import type {
+  BrandGlyph,
+  ContentFinding,
+  Document,
+  LinkContext,
+  SiteConfig,
+  TokenColors,
+} from "@/domain";
 import type { PageMeta } from "@/application";
 import { readCustomBrands } from "./custom-brands";
 import { readGitHistory } from "./git-history";
@@ -31,6 +40,12 @@ export interface Site {
 
 let cached: Site | undefined;
 
+/** The color tokens of a site, read from `design/tokens.json`. A site without that file gets none: only a palette needs it. */
+function readColorTokens(siteDir: string): TokenColors | undefined {
+  const file = join(siteDir, "design", "tokens.json");
+  return existsSync(file) ? (JSON.parse(readFileSync(file, "utf8")) as TokenColors) : undefined;
+}
+
 /** Load the whole site once per build: config, source files, documents and a renderer. */
 export function loadSite(siteDir: string = process.cwd()): Site {
   if (cached) return cached;
@@ -45,6 +60,7 @@ export function loadSite(siteDir: string = process.cwd()): Site {
     config,
     existing: sources.existing,
   });
+  const colorTokens = readColorTokens(siteDir);
   const meta = buildPageMeta(config, () => readGitHistory(sources.root));
   for (const message of meta.warnings) console.warn(`[docs-sitekit] ${message}`);
 
@@ -80,6 +96,7 @@ export function loadSite(siteDir: string = process.cwd()): Site {
       renderMarkdown(document.body, {
         context: contextFor(document),
         base: config.site.base,
+        colorTokens,
       }),
   };
   return cached;
