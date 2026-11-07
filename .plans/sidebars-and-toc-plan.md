@@ -11,8 +11,9 @@ Both change `template/src/presentation/layouts/doc-page.astro`. Two commits, #82
 - **Buttons** are rendered `hidden` and shown by the page script, as the copy buttons are. One button per sidebar, with `aria-expanded` and the name "Hide the docs menu" / "Show the docs menu" (and "Hide the table of contents" / "Show the table of contents").
 - **Hidden sidebar** is `display: none`, so it is out of the tab order and the accessibility tree.
 - **Detail pages** (with a card) have no right sidebar, so only the docs menu has a control, from `xl` up.
-- **Text column**: the article keeps `max-w-prose` (760 px, the measure of today) and is centred in its track, so it grows when a sidebar is hidden and never gets wider than the measure.
+- **Text column**: the article keeps `max-w-prose` (65ch, the measure of today) and is centred in its track. When a sidebar is hidden the limit is 80ch, so the text grows and stays under a readable measure. The article must be `w-full` with `mx-auto`: a grid item with `margin: auto` alone shrinks to its content.
 - **#83** uses an `IntersectionObserver` on the headings with a one pixel band at the height of `scroll-padding-top` (the header plus 1 rem, already set in `global.css`), a second observer on a one pixel sentinel at the end of the document for the bottom of the page, and a recompute of the active heading from the heading positions on each callback. No scroll listener. A click or a `#hash` locks the active link until its heading reaches the line (or 1.5 s), so the observer does not fight the anchor scroll.
+- **The inline script of the page** has a budget of 1024 bytes in `e2e/specs/code-blocks.spec.ts`. The sidebar buttons add about 700 bytes of minified script to the page script, so the budget is exceeded. This is an open decision, see the report of the work.
 - **Table of contents** becomes a scroll container (`max-h`, `overflow-y-auto`, `tabindex="0"`) so the active link can be kept in view. The sidebar scrolls with `scrollTop`, not `scrollIntoView`, so the page does not move.
 
 ## Files

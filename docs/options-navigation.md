@@ -123,6 +123,17 @@ The pages in `docs/tutorials/` are then at `/tutorials/<page>/` and are no longe
 > [!NOTE]
 > `changelog`, `gallery`, `404` and `_astro` are reserved ids, and two collections cannot share an id. Either one fails the build with the id in the message.
 
+## The sidebars of a docs page
+
+On a desktop a docs page has two sidebars: the docs menu on the left, which lists the pages of its collection, and "On this page" on the right, which lists the headings of the page. The docs menu is shown from `lg` up, and from `xl` on a detail page, where the card takes the right side. "On this page" is not on a detail page, because the card takes its place.
+
+Each sidebar has a button with an icon that hides it, so the text takes its room. The button stays where the sidebar was, as a narrow column, and shows the sidebar again. Its name says what a click does, "Hide the docs menu" or "Show the docs menu", and it has `aria-expanded`. A hidden sidebar is not in the tab order and a screen reader does not read it.
+
+- The choice of each sidebar is kept in the browser, under the keys `docs-menu` and `docs-toc`, and it holds on every page of the site. A script in the head applies it before the first paint, so the layout does not jump.
+- With the sidebars hidden, the text is up to 80 characters wide, where it is 65 with them shown. The line length stays limited, and a wide code block or table gets more room.
+- With storage blocked, the buttons still work and the choice holds on that page only.
+- Without JavaScript both sidebars are shown and there are no buttons. On a phone there are no sidebars and no buttons.
+
 ## Where the files are
 
 ```json title="sitekit.config.json"

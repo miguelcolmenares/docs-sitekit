@@ -54,7 +54,7 @@ A page has a card when `meta` or `links` has at least one valid item. A page tha
 
 ## What the reader sees
 
-- **On a desktop** (the `lg` width and up) the text and the card sit side by side. The card is always complete and stays in view while the text scrolls. The page has no table of contents then, because the card takes its place, and from `lg` to `xl` the list of pages of the collection is hidden to leave room for the text.
+- **On a desktop** (the `lg` width and up) the text and the card sit side by side. The card is always complete and stays in view while the text scrolls. The page has no table of contents then, because the card takes its place, and from `lg` to `xl` the list of pages of the collection is hidden to leave room for the text. From `xl` the list of pages has a button that hides it, as on every docs page, see [the sidebars of a docs page](./options-navigation.md#the-sidebars-of-a-docs-page).
 - **On a phone** the card is under the title and above the text. It shows its first three rows, and a button, "All details", shows the rest, the links and the tags. The button has `aria-expanded` and is at least 44 px high, and it works with the keyboard like any button.
 - **Without JavaScript** the card is shown in full, and the button is not.
 
