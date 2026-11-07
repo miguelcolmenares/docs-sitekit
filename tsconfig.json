@@ -13,6 +13,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "allowJs": true,
     "noEmit": true,
     "paths": { "@/*": ["./template/src/*"] },
     "types": ["node", "jest"]

@@ -1,6 +1,6 @@
 ---
 import type { Document } from "@/domain";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { loadSite } from "@/infrastructure";
 import { Breadcrumbs } from "@/presentation/components/site/breadcrumbs";
 import { PageInfo } from "@/presentation/components/site/page-info";
@@ -20,42 +20,84 @@ const { doc, html, headings, siblings, collectionLabel, collectionHref, homeHref
 const index = siblings.findIndex((sibling) => sibling.route === doc.route);
 const previous = index > 0 ? siblings[index - 1] : undefined;
 const next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : undefined;
-const { editUrl, updated } = loadSite().pageMeta(doc);
+const site = loadSite();
+const { href } = site;
+const { editUrl, updated } = site.pageMeta(doc);
 const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 // A page with a card in its frontmatter is a detail page: the card sits beside the text, in the place of the
 // table of contents, and above the text on a phone. Without a card nothing here changes.
 const card = doc.card;
+// The table of contents is the right sidebar of a page without a card. Only such a page has a control for it.
+const hasToc = !card && toc.length > 0;
+// A sidebar is hidden with a button, and the button stays in a 44 px column, so the text takes the space.
+const sidebarButton =
+  "group inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg-bright";
 ---
 
 <BaseLayout title={doc.title} description={doc.description || undefined}>
+  <Fragment slot="head">
+    <!-- Before the first paint: the sidebars that the reader hid on this site, from the choice kept in the browser. -->
+    <!-- The sidebars and "On this page" are in a file of their own, loaded after the page with defer. -->
+    <script is:inline type="module" src={href("docs-page.js")} defer></script>
+    <script is:inline define:vars={{ hasToc }}>
+      (function () {
+        var root = document.documentElement;
+        function hidden(name) {
+          try {
+            return localStorage.getItem("docs-" + name) === "hidden";
+          } catch (error) {
+            return false;
+          }
+        }
+        if (hidden("menu")) root.setAttribute("data-docs-menu", "hidden");
+        if (hasToc && hidden("toc")) root.setAttribute("data-docs-toc", "hidden");
+      })();
+    </script>
+  </Fragment>
   <div
     class:list={[
-      "mx-auto grid max-w-site grid-cols-1 gap-10 px-5 py-10",
-      card ? "xl:grid-cols-[220px_minmax(0,1fr)]" : "lg:grid-cols-[220px_minmax(0,1fr)_200px]",
+      "mx-auto grid max-w-site grid-cols-1 gap-10 px-5 py-10 transition-[grid-template-columns] duration-200 ease-site motion-reduce:transition-none",
+      card ? "xl:grid-cols-[var(--docs-menu-col)_minmax(0,1fr)]" : "lg:grid-cols-[var(--docs-menu-col)_minmax(0,1fr)_var(--docs-toc-col)]",
     ]}
   >
-    <div class:list={["hidden", card ? "xl:block" : "lg:block"]}>
-      <nav aria-label={collectionLabel} class="sticky top-24">
-        <p class="mb-3 font-mono text-[11px] tracking-[0.14em] text-fg-dim uppercase">{collectionLabel}</p>
-        <ul class="space-y-1">
-          {
-            siblings.map((sibling, position) => (
-              <li>
-                {sibling.group && sibling.group.name !== siblings[position - 1]?.group?.name && (
-                  <p class="mt-4 mb-1 px-3 font-mono text-[11px] tracking-[0.14em] text-fg-dim uppercase">{sibling.group.name}</p>
-                )}
-                <a
-                  href={sibling.route}
-                  aria-current={sibling.route === doc.route ? "page" : undefined}
-                  class="block rounded-md px-3 py-1.5 text-sm text-fg-muted transition-colors hover:text-fg-bright aria-[current=page]:bg-surface-2 aria-[current=page]:text-fg-bright"
-                >
-                  {sibling.title}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
+    <div class:list={["min-w-0", card ? "hidden xl:block" : "hidden lg:block"]}>
+      <div class="sticky top-24">
+        <div class="flex justify-end">
+          <button
+            type="button"
+            hidden
+            data-sidebar-toggle="menu"
+            aria-controls="docs-menu"
+            aria-expanded="true"
+            aria-label="Hide the docs menu"
+            class:list={[sidebarButton, card ? "max-xl:hidden" : "max-lg:hidden"]}
+          >
+            <PanelLeftClose className="size-5 group-aria-[expanded=false]:hidden" aria-hidden="true" />
+            <PanelLeftOpen className="hidden size-5 group-aria-[expanded=false]:block" aria-hidden="true" />
+          </button>
+        </div>
+        <nav id="docs-menu" aria-label={collectionLabel}>
+          <p class="mb-3 font-mono text-[11px] tracking-[0.14em] text-fg-dim uppercase">{collectionLabel}</p>
+          <ul class="space-y-1">
+            {
+              siblings.map((sibling, position) => (
+                <li>
+                  {sibling.group && sibling.group.name !== siblings[position - 1]?.group?.name && (
+                    <p class="mt-4 mb-1 px-3 font-mono text-[11px] tracking-[0.14em] text-fg-dim uppercase">{sibling.group.name}</p>
+                  )}
+                  <a
+                    href={sibling.route}
+                    aria-current={sibling.route === doc.route ? "page" : undefined}
+                    class="block rounded-md px-3 py-1.5 text-sm text-fg-muted transition-colors hover:text-fg-bright aria-[current=page]:bg-surface-2 aria-[current=page]:text-fg-bright"
+                  >
+                    {sibling.title}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
     </div>
 
     <article
@@ -63,7 +105,7 @@ const card = doc.card;
         "min-w-0",
         card
           ? "lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-x-10 lg:[&>:not(aside)]:col-start-1"
-          : "max-w-prose",
+          : "w-full mx-auto max-w-prose transition-[max-width] duration-200 ease-site in-data-[docs-menu=hidden]:max-w-[80ch] in-data-[docs-toc=hidden]:max-w-[80ch] motion-reduce:transition-none",
       ]}
     >
       <Breadcrumbs items={[{ label: "Home", href: homeHref }, { label: collectionLabel, href: collectionHref }, { label: doc.title }]} />
@@ -118,19 +160,49 @@ const card = doc.card;
 
     {
       !card && (
-        <div class="hidden lg:block">
+        <div class="hidden min-w-0 lg:block">
           {
-            toc.length > 0 && (
-              <nav aria-label="On this page" class="sticky top-24">
-                <p class="mb-3 font-mono text-[11px] tracking-[0.14em] text-fg-dim uppercase">On this page</p>
-                <ul class="space-y-1.5 text-sm">
-                  {toc.map((heading) => (
-                    <li class={heading.depth === 3 ? "pl-3" : ""}>
-                      <a href={`#${heading.slug}`} class="text-fg-muted hover:text-fg-bright">{heading.text}</a>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
+            hasToc && (
+              <div class="sticky top-24">
+                <div class="flex justify-start">
+                  <button
+                    type="button"
+                    hidden
+                    data-sidebar-toggle="toc"
+                    aria-controls="docs-toc"
+                    aria-expanded="true"
+                    aria-label="Hide the table of contents"
+                    class:list={[sidebarButton, "max-lg:hidden"]}
+                  >
+                    <PanelRightClose className="size-5 group-aria-[expanded=false]:hidden" aria-hidden="true" />
+                    <PanelRightOpen className="hidden size-5 group-aria-[expanded=false]:block" aria-hidden="true" />
+                  </button>
+                </div>
+                <nav
+                  id="docs-toc"
+                  aria-label="On this page"
+                  tabindex="0"
+                  data-on-this-page
+                  class="max-h-[calc(100dvh_-_10rem)] overflow-y-auto"
+                >
+                  <p class="mb-3 font-mono text-[11px] tracking-[0.14em] text-fg-dim uppercase">On this page</p>
+                  <ul class="space-y-1.5 text-sm">
+                    {toc.map((heading) => (
+                      <li>
+                        <a
+                          href={`#${heading.slug}`}
+                          class:list={[
+                            "block border-l-2 border-transparent py-0.5 text-fg-muted hover:text-fg-bright aria-[current=location]:border-brand aria-[current=location]:text-brand",
+                            heading.depth === 3 ? "pl-6" : "pl-3",
+                          ]}
+                        >
+                          {heading.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              </div>
             )
           }
         </div>
@@ -138,6 +210,24 @@ const card = doc.card;
     }
   </div>
 </BaseLayout>
+
+<style is:global>
+  /* The width of each sidebar of a docs page. A hidden sidebar keeps a 44 px column, where its button is. */
+  :root {
+    --docs-menu-col: 220px;
+    --docs-toc-col: 200px;
+  }
+  :root[data-docs-menu="hidden"] {
+    --docs-menu-col: 2.75rem;
+  }
+  :root[data-docs-toc="hidden"] {
+    --docs-toc-col: 2.75rem;
+  }
+  :root[data-docs-menu="hidden"] #docs-menu,
+  :root[data-docs-toc="hidden"] #docs-toc {
+    display: none;
+  }
+</style>
 
 <script>
   // The copy buttons are in the HTML, hidden. This shows them and copies the code on a click.
