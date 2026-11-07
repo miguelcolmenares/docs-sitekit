@@ -111,26 +111,31 @@ const CONFIG_FILE = "sitekit.config.json";
  * is a file that only exists in a site that already has the feature: when it is in the lock, the
  * site has the feature and the key is not written.
  */
-const NEW_OPTIONS: Array<{ key: string; value: unknown; introducedBy?: string }> = [
-  { key: "theme", value: { default: "dark" } },
+const NEW_OPTIONS: Array<{
+  key: string;
+  /** The value, given the default branch of the repository (`main` when git cannot name one). */
+  value: (defaultBranch: string) => unknown;
+  introducedBy?: string;
+}> = [
+  { key: "theme", value: () => ({ default: "dark" }) },
   {
     key: "search",
-    value: { enabled: false },
+    value: () => ({ enabled: false }),
     introducedBy: "src/presentation/search/search-dialog.astro",
   },
   {
     key: "llms",
-    value: { enabled: false, optional: [], markdownPages: false },
+    value: () => ({ enabled: false, optional: [], markdownPages: false }),
     introducedBy: "src/application/build-llms-text.ts",
   },
   {
     key: "editLink",
-    value: { enabled: false, branch: "main" },
+    value: (defaultBranch) => ({ enabled: false, branch: defaultBranch }),
     introducedBy: "src/domain/edit-link.ts",
   },
   {
     key: "lastUpdated",
-    value: { enabled: false },
+    value: () => ({ enabled: false }),
     introducedBy: "src/domain/last-updated.ts",
   },
 ];
@@ -337,11 +342,13 @@ export function upgradeSite(deps: UpgradeDeps, options: UpgradeOptions): Upgrade
 
   const config = readJson(fs, joinPath(siteAbs, CONFIG_FILE));
   if (config) {
+    const defaultBranch = env.defaultBranch(options.root) ?? "main";
     for (const option of NEW_OPTIONS) {
       if (option.key in config) continue;
       if (option.introducedBy && oldLock[option.introducedBy] !== undefined) continue;
-      config[option.key] = option.value;
-      result.options.push({ key: option.key, value: option.value });
+      const value = option.value(defaultBranch);
+      config[option.key] = value;
+      result.options.push({ key: option.key, value });
     }
   }
 

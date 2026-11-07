@@ -28,7 +28,7 @@ https://github.com/acme/acme/edit/trunk/docs/guide.md
 ```
 
 - **`enabled`** turns the link on. It is on the pages of the collections and on the Changelog page. It is not on the home page, the 404 page or the index page of a collection, which have no source file.
-- **`branch`** is the branch in the address. Without it the address uses `main`.
+- **`branch`** is the branch in the address. `sitekit init` writes the default branch of the repository here, and `main` when git cannot name one. When the config has no `branch`, the address uses `main`.
 - **`host`** is for a repository on a domain that the kit does not know. The next example is a GitLab that you run yourself:
 
 ```json title="sitekit.config.json" {10}

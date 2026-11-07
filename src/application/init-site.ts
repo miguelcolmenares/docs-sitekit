@@ -44,6 +44,16 @@ export interface SiteLock {
 export const LOCK_FILE = ".sitekit.json";
 const SITE_GITIGNORE = "node_modules/\ndist/\n.astro/\n";
 const WORKFLOW_PATH = ".github/workflows/docs.yml";
+// A name that YAML reads as a plain string. Anything else, such as `1.x` or `true`, is written quoted.
+const PLAIN_BRANCH = /^[A-Za-z][\w./-]*$/;
+const YAML_WORDS = new Set(["true", "false", "null", "yes", "no", "on", "off", "y", "n"]);
+
+/** The branch as an item of the `branches` list of the workflow: `master`, or a quoted name that YAML would not read as text. */
+function workflowBranch(branch: string): string {
+  return PLAIN_BRANCH.test(branch) && !YAML_WORDS.has(branch.toLowerCase())
+    ? branch
+    : JSON.stringify(branch);
+}
 
 function readJson(fs: FileSystem, path: string): Record<string, unknown> | undefined {
   if (!fs.exists(path)) return undefined;
@@ -141,12 +151,12 @@ export function initSite(deps: InitDeps, options: InitOptions): InitResult {
   write("sitekit.config.json", `${JSON.stringify(config, null, 2)}\n`, siteAbs, false);
   write(".gitignore", SITE_GITIGNORE, siteAbs, false);
   write(LOCK_FILE, `${JSON.stringify(lock, null, 2)}\n`, siteAbs, false);
-  write(
-    WORKFLOW_PATH,
-    template.workflow().replaceAll("__SITEKIT_VERSION__", template.version()),
-    options.root,
-    false,
-  );
+  // The branch the site is published from is the default branch of the repository, the one the edit link opens.
+  const workflow = template
+    .workflow()
+    .replaceAll("__SITEKIT_VERSION__", template.version())
+    .replaceAll("__SITEKIT_BRANCH__", workflowBranch(config.editLink.branch));
+  write(WORKFLOW_PATH, workflow, options.root, false);
 
   return { config, written, skipped };
 }

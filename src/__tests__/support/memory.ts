@@ -77,7 +77,7 @@ export const registry: ComponentRegistry = {
 };
 
 export function fakeTemplate(
-  overrides: { files?: TemplateFile[]; version?: string } = {},
+  overrides: { files?: TemplateFile[]; version?: string; workflow?: string } = {},
 ): TemplateSource {
   const files = overrides.files ?? [
     {
@@ -109,7 +109,7 @@ export function fakeTemplate(
   ];
   return {
     files: () => files,
-    workflow: () => "run: npx sitekit@__SITEKIT_VERSION__ check\n",
+    workflow: () => overrides.workflow ?? "run: npx sitekit@__SITEKIT_VERSION__ check\n",
     registry: () => registry,
     version: () => overrides.version ?? "0.1.0",
   };

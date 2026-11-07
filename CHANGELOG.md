@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`sitekit init` writes the default branch of the repository into the deploy workflow.** A repository whose default branch is `master` got `branches: [main]` in `.github/workflows/docs.yml`, so the workflow did not run on a push to `master`, and the edit link opened `main`. The workflow and `editLink.branch` now name the branch `init` finds, and `main` when git cannot name one. `sitekit upgrade` leaves a `branches` line you changed as it is, and an `editLink` it adds gets the same branch. A site made by an earlier version keeps `branches: [main]`: change that line by hand.
+
 ### Changed
 
 - **The copy button of a code block is an icon over the corner of the code, and the band above the code is gone.** The button was a bordered text button, "Copy", in a band of 3 rem above every block without a title, and the title bar kept 5 rem clear for it. It is a 44 px square with a copy icon, with no border or fill at rest, and the icon becomes a check for 1.6 seconds after a copy, as the name becomes "Copied". The name is `aria-label`: "Copy code" in place of the text "Copy". The first line of a block starts at the top of the box, with or without a title. A long line keeps some room at its right end, so it reads clear of the button. A site generated earlier gets it after the files listed in [code blocks](docs/code-blocks.md#a-site-generated-earlier) are copied from this version, or with `sitekit upgrade` when they were not edited.

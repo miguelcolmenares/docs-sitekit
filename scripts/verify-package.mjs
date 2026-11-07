@@ -531,6 +531,26 @@ check("init refuses a folder that already has files", () => {
   assert(/already has files/.test(message), `got: ${message}`);
 });
 
+// A repository whose default branch is not main: the deploy workflow and the edit link must name that branch,
+// or the workflow never runs on a push and the link opens a file that does not exist on main.
+const MASTER_REPO = join(WORK, "master-repo");
+write(
+  join(MASTER_REPO, "package.json"),
+  JSON.stringify({ name: "@demo/widget", version: "1.2.3", description: "A widget." }),
+);
+run("git", ["init", "-q", "-b", "master"], { cwd: MASTER_REPO });
+run("git", ["remote", "add", "origin", "https://github.com/demo/widget.git"], { cwd: MASTER_REPO });
+check("init in a repository on master writes master into the workflow and the edit link", () => {
+  run("node", [CLI, "init"], { cwd: MASTER_REPO });
+  const workflow = readFileSync(join(MASTER_REPO, ".github", "workflows", "docs.yml"), "utf8");
+  assert(/^\s+branches: \[master\]$/m.test(workflow), "the workflow does not name master");
+  assert(!workflow.includes("__SITEKIT_BRANCH__"), "the branch placeholder was left in");
+  const { editLink } = JSON.parse(
+    readFileSync(join(MASTER_REPO, "site", "sitekit.config.json"), "utf8"),
+  );
+  assert(editLink?.branch === "master", `editLink: ${JSON.stringify(editLink)}`);
+});
+
 console.log("3/6 Check before the site is built");
 check("check fails while the repository visibility is unknown, instead of guessing", () => {
   let message = "";
