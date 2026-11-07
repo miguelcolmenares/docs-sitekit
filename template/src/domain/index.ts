@@ -1,5 +1,6 @@
 export * from "./brands";
 export * from "./callouts";
+export * from "./color-palette";
 export * from "./code-blocks";
 export * from "./config";
 export * from "./describe";
