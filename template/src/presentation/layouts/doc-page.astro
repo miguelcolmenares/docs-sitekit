@@ -20,7 +20,9 @@ const { doc, html, headings, siblings, collectionLabel, collectionHref, homeHref
 const index = siblings.findIndex((sibling) => sibling.route === doc.route);
 const previous = index > 0 ? siblings[index - 1] : undefined;
 const next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : undefined;
-const { editUrl, updated } = loadSite().pageMeta(doc);
+const site = loadSite();
+const { href } = site;
+const { editUrl, updated } = site.pageMeta(doc);
 const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 // A page with a card in its frontmatter is a detail page: the card sits beside the text, in the place of the
 // table of contents, and above the text on a phone. Without a card nothing here changes.
@@ -35,6 +37,8 @@ const sidebarButton =
 <BaseLayout title={doc.title} description={doc.description || undefined}>
   <Fragment slot="head">
     <!-- Before the first paint: the sidebars that the reader hid on this site, from the choice kept in the browser. -->
+    <!-- The sidebars and "On this page" are in a file of their own, loaded after the page with defer. -->
+    <script is:inline type="module" src={href("docs-page.js")} defer></script>
     <script is:inline define:vars={{ hasToc }}>
       (function () {
         var root = document.documentElement;
@@ -229,12 +233,7 @@ const sidebarButton =
   // The copy buttons are in the HTML, hidden. This shows them and copies the code on a click.
   import "@/presentation/code/copy-code";
   import { attachSideCard } from "@/presentation/side-card/side-card";
-  import { attachSidebarToggles } from "@/presentation/sidebars/sidebar-toggle";
-  import { attachOnThisPage } from "@/presentation/on-this-page/on-this-page";
 
   const card = document.querySelector<HTMLElement>("[data-side-card]");
   if (card) attachSideCard(card);
-  attachSidebarToggles();
-  const toc = document.querySelector<HTMLElement>("[data-on-this-page]");
-  if (toc) attachOnThisPage(toc);
 </script>

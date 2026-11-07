@@ -19,8 +19,7 @@ Both change `template/src/presentation/layouts/doc-page.astro`. Two commits, #82
 
 - `template/src/presentation/layouts/doc-page.astro`: grid, controls, head script, active link markup.
 - `template/src/presentation/layouts/base-layout.astro`: `<slot name="head" />`.
-- `template/src/presentation/sidebars/sidebar-toggle.ts`: pure rules (`isHidden`, `labelFor`, `storageKey`) and the button wiring.
-- `template/src/presentation/on-this-page/on-this-page.ts`: pure rule `activeHeadingId` and the observers.
+- `template/public/docs-page.js`: the sidebar buttons (pure rules `isHidden`, `labelFor`, `storageKey`, and the wiring) and the scroll spy (pure rule `activeHeadingId`, and the observers). Loaded with `defer` by the layout, only on docs pages, so the copy script stays at its size (decision of the user, see the coordinator note).
 - Tests: `src/__tests__/template/sidebar-toggle.test.ts`, `src/__tests__/template/on-this-page.test.ts`; e2e `e2e/specs/sidebars.spec.ts`, `e2e/specs/on-this-page.spec.ts`.
 - Docs: `docs/options-navigation.md` (a section on the sidebars), `docs/detail-page.md` (one line), `CHANGELOG.md`.
 

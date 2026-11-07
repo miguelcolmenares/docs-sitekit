@@ -1,4 +1,4 @@
-import { activeHeadingId } from "../../../template/src/presentation/on-this-page/on-this-page";
+import { activeHeadingId } from "../../../template/public/docs-page.js";
 
 const headings = [
   { id: "install", top: -400 },

@@ -1,9 +1,4 @@
-import {
-  attributeOf,
-  isHidden,
-  labelFor,
-  storageKey,
-} from "../../../template/src/presentation/sidebars/sidebar-toggle";
+import { attributeOf, isHidden, labelFor, storageKey } from "../../../template/public/docs-page.js";
 
 describe("isHidden", () => {
   it("is true only for the value hidden", () => {
