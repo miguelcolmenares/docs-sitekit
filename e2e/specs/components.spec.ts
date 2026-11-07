@@ -98,11 +98,13 @@ for (const spec of PAGES) {
       for (let at = 0; at < ids.length; at += 1) {
         const block = all.nth(at);
         await tab(block, "Code").click();
-        const code = block.locator('[role="tabpanel"][aria-label="Code"] code');
+        // The code panel of the block, and nothing else: an example that shows a widget can hold code blocks of its own.
+        const panel = block.locator('[role="tabpanel"][aria-label="Code"]');
+        const code = panel.locator("code");
         const expected = exampleText(spec.name, ids[at]!).replace(/\n$/, "");
         expect(await code.evaluate((node) => node.textContent)).toBe(expected);
-        await block.getByRole("button", { name: "Copy code" }).click();
-        await expect(block.locator(".code-status")).toHaveText("Copied");
+        await panel.getByRole("button", { name: "Copy code" }).click();
+        await expect(panel.locator(".code-status")).toHaveText("Copied");
         expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(expected);
       }
     });

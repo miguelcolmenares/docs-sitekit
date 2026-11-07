@@ -107,6 +107,15 @@
       "requires": [],
       "example": "src/examples/stat-row"
     },
+    "source-to-html": {
+      "description": "A Markdown sample of the home page, with its source, its preview and the HTML it builds.",
+      "files": [
+        "src/presentation/components/site/source-to-html.astro",
+        "src/presentation/components/site/source-to-html-tabs.tsx"
+      ],
+      "requires": ["cn"],
+      "example": "src/examples/source-to-html"
+    },
     "page-info": {
       "description": "The line at the foot of a page: an edit link and the date of the last change.",
       "files": ["src/presentation/components/site/page-info.tsx"],

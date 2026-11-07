@@ -9,5 +9,6 @@ export * from "./remark-color-palette";
 export * from "./remark-rewrite-links";
 export * from "./site-config";
 export * from "./render-markdown";
+export * from "./demo-samples";
 export * from "./load-site";
 export * from "./report-findings";

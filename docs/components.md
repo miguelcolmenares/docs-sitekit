@@ -26,6 +26,7 @@ This page is the index of the Components section. Each component below has a pag
 - [ItemCard](./components/item-card.md), a link card and its grid, for catalogs.
 - [FeatureGrid](./components/feature-grid.md), an icon, an eyebrow, a title and text.
 - [StatRow](./components/stat-row.md), two to five numbers, each with a label and a note.
+- [SourceToHtml](./components/source-to-html.md), a Markdown sample with its source, its preview and the HTML it builds.
 - [FlowDiagram](./components/flow-diagram.md), steps in a row that stack on small screens.
 - [Callout](./components/callout.md), a note, a tip, an important point, a warning or a caution.
 - [SideCard](./components/side-card.md), metadata, links and tags beside the text of a detail page.

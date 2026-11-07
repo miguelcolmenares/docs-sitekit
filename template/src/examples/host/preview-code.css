@@ -1,0 +1,14 @@
+/* The tokens of a code block inside a preview of the other theme (see example-block.astro). The page's own rules pick the
+   colors by the theme of the page, so a block in a stage that shows the other theme keeps the palette of the page. These
+   rules have one more step of specificity than the page rules (`:root:root`), so they win whatever the order of the bundle. Kit documentation only: a
+   generated site has no preview, so it has none of these rules. */
+:root:root [data-preview-theme="light"] .prose-site pre code span {
+  color: var(--shiki-light);
+  font-style: var(--shiki-light-font-style, normal);
+  font-weight: var(--shiki-light-font-weight, normal);
+}
+:root:root [data-preview-theme="dark"] .prose-site pre code span {
+  color: var(--shiki-dark);
+  font-style: var(--shiki-dark-font-style, normal);
+  font-weight: var(--shiki-dark-font-weight, normal);
+}
