@@ -1,6 +1,13 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Info, Lightbulb, MessageSquareWarning, OctagonAlert, TriangleAlert } from "lucide-react";
+import {
+  Info,
+  Lightbulb,
+  MessageSquareWarning,
+  OctagonAlert,
+  TriangleAlert,
+  type LucideIcon,
+} from "lucide-react";
 import type { CalloutKind } from "@/domain";
 
 /** An element of a hast tree, the HTML tree that remark hands to the renderer. */
@@ -56,17 +63,25 @@ function parseSvg(markup: string): IconElement {
   return svg;
 }
 
-const cache = new Map<CalloutKind, IconElement>();
+const cache = new WeakMap<LucideIcon, IconElement>();
+
+/**
+ * A lucide icon as a hast `svg` element, drawn with `currentColor` so the color around it colors it. The size is 16 px.
+ * The element is a copy, so a caller may change it.
+ */
+export function lucideIconElement(icon: LucideIcon): IconElement {
+  let element = cache.get(icon);
+  if (!element) {
+    element = parseSvg(renderToStaticMarkup(createElement(icon)));
+    cache.set(icon, element);
+  }
+  return structuredClone(element);
+}
 
 /**
  * The icon of a callout kind as a hast `svg` element, drawn with `currentColor` so the tone of the
  * callout colors it. It is decorative: the label next to it carries the meaning.
  */
 export function calloutIcon(kind: CalloutKind): IconElement {
-  let icon = cache.get(kind);
-  if (!icon) {
-    icon = parseSvg(renderToStaticMarkup(createElement(ICONS[kind])));
-    cache.set(kind, icon);
-  }
-  return structuredClone(icon);
+  return lucideIconElement(ICONS[kind]);
 }

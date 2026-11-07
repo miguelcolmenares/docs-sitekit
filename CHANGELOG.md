@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The copy button of a code block is an icon over the corner of the code, and the band above the code is gone.** The button was a bordered text button, "Copy", in a band of 3 rem above every block without a title, and the title bar kept 5 rem clear for it. It is a 44 px square with a copy icon, with no border or fill at rest, and the icon becomes a check for 1.6 seconds after a copy, as the name becomes "Copied". The name is `aria-label`: "Copy code" in place of the text "Copy". The first line of a block starts at the top of the box, with or without a title. A long line keeps some room at its right end, so it reads clear of the button. A site generated earlier gets it after the files listed in [code blocks](docs/code-blocks.md#a-site-generated-earlier) are copied from this version, or with `sitekit upgrade` when they were not edited.
+
 - **Every file is named in lowercase kebab-case, and the template imports its own layers through `@/`.** `SiteHeader.astro` is now
   `site-header.astro`, `buildDocuments.ts` is `build-documents.ts`, `src/presentation/sideCard/` is `src/presentation/side-card/`, in the
   template, the tests, the e2e specs and the scripts. Only the names of exports are CamelCase. Inside `template/src/`, an import that leaves

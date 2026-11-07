@@ -52,7 +52,7 @@ test.describe("callouts written in markdown", () => {
     const colors = new Set<string>();
     for (const [kind] of KINDS) {
       const callout = page.locator(`aside.callout[data-callout="${kind}"]`).first();
-      drawn.add(await callout.locator("svg").innerHTML());
+      drawn.add(await callout.locator(".callout-icon").innerHTML());
       colors.add(
         await callout.locator(".callout-label").evaluate((n) => getComputedStyle(n).color),
       );

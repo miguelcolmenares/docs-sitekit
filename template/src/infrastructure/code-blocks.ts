@@ -1,5 +1,7 @@
+import { Check, Copy, type LucideIcon } from "lucide-react";
 import { isHighlighted, parseCodeMeta, readDiffLanguage, readDiffMarkers } from "@/domain";
 import type { CodeMeta, DiffKind } from "@/domain";
+import { lucideIconElement } from "./callout-icons";
 
 /** The value of a hast property, as hast types it. */
 type HastValue = string | number | boolean | (string | number)[] | null | undefined;
@@ -51,9 +53,15 @@ const element = (
 ): HastElement => ({ type: "element", tagName, properties, children });
 const text = (value: string): HastContent => ({ type: "text", value });
 
-// The label of the copy button, and the message it shows and announces after a copy. The page script reads both from the button.
-const COPY_LABEL = "Copy";
+// The name of the copy button, and the name it has and the message it announces after a copy. The page script reads both from the button.
+const COPY_LABEL = "Copy code";
 const COPIED_LABEL = "Copied";
+
+/** A lucide icon of the copy button. It is hidden from a screen reader, because the button has its name in `aria-label`. */
+const buttonIcon = (icon: LucideIcon, className: string): HastContent => {
+  const svg = lucideIconElement(icon);
+  return { ...svg, properties: { ...svg.properties, className: [className], ariaHidden: "true" } };
+};
 
 /**
  * Shiki transformers that give a fenced code block its title, highlighted lines and diff lines, and wrap it with
@@ -111,12 +119,12 @@ export function codeBlockTransformers(): CodeBlockTransformer[] {
             {
               type: "button",
               className: ["copy-code"],
-              ariaLabel: "Copy code",
+              ariaLabel: COPY_LABEL,
               dataCopy: COPY_LABEL,
               dataCopied: COPIED_LABEL,
               hidden: true,
             },
-            [text(COPY_LABEL)],
+            [buttonIcon(Copy, "icon-copy"), buttonIcon(Check, "icon-check")],
           ),
           element("span", { className: ["code-status"], role: "status", ariaLive: "polite" }),
         );

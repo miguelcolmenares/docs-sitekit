@@ -211,10 +211,11 @@ test.describe("copy buttons", () => {
 
   test("a code block gets a copy button that copies its code", async ({ page }) => {
     await page.goto(`${BASE}docs/getting-started/`);
-    const button = page.getByRole("button", { name: "Copy code" }).first();
-    await expect(button).toBeVisible();
+    // The name changes with the copy, so the button is found by its class after the click.
+    const button = page.locator(".copy-code").first();
+    await expect(button).toHaveAccessibleName("Copy code");
     await button.click();
-    await expect(button).toHaveText("Copied");
+    await expect(button).toHaveAccessibleName("Copied");
     expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
       "npm install @demo/widget",
     );

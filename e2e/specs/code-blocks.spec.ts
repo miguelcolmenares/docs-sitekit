@@ -161,15 +161,22 @@ test.describe("code blocks: the copy button", () => {
     await expect(status).toHaveAttribute("role", "status");
     await expect(status).toHaveAttribute("aria-live", "polite");
     await expect(status).toHaveText("");
-    const button = plain.getByRole("button", { name: "Copy code" });
+    // The name changes with the copy, so the button is found by its class from here on.
+    const button = plain.locator(".copy-code");
+    await expect(button).toHaveAccessibleName("Copy code");
     await button.focus();
     await page.keyboard.press("Enter");
     await expect(status).toHaveText("Copied");
-    await expect(button).toHaveText("Copied");
+    // The button is named Copied, and shows the check icon in place of the copy icon.
+    await expect(button).toHaveAccessibleName("Copied");
+    await expect(button.locator(".icon-check")).toBeVisible();
+    await expect(button.locator(".icon-copy")).toBeHidden();
     expect(await clipboard(page)).toBe('const plain = 1;\n\nconst text = "<b>&amp;</b>";');
-    // The message goes away, and the button says Copy again.
+    // The message goes away, and the button is named Copy code again with the copy icon.
     await expect(status).toHaveText("", { timeout: 4000 });
-    await expect(button).toHaveText("Copy");
+    await expect(button).toHaveAccessibleName("Copy code");
+    await expect(button.locator(".icon-copy")).toBeVisible();
+    await expect(button.locator(".icon-check")).toBeHidden();
   });
 
   test("leaves the marker comments and the drawn signs out of what it copies", async ({ page }) => {
@@ -294,17 +301,29 @@ test.describe("code blocks on a phone", () => {
     });
   }
 
-  test("the button of a block with no title sits above the first line on a phone", async ({
+  test("a block with no title has no band above its first line, and the button stays clear of a short first line", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 360, height: 740 });
     await page.goto(PAGE);
     const plain = block(page, "const plain");
-    const button = (await plain.getByRole("button", { name: "Copy code" }).boundingBox())!;
+    const pre = (await plain.locator("pre").boundingBox())!;
     const code = (await plain.locator("pre code").boundingBox())!;
+    // The first line starts at the top padding of the box (16 px), not one row further down.
+    expect(code.y - pre.y).toBeLessThanOrEqual(17);
+    const button = (await plain.getByRole("button", { name: "Copy code" }).boundingBox())!;
     expect(button.width).toBeGreaterThanOrEqual(44);
     expect(button.height).toBeGreaterThanOrEqual(44);
-    expect(button.y + button.height).toBeLessThanOrEqual(code.y + 1);
+    // The text of the first line ends before the button starts.
+    const text = await plain
+      .locator(".line")
+      .first()
+      .evaluate((node) => {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return range.getBoundingClientRect().right;
+      });
+    expect(text).toBeLessThanOrEqual(button.x + 1);
   });
 });
 
