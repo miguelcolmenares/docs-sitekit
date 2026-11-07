@@ -255,4 +255,32 @@ describe("parseSiteConfig footer links", () => {
       parseSiteConfig({ ...valid, nav: [{ label: "Docs", href: "/docs/", icon: "book" }] }),
     ).toThrow(/nav\.0[\s\S]*icon/);
   });
+
+  it("accepts external on a footer link, true or left out, and keeps the value", () => {
+    const config = parseSiteConfig(
+      withFooter([
+        { label: "Marketplace", href: "https://marketplace.example", external: true },
+        { label: "Status", href: "https://status.example", external: false },
+        { label: "Changelog", href: "/changelog/" },
+      ]),
+    );
+    expect(config.footer.links.map((link) => link.external)).toEqual([true, false, undefined]);
+  });
+
+  it("fails a footer link whose external is not a boolean, with the path of the key", () => {
+    expect(() =>
+      parseSiteConfig(
+        withFooter([{ label: "Store", href: "https://example.com", external: "yes" }]),
+      ),
+    ).toThrow(/footer\.links\.0\.external/);
+  });
+
+  it("keeps nav links without external: the header menu opens in the same tab", () => {
+    expect(() =>
+      parseSiteConfig({
+        ...valid,
+        nav: [{ label: "Blog", href: "https://blog.example", external: true }],
+      }),
+    ).toThrow(/nav\.0[\s\S]*external/);
+  });
 });
