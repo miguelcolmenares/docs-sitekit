@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **CI fails when the generated pages in `docs/` are stale.** A job, `Generated docs are current`, runs `npm run build:docs` with the `npm-auto-build` action in mode `check`, and fails when `docs/` differs from what is committed, such as `docs/configuration.md` after a key of the config schema changed. It reads no token and pushes nothing. The fix is to run `npm run build:docs` and commit `docs/`. The action is pinned by commit SHA, because it has no v3 release yet.
+
 ## [0.3.0] - 2026-11-07
 
 ### Added

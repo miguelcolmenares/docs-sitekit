@@ -52,6 +52,25 @@ jobs:
           node-version: "26"
           exclude: "**/components/ui/**"
 
+  # The pages in docs/ that `npm run build:docs` writes (configuration.md and the filled recipe pages) are
+  # committed, so they can go stale. This builds them again and fails the job when the result differs from
+  # what is committed. It reads no token and pushes nothing. The fix is to run the script and commit docs/.
+  generated-docs:
+    name: Generated docs are current
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: miguelcolmenares/npm-auto-build@bc350eabf9a27107ab822d96f34499acaa3a0fdd # v3 pre-release (main), move to the v3 tag after the release
+        with:
+          mode: check
+          command: build:docs
+          paths: docs
+          node-version: "24"
+
   package-and-e2e:
     name: Pack, install and e2e
     runs-on: ubuntu-latest
