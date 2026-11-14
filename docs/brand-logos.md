@@ -114,13 +114,13 @@ The rules of [Your own logo](#your-own-logo) apply to each file. The logos belon
 ## Which brands are not shipped, and why
 
 - **AWS.** Its logo is governed by the AWS trademark guidelines and the Architecture Icons terms, and Simple Icons does not carry it. The kit ships no AWS mark. Download the official files from [the AWS Architecture Icons page](https://aws.amazon.com/architecture/icons/) and add the one you need as a custom logo.
-- **LinkedIn, Playwright and Visual Studio Code.** They are not in Simple Icons 16.36.0, the version the kit reads. Use a custom logo from the owner's brand page.
-- **The VS Code Marketplace and Open VSX.** Simple Icons 16.36.0 has no logo for either, so the kit ships none. See [Logos of the package registries](#logos-of-the-package-registries).
+- **LinkedIn, Playwright and Visual Studio Code.** They are not in Simple Icons 16.37.0, the version the kit reads. Use a custom logo from the owner's brand page.
+- **The VS Code Marketplace and Open VSX.** Simple Icons 16.37.0 has no logo for either, so the kit ships none. See [Logos of the package registries](#logos-of-the-package-registries).
 - **PHP.** The logo is released by its author under CC BY-SA 4.0 ([php.net/download-logos](https://www.php.net/download-logos)), not CC0, so it is out of the default set.
 
 ## The licence gate
 
-The kit does not ship a logo on the memory of anyone about its licence. `npm run build:brands` in the repository of the kit reads the pinned `simple-icons` package (version `16.36.0`, exact, a development dependency of the kit only) and writes `template/src/domain/brands/brand-data.ts`, with the licence of each icon. The list of brands is `scripts/brands/curated.json`.
+The kit does not ship a logo on the memory of anyone about its licence. `npm run build:brands` in the repository of the kit reads the pinned `simple-icons` package (version `16.37.0`, exact, a development dependency of the kit only) and writes `template/src/domain/brands/brand-data.ts`, with the licence of each icon. The list of brands is `scripts/brands/curated.json`.
 
 - Simple Icons is CC0, and an icon that has its own licence says so in its `license` field. An icon whose licence is not CC0 fails the script.
 - The way out is an entry in `scripts/brands/allowlist.json`, with the `license`, the `author` and the `attribution` text. The entry must name the same licence the icon has. Then the attribution is written to the module and to `THIRD_PARTY_NOTICES.md`.

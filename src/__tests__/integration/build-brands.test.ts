@@ -181,14 +181,18 @@ describe("npm run build:brands, a re-run", () => {
 });
 
 describe("the brands that ship", () => {
+  // The pin is read from package.json, so a Dependabot bump of simple-icons does not need an edit here.
+  const pinnedVersion: string = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"))
+    .devDependencies["simple-icons"];
+
   it("are what the pinned simple-icons builds today: module and notices are up to date", () => {
     const output = execFileSync("node", [SCRIPT, "--check"], { encoding: "utf8" });
-    expect(output).toMatch(/up to date \(11 brands, simple-icons 16\.36\.0\)/);
+    expect(output).toContain(`up to date (11 brands, simple-icons ${pinnedVersion})`);
   });
 
   it("pin simple-icons to one exact version, as a dev dependency of the kit only", () => {
     const manifest = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
-    expect(manifest.devDependencies["simple-icons"]).toBe("16.36.0");
+    expect(manifest.devDependencies["simple-icons"]).toMatch(/^\d+\.\d+\.\d+$/);
     expect(manifest.dependencies?.["simple-icons"]).toBeUndefined();
     const site = JSON.parse(readFileSync(join(ROOT, "template", "package.json"), "utf8"));
     expect(JSON.stringify(site)).not.toMatch(/simple-icons/);
