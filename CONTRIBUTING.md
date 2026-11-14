@@ -17,7 +17,8 @@ npm run test:e2e      # packs the package, generates a site, builds it, drives i
 ## Before you open a pull request
 
 Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm test` and `npm run test:e2e`. CI runs them on Node 22, 24 and 26, and it also checks that
-every export of our own code has a TSDoc comment.
+every export of our own code has a TSDoc comment, and that the pages in `docs/` that `npm run build:docs` writes are up to date. After you change a key of the
+config schema, run `npm run build:docs` and commit `docs/`.
 
 ## What a change needs
 
