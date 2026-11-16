@@ -101,6 +101,14 @@ The color theme a visitor sees first.
 | --- | --- | --- | --- | --- |
 | `theme.default` | string | `"dark"` | `"dark"`, `"light"`, `"system"` | The theme a visitor sees first. `system` follows the operating system. A choice the visitor made in the header wins. |
 
+## demos
+
+Optional isolated previews on documentation pages. Markdown frontmatter demo selects an example from this directory's closed manifest.json.
+
+| Key | Type | Default | Allowed values | Description |
+| --- | --- | --- | --- | --- |
+| `demos.dir` | string | required | any | The demo directory relative to the site folder. It must stay inside sources.root and contain manifest.json and local fixture and source files. |
+
 ## sources
 
 Where the repository is, relative to the site folder.
@@ -115,7 +123,7 @@ Where the repository is, relative to the site folder.
 | Key | Type | Default | Allowed values | Description |
 | --- | --- | --- | --- | --- |
 | `collections` | array of object | `[]` | - | The sets of pages, such as docs, tutorials and examples. Each is a menu entry with its own index. |
-| `collections[].id` | string | required | matches `^[a-z0-9-]+$` | The route segment and the menu key, unique in the site. `changelog`, `gallery`, `404` and `_astro` are reserved. |
+| `collections[].id` | string | required | matches `^[a-z0-9-]+$` | The route segment and the menu key, unique in the site. `changelog`, `gallery`, `404` and `_astro` are reserved. `demo-assets` is reserved when demos is configured. |
 | `collections[].label` | string | required | any | The name of the collection in the menu and as its title. |
 | `collections[].dir` | string | required | any | The folder to read, relative to the site folder. A page belongs to the collection with the deepest folder. |
 | `collections[].lede` | string | none | any | One sentence under the title of the collection. |

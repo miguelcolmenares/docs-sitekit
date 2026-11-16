@@ -42,7 +42,7 @@ These are lines that `sitekit check` prints for a page with one of each problem,
 | `excludedLinks`     | `docs/problems.md:8: warning: Link "./hidden.md" points to an excluded file, so only its text is kept`                                                                      |
 | `anchors`           | `docs/problems.md:8: warning: Link "./guide.md#nowhere" points to a heading that does not exist in docs/guide.md`                                                           |
 | `images`            | `docs/problems.md:10: error: Image "./pic.png" does not exist`                                                                                                              |
-| `frontmatter`       | `docs/problems.md:2: warning: Frontmatter key "titel" is not one the kit reads (title, description, order, tags, meta, links). Did you mean "title"?`                       |
+| `frontmatter`       | `docs/problems.md:2: warning: Frontmatter key "titel" is not one the kit reads (title, description, order, tags, meta, links, demo). Did you mean "title"?`                 |
 | `order`             | `docs/problems.md:3: error: Frontmatter "order" must be a number, and this is "first". Write it without quotes, for example order: 2.`                                      |
 | `duplicateHeadings` | `docs/problems.md:21: warning: Heading "Same" makes the same anchor as the one on line 19, so its link is #same-1`                                                          |
 | `callouts`          | `docs/problems.md:12: warning: "[!NOTES]" is not a callout marker, so this stays a plain blockquote. The markers are [!NOTE], [!TIP], [!IMPORTANT], [!WARNING], [!CAUTION]` |

@@ -87,6 +87,11 @@ The sticky header of every page, with the brand, the navigation, the search butt
 
 The navigation dialog for small screens, a native `<dialog>` and a few lines of script. The layout renders it after the header, and the button in the header opens it. Its script takes the first dialog of the page, so it cannot be previewed beside the real one. Open the menu of this page on a screen under 768 px wide to see it.
 
+### demo-preview
+
+The preview host of [prebuilt examples](./demo-previews.md). It receives validated data from the site pipeline and renders native controls, a sandboxed frame, source disclosures and the API reference.
+Use `sitekit upgrade` before restoring it in an older site. Its working example is the [packed consumer recipe](./extend-demo-previews.md), rather than a second fixture in the kit-only component catalog.
+
 ## Rules
 
 - Borders of 1px, never shadows.

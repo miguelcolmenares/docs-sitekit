@@ -1,6 +1,6 @@
 # Extending your site
 
-A site made by `sitekit init` is yours, so you can add to it. These guides show six things people add, each one small and each one run as a test.
+A site made by `sitekit init` is yours, so you can add to it. These guides show things people add, each one run as a test.
 
 Every guide is a folder of files in `e2e/recipes/`. The test `npm run test:e2e` applies those files to a site made by `init`, builds it, checks it with `sitekit check` and drives it in a browser. The files you read on a guide page are copied from the same folder, and a test fails when a page shows something else. If a guide stops being true, the tests fail.
 
@@ -12,6 +12,7 @@ Every guide is a folder of files in `e2e/recipes/`. The test `npm run test:e2e` 
 | [New colors](./extend-tokens.md)                    | A new accent in `design/tokens.json`, and a check of its contrast |
 | [A logo and a layout](./extend-brand-and-layout.md) | A brand logo of your own and a page layout for a collection       |
 | [A safe build](./extend-safe-build.md)              | What `sitekit check` looks for, and a rule of your own            |
+| [Prebuilt examples](./extend-demo-previews.md)      | Isolated previews, variants, source files and an API reference    |
 
 ## Where things are in a site
 

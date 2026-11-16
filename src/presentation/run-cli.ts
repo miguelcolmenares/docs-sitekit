@@ -15,6 +15,7 @@ import { countFindings, formatFinding, summarizeFindings } from "../../template/
 // which belongs to the generated site and must not end up in this CLI.
 import { buildDocuments } from "../../template/src/application/build-documents";
 import { readCustomBrands } from "../../template/src/infrastructure/custom-brands";
+import { readDemoCatalog } from "../../template/src/infrastructure/read-demos";
 import { readSources } from "../../template/src/infrastructure/read-sources";
 import { loadSiteConfig } from "../../template/src/infrastructure/site-config";
 import { nodeEnvironment, nodeFileSystem, packagedTemplate, sha256 } from "../infrastructure";
@@ -110,6 +111,7 @@ export function runCli(argv: string[], io: CliIo): number {
                 files,
                 documents,
                 routes: documents.map((document) => document.route),
+                demoFiles: readDemoCatalog(siteAbs, config, documents).files,
                 existing,
               };
             },

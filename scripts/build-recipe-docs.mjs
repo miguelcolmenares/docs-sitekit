@@ -32,7 +32,10 @@ const LANGUAGES = {
   md: "md",
   svg: "xml",
   mjs: "js",
+  js: "js",
   diff: "diff",
+  html: "html",
+  php: "php",
 };
 
 // Prettier would format the code inside the fence and the page would no longer equal the file, so the block is wrapped in

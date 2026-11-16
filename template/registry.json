@@ -1,5 +1,13 @@
 {
   "components": {
+    "demo-preview": {
+      "description": "The native controls, isolated iframe and source disclosures of the prebuilt demo capability. Requires an upgraded site and validated demo data.",
+      "files": [
+        "src/presentation/components/site/demo-preview.astro",
+        "src/presentation/demo-preview.ts"
+      ],
+      "requires": ["reference-table"]
+    },
     "button": {
       "description": "Button and buttonVariants, from shadcn/ui.",
       "files": ["src/presentation/components/ui/button.tsx"],

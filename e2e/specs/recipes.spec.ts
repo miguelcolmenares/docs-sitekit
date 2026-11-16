@@ -30,6 +30,82 @@ const token = (page: Page, name: string) =>
     return value;
   }, name);
 
+test.describe("recipe demo-previews: isolated prebuilt examples in a packed consumer", () => {
+  const route = `${BASE}docs/prebuilt-counter/`;
+  test("runs local classic assets under the base path and keeps the preview isolated", async ({
+    page,
+  }) => {
+    await theme(page, "dark");
+    await page.goto(route);
+    const frame = page.frameLocator('iframe[title="Counter preview"]');
+    await frame.getByRole("button", { name: "Count 0" }).click();
+    await expect(frame.getByRole("button", { name: "Count 1" })).toBeVisible();
+    await expect(frame.getByRole("status")).toHaveText("Count updated");
+    expect(
+      await frame.locator("body").evaluate((body) => getComputedStyle(body).backgroundColor),
+    ).toBe("rgb(255, 255, 255)");
+    expect(
+      await frame.locator("body").evaluate(() => {
+        try {
+          return window.parent.document.title;
+        } catch {
+          return "isolated";
+        }
+      }),
+    ).toBe("isolated");
+    await expect(page.locator("iframe")).toHaveAttribute("sandbox", "allow-scripts");
+    await expect(page.locator("iframe")).toHaveAttribute(
+      "src",
+      `${BASE}demo-assets/counter/index.html`,
+    );
+  });
+
+  test("selects variants and bounded viewports with native controls", async ({ page }) => {
+    await page.goto(route);
+    await page.getByLabel("Variant", { exact: true }).selectOption("alternate");
+    await expect(
+      page
+        .frameLocator('iframe[title="Alternate counter preview"]')
+        .getByRole("button", { name: "Count 10" }),
+    ).toBeVisible();
+    await page.getByLabel("Viewport", { exact: true }).selectOption("360");
+    await expect(page.locator("iframe")).toHaveCSS("width", "360px");
+    await expect(page.locator("iframe")).toHaveAttribute("height", "240");
+    await page.getByLabel("Viewport", { exact: true }).selectOption("");
+    await expect(page.locator("iframe")).toHaveAttribute("height", "420");
+  });
+
+  test("keeps source escaped, API data visible and source disclosures keyboard operable", async ({
+    page,
+  }) => {
+    await page.goto(route);
+    const disclosure = page
+      .locator("[data-demo-sources]:visible")
+      .getByText("PHP source", { exact: true });
+    await disclosure.focus();
+    await disclosure.press("Space");
+    await expect(disclosure.locator("..")).toHaveAttribute("open", "");
+    await expect(disclosure.locator("..").locator("pre")).toContainText("<?php");
+    await expect(page.getByRole("button", { name: /^Count \d/ })).toHaveCount(0);
+    await expect(page.getByRole("table", { name: "Counter API" })).toContainText(
+      "The visible count label.",
+    );
+  });
+
+  for (const width of [320, 390, 1280]) {
+    test(`contains preset overflow inside its viewport at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(route);
+      await page.getByLabel("Viewport", { exact: true }).selectOption("782");
+      expect(await overflow(page)).toBeLessThanOrEqual(0);
+      const region = page.getByRole("region", { name: "Counter preview viewport" });
+      await expect(region).toHaveAttribute("tabindex", "0");
+      for (const select of await page.locator("[data-demo-controls] select").all())
+        expect((await select.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    });
+  }
+});
+
 test.describe("recipe tool-page: an interactive page that is not markdown", () => {
   const PAGE = `${BASE}configurator/`;
   const SIZES = [
