@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "examples": [
+    {
+      "id": "counter",
+      "title": "Counter",
+      "preview": "counter/index.html",
+      "sources": [
+        { "path": "counter/index.html", "language": "html", "label": "HTML fixture" },
+        { "path": "counter/counter.js", "language": "javascript", "label": "JavaScript behavior" },
+        { "path": "counter/source.php", "language": "php", "label": "PHP source" }
+      ],
+      "variants": [
+        { "id": "alternate", "title": "Alternate counter", "preview": "counter/alternate.html" }
+      ],
+      "viewports": [
+        { "label": "Narrow", "width": 360, "height": 240 },
+        { "label": "Wide", "width": 782, "height": 360 }
+      ],
+      "api": [
+        {
+          "name": "label",
+          "type": "string",
+          "description": "The visible count label.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,16 @@
 # Options: navigation and collections
 
+## Prebuilt examples
+
+```json title="sitekit.config.json"
+{
+  "demos": { "dir": "../demos" }
+}
+```
+
+`demos` is an optional directory of prebuilt previews and source files. Markdown frontmatter selects one example by ID.
+The [demo manifest](./demo-previews.md) defines its variants, viewport presets and API metadata. The [tested recipe](./extend-demo-previews.md) shows the files.
+
 The keys that decide what the reader can click: the header menu `nav`, the `footer`, the `collections` of pages, and the `sources` they are read from.
 
 Each key is documented in the [configuration reference](./configuration.md#nav). This page shows them together and says what they change.

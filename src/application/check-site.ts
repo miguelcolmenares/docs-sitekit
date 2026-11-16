@@ -19,6 +19,8 @@ export interface CheckDeps {
     routes: string[];
     /** Every file of the repository, as repository-relative paths, to check links and images. */
     existing: ReadonlySet<string>;
+    /** Every prebuilt fixture and displayed source, including formats such as PHP that are not static assets. */
+    demoFiles?: readonly { path: string; text: string }[];
   };
 }
 
@@ -102,7 +104,7 @@ function checkSearchIndex(
 export function checkSite(deps: CheckDeps, options: CheckOptions): CheckReport {
   const { fs, env } = deps;
   const report: CheckReport = { errors: [], warnings: [], findings: [], content: [] };
-  const { config, files, documents, routes, existing } = deps.loadContent(
+  const { config, files, documents, routes, existing, demoFiles } = deps.loadContent(
     joinPath(options.root, options.siteDir),
   );
   const scanOptions = {
@@ -115,6 +117,11 @@ export function checkSite(deps: CheckDeps, options: CheckOptions): CheckReport {
     const text = `${JSON.stringify(file.frontmatter)}\n${file.content}`;
     report.findings.push(
       ...scanText(text, { ...scanOptions, location: file.path, includeMedium: true }),
+    );
+  }
+  for (const file of demoFiles ?? []) {
+    report.findings.push(
+      ...scanText(file.text, { ...scanOptions, location: file.path, includeMedium: true }),
     );
   }
 

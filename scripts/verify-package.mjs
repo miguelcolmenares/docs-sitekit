@@ -1380,7 +1380,14 @@ check(
   },
 );
 
-for (const name of ["tool-page", "collection", "brand-and-layout", "safe-build", "tokens"]) {
+for (const name of [
+  "tool-page",
+  "collection",
+  "brand-and-layout",
+  "safe-build",
+  "tokens",
+  "demo-previews",
+]) {
   applyRecipe(name, RECIPE_REPO);
 }
 check("recipes: they add no dependency to the site", () => {
@@ -1493,6 +1500,24 @@ check(
       /Safe to publish/.test(recipeKit(["check", "--dist", "site/dist"])),
       "check --dist failed",
     );
+    assert(
+      existsSync(join(RECIPE_SITE, "dist/demo-assets/counter/index.html")),
+      "missing packed consumer preview",
+    );
+    assert(
+      existsSync(join(RECIPE_SITE, "dist/demo-assets/counter/counter.js")),
+      "missing packed consumer script",
+    );
+    assert(
+      !existsSync(join(RECIPE_SITE, "dist/demo-assets/counter/source.php")),
+      "server source was published as an executable URL",
+    );
+    const previewPage = readFileSync(built("docs/prebuilt-counter"), "utf8");
+    assert(
+      previewPage.includes("/recipes/demo-assets/counter/index.html"),
+      "preview lost the site base",
+    );
+    assert(previewPage.includes('sandbox="allow-scripts"'), "preview sandbox changed");
   },
 );
 console.log("5b/6 Upgrade a site made by the published 0.1.0");

@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-15
+
 ### Added
+
+- Optional prebuilt component previews through `demos.dir`, a closed manifest and Markdown `demo` selection. Generated sites show isolated HTML fixtures, native variant and viewport controls, escaped source disclosures and API tables.
+- Local fixture assets and displayed source files are checked for path escapes, excluded content and publication findings. PHP sources are displayed as text and are not published as executable fixture assets.
+- A tested extension recipe proves the preview host from the packed package, with base-aware routes, browser interaction and iframe isolation.
 
 - **CI fails when the generated pages in `docs/` are stale.** A job, `Generated docs are current`, runs `npm run build:docs` with the `npm-auto-build` action in mode `check`, and fails when `docs/` differs from what is committed, such as `docs/configuration.md` after a key of the config schema changed. It reads no token and pushes nothing. The fix is to run `npm run build:docs` and commit `docs/`. The action is pinned by the commit SHA of its `v3.0.0` tag.
 

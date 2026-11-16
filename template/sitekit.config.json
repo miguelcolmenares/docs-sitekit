@@ -117,13 +117,21 @@
             "extend-component",
             "extend-tokens",
             "extend-brand-and-layout",
-            "extend-safe-build"
+            "extend-safe-build",
+            "extend-demo-previews"
           ]
         },
         {
           "name": "Design system",
           "tone": "neutral",
-          "items": ["components", "brand-logos", "design-tokens", "detail-page", "performance"]
+          "items": [
+            "components",
+            "brand-logos",
+            "design-tokens",
+            "detail-page",
+            "demo-previews",
+            "performance"
+          ]
         },
         {
           "name": "Content",
@@ -191,6 +199,7 @@
   "search": {
     "enabled": true
   },
+  "demos": { "dir": "../e2e/recipes/demo-previews/demos" },
   "deploy": {
     "target": "github-pages",
     "acknowledgePublicPages": false,
