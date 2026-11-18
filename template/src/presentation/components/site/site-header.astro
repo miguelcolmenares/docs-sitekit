@@ -113,12 +113,17 @@ const isCurrent = (href: string) => Boolean(current) && (current === href || (hr
     if (header instanceof HTMLElement && row instanceof HTMLElement) {
       header.setAttribute("data-nav-wide", "");
       header.toggleAttribute("data-nav-wide", row.scrollWidth <= row.clientWidth);
+      const value = `${Math.ceil(header.getBoundingClientRect().height)}px`;
+      if (document.documentElement.style.getPropertyValue("--sitekit-header-height") !== value) {
+        document.documentElement.style.setProperty("--sitekit-header-height", value);
+      }
     }
   }
 </script>
 
 <noscript>
   <style is:inline>
+    [data-site-header] { position: static; }
     [data-site-header] [data-header-row] { flex-wrap: wrap; }
     [data-site-header] [data-header-nav] { display: flex; flex-wrap: wrap; inline-size: 100%; }
     [data-site-header] [data-header-wide-action] { display: inline-flex; white-space: normal; }
@@ -129,6 +134,10 @@ const isCurrent = (href: string) => Boolean(current) && (current === href || (hr
 </noscript>
 
 <style>
+  /* This component owns its obstruction offset, including when an older global stylesheet is customized. */
+  :global(:root) {
+    scroll-padding-top: calc(var(--sitekit-header-height, var(--sk-layout-nav-h)) + 1rem);
+  }
   [data-header-row] {
     flex-wrap: wrap;
     min-block-size: var(--sk-layout-nav-h);
@@ -222,6 +231,12 @@ const isCurrent = (href: string) => Boolean(current) && (current === href || (hr
   const trigger = header?.querySelector<HTMLButtonElement>("[data-mobile-menu-open]");
   if (header && row && nav && brand && actions && trigger) {
     const dialog = document.querySelector<HTMLDialogElement>("[data-mobile-menu]");
+    const syncHeight = () => {
+      const value = `${Math.ceil(header.getBoundingClientRect().height)}px`;
+      if (root.style.getPropertyValue("--sitekit-header-height") !== value) {
+        root.style.setProperty("--sitekit-header-height", value);
+      }
+    };
     let frame = 0;
     let forceMeasure = false;
     let lastWidth = -1;
@@ -254,13 +269,14 @@ const isCurrent = (href: string) => Boolean(current) && (current === href || (hr
       }
       // The measurement and final layout settle in this animation frame, before paint.
       header.removeAttribute("data-nav-measuring");
+      syncHeight();
     };
     const schedule = (force = false) => {
       forceMeasure ||= force;
       if (!frame) frame = requestAnimationFrame(measure);
     };
-    const observer = new ResizeObserver(() => schedule());
-    for (const element of [row, nav, brand, actions]) observer.observe(element);
+    const observer = new ResizeObserver(() => { syncHeight(); schedule(); });
+    for (const element of [header, row, nav, brand, actions]) observer.observe(element);
     const mutations = new MutationObserver(() => schedule(true));
     mutations.observe(header, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
     mutations.observe(root, { attributes: true, attributeFilter: ["style", "class"] });

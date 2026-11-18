@@ -32,7 +32,7 @@ The complete brand, links and actions appear inline when they fit. Otherwise, th
 
 Escape closes the dialog and returns focus to its opener. When a wider row can show the links again, the menu closes and focus moves to the matching inline link. Without a match, focus moves to the brand.
 
-Without JavaScript, the links and repository actions remain visible in a wrapping header. An existing site gets the correction through `sitekit upgrade` when its header and menu files are unchanged. Keep customizations and merge the reported file conflicts when those components have been edited, see [Upgrading](./upgrading.md).
+Fragment links reserve the measured header height, so wrapping text does not hide a destination behind the sticky bar. Without JavaScript, the links and repository actions remain visible in a wrapping header that scrolls with the page. An existing site gets the correction through `sitekit upgrade` when its header and menu files are unchanged. Keep customizations and merge the reported file conflicts when those components have been edited, see [Upgrading](./upgrading.md).
 
 ### The base on a link
 

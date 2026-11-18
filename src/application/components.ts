@@ -1,4 +1,9 @@
 import { joinPath } from "./paths";
+import {
+  assertLegacyHeaderCompatible,
+  blockedHeaderFiles,
+  headerFilesNeedRefresh,
+} from "./header-files";
 import { LOCK_FILE } from "./init-site";
 import type { SiteLock } from "./init-site";
 import type { ComponentRegistry, FileSystem, TemplateSource } from "./ports";
@@ -71,7 +76,7 @@ export function addComponent(
 ): AddResult {
   const { fs, template, hash } = deps;
   const registry = template.registry();
-  const names = resolveComponents(registry, options.name);
+  let names = resolveComponents(registry, options.name);
   const templateFiles = new Map(template.files().map((file) => [file.path, file.content]));
   const lockPath = joinPath(options.siteAbs, LOCK_FILE);
   const lock: SiteLock = fs.exists(lockPath)
@@ -80,6 +85,15 @@ export function addComponent(
 
   const result: AddResult = { written: [], kept: [], missingPackages: [] };
   const imported = new Set<string>();
+  if (options.name === "mobile-menu" && headerFilesNeedRefresh(templateFiles, lock.files, hash)) {
+    names = resolveComponents(registry, "site-header");
+  }
+  if (!options.force && names.some((name) => name === "site-header" || name === "mobile-menu")) {
+    assertLegacyHeaderCompatible(fs, options.siteAbs, templateFiles, lock.files, hash);
+  }
+  const blockedHeaders = options.force
+    ? new Set<string>()
+    : blockedHeaderFiles(fs, options.siteAbs, templateFiles, lock.files, hash);
 
   for (const name of names) {
     for (const path of registry.components[name]!.files) {
@@ -87,6 +101,11 @@ export function addComponent(
       if (content === undefined)
         throw new Error(`The component "${name}" lists ${path}, which is not in the template.`);
       npmImports(content).forEach((pkg) => imported.add(pkg));
+
+      if (blockedHeaders.has(path)) {
+        result.kept.push(path);
+        continue;
+      }
 
       const target = joinPath(options.siteAbs, path);
       if (fs.exists(target) && !options.force) {

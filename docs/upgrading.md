@@ -42,6 +42,14 @@ current. A file you deleted is not brought back. A file in the lock that the kit
 If you already have a file at the path of a new file of the kit, and it is not the same, the upgrade treats it as the third case:
 your file stays and the kit's version is written as `.sitekit-new`.
 
+### Header files that must stay together
+
+When adopting changed current-generation header files, the content-fit header, its navigation dialog and `navigation-fit.ts` are refreshed as one compatible group. If a required file is customized or deleted, the upgrade preserves the live group and its existing hashes. It offers all three new versions as `.sitekit-new` files for a manual merge. An untouched sibling can therefore appear in the conflict report too. Merge the group together, build the site, and check the menu before deleting those copies. When the kit has not changed the group, existing customizations follow the normal per-file rules.
+
+`sitekit add site-header` also preserves this group when a required file is customized. When adopting changed navigation files, `add mobile-menu` restores the complete header group too. The existing `--force` option permits replacing customizations. The header owns its measured fragment offset, so an older, customized `global.css` does not need to be overwritten for this correction.
+
+Customized or deleted legacy navigation requires a manual migration before upgrading or restoring the header. This includes `SiteHeader.astro` and the older React `MobileMenu.tsx`: their names, props and component architecture differ from the native-dialog template. The command rejects that migration before writing any files, including the lock. An untouched legacy site still follows the existing automatic upgrade. `add --force` retains its explicit overwrite behavior; it does not migrate custom legacy props or imports.
+
 ## Look before you write
 
 `--dry-run` prints the same report and writes nothing, not even a `.sitekit-new` file:

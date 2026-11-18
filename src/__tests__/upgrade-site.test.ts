@@ -1,9 +1,12 @@
-import { initSite, kebabCasePath, LOCK_FILE, upgradeSite } from "../application";
+import { addComponent, initSite, kebabCasePath, LOCK_FILE, upgradeSite } from "../application";
 import type { SiteLock, TemplateFile } from "../application";
 import { fakeEnv, fakeTemplate, MemoryFileSystem, sha } from "./support/memory";
 
 const ROOT = "/work/widget";
 const SITE = `${ROOT}/site`;
+const HEADER = "src/presentation/components/site/site-header.astro";
+const MENU = "src/presentation/components/site/mobile-menu.astro";
+const FIT = "src/presentation/components/site/navigation-fit.ts";
 
 const pkg = (dependencies: Record<string, string>) =>
   JSON.stringify({ name: "sitekit-site", private: true, dependencies });
@@ -77,6 +80,176 @@ function setup({
       ),
   };
 }
+
+describe("the compatible header, menu and measurement files", () => {
+  const oldFiles = [
+    ...OLD,
+    { path: HEADER, content: "old header" },
+    { path: MENU, content: "old menu" },
+  ];
+  const newFiles = [
+    ...NEW,
+    { path: HEADER, content: "new header" },
+    { path: MENU, content: "new menu" },
+    { path: FIT, content: "new measurement" },
+  ];
+  for (const edited of [HEADER, MENU, FIT]) {
+    it(`preserves the whole group when ${edited} is customized`, () => {
+      const { fs, lock, upgrade } = setup({
+        oldFiles,
+        newFiles,
+        edits: { [edited]: "customized" },
+      });
+      const before = lock().files;
+      const result = upgrade();
+      expect(fs.readText(`${SITE}/${HEADER}`)).toBe(
+        edited === HEADER ? "customized" : "old header",
+      );
+      expect(fs.readText(`${SITE}/${MENU}`)).toBe(edited === MENU ? "customized" : "old menu");
+      expect(fs.exists(`${SITE}/${FIT}`)).toBe(edited === FIT);
+      expect(lock().files[HEADER]).toBe(before[HEADER]);
+      expect(lock().files[MENU]).toBe(before[MENU]);
+      expect(lock().files[FIT]).toBeUndefined();
+      for (const path of [HEADER, MENU, FIT]) expect(result.conflicts).toContain(`site/${path}`);
+      const snapshot = new Map(fs.files);
+      upgrade();
+      expect(new Map(fs.files)).toEqual(snapshot);
+    });
+  }
+
+  it("reports the blocked group in a dry run without writing files or sidecars", () => {
+    const { fs, upgrade } = setup({ oldFiles, newFiles, edits: { [MENU]: "customized" } });
+    const before = new Map(fs.files);
+    expect(upgrade({ dryRun: true }).conflicts).toContain(`site/${HEADER}`);
+    expect(new Map(fs.files)).toEqual(before);
+  });
+
+  it("upgrades the unedited group together and only then installs its new helper", () => {
+    const { fs, upgrade } = setup({ oldFiles, newFiles });
+    const result = upgrade();
+    expect(result.replaced).toEqual(expect.arrayContaining([`site/${HEADER}`, `site/${MENU}`]));
+    expect(result.added).toContain(`site/${FIT}`);
+    expect(fs.readText(`${SITE}/${FIT}`)).toBe("new measurement");
+    expect(upgrade().replaced).toHaveLength(0);
+    expect(upgrade().added).toHaveLength(0);
+  });
+
+  it("keeps later customizations without conflicts when the kit did not change the group", () => {
+    const { upgrade } = setup({ oldFiles: newFiles, newFiles, edits: { [MENU]: "customized" } });
+    const result = upgrade();
+    expect(result.kept).toContain(`site/${MENU}`);
+    expect(result.conflicts).not.toContain(`site/${HEADER}`);
+  });
+
+  for (const force of [false, true]) {
+    it(`restores a header with a customized menu only when force is ${force}`, () => {
+      const { fs } = setup({ oldFiles, newFiles, edits: { [MENU]: "customized" } });
+      const template = {
+        ...fakeTemplate({ files: newFiles }),
+        registry: () => ({
+          components: {
+            "site-header": { description: "", files: [HEADER, FIT], requires: ["mobile-menu"] },
+            "mobile-menu": { description: "", files: [MENU], requires: [] },
+          },
+        }),
+      };
+      const result = addComponent(
+        { fs, template, hash: sha },
+        { siteAbs: SITE, name: "site-header", force },
+      );
+      expect(fs.readText(`${SITE}/${HEADER}`)).toBe(force ? "new header" : "old header");
+      expect(fs.readText(`${SITE}/${MENU}`)).toBe(force ? "new menu" : "customized");
+      expect(fs.exists(`${SITE}/${FIT}`)).toBe(force);
+      if (!force) expect(result.kept).toEqual(expect.arrayContaining([HEADER, MENU, FIT]));
+    });
+  }
+
+  it("preserves a deleted component directory and the other live members of the group", () => {
+    const { fs, upgrade } = setup({ oldFiles, newFiles });
+    fs.remove(`${SITE}/${MENU}`);
+    fs.writeText(`${SITE}/${MENU}/custom.txt`, "unowned directory");
+    const result = upgrade();
+    expect(fs.readText(`${SITE}/${HEADER}`)).toBe("old header");
+    expect(fs.readText(`${SITE}/${MENU}/custom.txt`)).toBe("unowned directory");
+    expect(result.deleted).toContain(`site/${MENU}`);
+    expect(result.conflicts).toContain(`site/${HEADER}`);
+    expect(fs.exists(`${SITE}/${FIT}`)).toBe(false);
+  });
+
+  for (const legacy of ["SiteHeader.astro", "MobileMenu.tsx"]) {
+    it(`rejects a customized legacy ${legacy} before any upgrade or restoration writes`, () => {
+      const oldFiles = [
+        ...OLD,
+        { path: HEADER.replace("site-header.astro", "SiteHeader.astro"), content: "old header" },
+        { path: MENU.replace("mobile-menu.astro", "MobileMenu.tsx"), content: "old React menu" },
+      ];
+      const path = `src/presentation/components/site/${legacy}`;
+      const { fs, upgrade } = setup({
+        oldFiles,
+        newFiles,
+        edits: { [path]: "customized legacy source" },
+      });
+      const before = new Map(fs.files);
+      expect(() => upgrade()).toThrow(/legacy.*manual/i);
+      expect(new Map(fs.files)).toEqual(before);
+      expect(() => upgrade({ dryRun: true })).toThrow(/legacy.*manual/i);
+      expect(new Map(fs.files)).toEqual(before);
+      const template = {
+        ...fakeTemplate({ files: newFiles }),
+        registry: () => ({
+          components: {
+            "site-header": { description: "", files: [HEADER, FIT], requires: ["mobile-menu"] },
+            "mobile-menu": { description: "", files: [MENU], requires: [] },
+          },
+        }),
+      };
+      expect(() =>
+        addComponent({ fs, template, hash: sha }, { siteAbs: SITE, name: "site-header" }),
+      ).toThrow(/legacy.*manual/i);
+      expect(new Map(fs.files)).toEqual(before);
+      expect(() =>
+        addComponent(
+          { fs, template, hash: sha },
+          { siteAbs: SITE, name: "site-header", force: true },
+        ),
+      ).not.toThrow();
+    });
+  }
+
+  it("rejects a deleted legacy prerequisite before writing any file or lock", () => {
+    const legacy = HEADER.replace("site-header.astro", "SiteHeader.astro");
+    const { fs, upgrade } = setup({
+      oldFiles: [...OLD, { path: legacy, content: "old header" }],
+      newFiles,
+    });
+    fs.remove(`${SITE}/${legacy}`);
+    const before = new Map(fs.files);
+    expect(() => upgrade()).toThrow(/legacy.*manual/i);
+    expect(new Map(fs.files)).toEqual(before);
+  });
+
+  for (const force of [false, true]) {
+    it(`restores the complete new group when mobile-menu is requested, force ${force}`, () => {
+      const { fs } = setup({ oldFiles, newFiles, edits: force ? { [HEADER]: "customized" } : {} });
+      const template = {
+        ...fakeTemplate({ files: newFiles }),
+        registry: () => ({
+          components: {
+            "site-header": { description: "", files: [HEADER, FIT], requires: ["mobile-menu"] },
+            "mobile-menu": { description: "", files: [MENU], requires: [] },
+          },
+        }),
+      };
+      const result = addComponent(
+        { fs, template, hash: sha },
+        { siteAbs: SITE, name: "mobile-menu", force },
+      );
+      for (const path of [HEADER, MENU, FIT]) expect(result.written).toContain(path);
+      expect(fs.readText(`${SITE}/${HEADER}`)).toBe("new header");
+      expect(fs.readText(`${SITE}/${FIT}`)).toBe("new measurement");
+    });
+  }
+});
 
 describe("upgradeSite", () => {
   it("replaces a file you did not edit and the kit changed", () => {

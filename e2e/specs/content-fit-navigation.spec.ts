@@ -4,7 +4,58 @@ const origin = `http://127.0.0.1:${Number(process.env.E2E_PORT ?? 4401) + 4}`;
 const links = ["Guides", "Examples", "Patterns", "Reference", "Changes"];
 test.use({ baseURL: origin });
 
-test("the first frame selects the fitted layout before deferred scripts run", async ({ page }) => {
+for (const width of [320, 390])
+  for (const fontSize of [16, 32])
+    for (const javaScriptEnabled of [true, false]) {
+      test(`native fragments stay visible at ${width}px, ${fontSize}px text, JavaScript ${javaScriptEnabled}`, async ({
+        browser,
+      }) => {
+        const context = await browser.newContext({
+          javaScriptEnabled,
+          viewport: { width, height: 900 },
+        });
+        try {
+          const page = await context.newPage();
+          const errors: string[] = [];
+          page.on("pageerror", (error) => errors.push(error.message));
+          const route = origin + "/widget/docs/guide/";
+          // Default-size cases also exercise a cold direct fragment URL before any deferred module runs.
+          await page.goto(route + (fontSize === 16 ? "#advanced" : ""));
+          await page.evaluate((size) => {
+            document.documentElement.style.fontSize = `${size}px`;
+          }, fontSize);
+          if (javaScriptEnabled) await settledFonts(page);
+          // Same-document URL navigation uses the browser's native fragment placement, without a scripted scroll.
+          if (fontSize === 32) await page.goto(route + "#advanced");
+          const boxes = await page.evaluate(() => {
+            const header = document.querySelector<HTMLElement>("[data-site-header]")!;
+            const target = document.getElementById("advanced")!;
+            const head = header.getBoundingClientRect();
+            const heading = target.getBoundingClientRect();
+            const point = document.elementFromPoint(heading.left + 5, heading.top + 5);
+            return {
+              headerBottom: Math.max(0, head.bottom),
+              targetTop: heading.top,
+              targetBottom: heading.bottom,
+              viewportHeight: innerHeight,
+              covered: header.contains(point),
+              position: getComputedStyle(header).position,
+            };
+          });
+          expect(boxes.targetTop).toBeGreaterThanOrEqual(boxes.headerBottom);
+          expect(boxes.targetBottom).toBeLessThanOrEqual(boxes.viewportHeight);
+          expect(boxes.covered).toBe(false);
+          if (!javaScriptEnabled) expect(boxes.position).toBe("static");
+          expect(errors).toEqual([]);
+        } finally {
+          await context.close();
+        }
+      });
+    }
+
+test("the first parser-complete frame selects the fitted layout before deferred scripts run", async ({
+  page,
+}) => {
   const standard = `http://127.0.0.1:${Number(process.env.E2E_PORT ?? 4401)}`;
   let releaseScripts!: () => void;
   const scriptsHeld = new Promise<void>((resolve) => {
@@ -16,6 +67,8 @@ test("the first frame selects the fitted layout before deferred scripts run", as
   });
   await page.addInitScript(() => {
     const capture = () => {
+      // Firefox can invoke rAF while a parsed classic script is still waiting for render-blocking CSS.
+      if (document.readyState === "loading") return requestAnimationFrame(capture);
       const header = document.querySelector("[data-site-header]");
       const actions = header?.querySelector("[data-header-actions]");
       if (!header || !actions) return requestAnimationFrame(capture);
