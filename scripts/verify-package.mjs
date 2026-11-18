@@ -5,7 +5,20 @@
 // a wrong path, server code in the browser bundle) fails here, before publish.
 
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  linkSync,
+  lstatSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  readlinkSync,
+  renameSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
+import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { applyRecipe } from "./recipes.mjs";
 
@@ -1721,6 +1734,99 @@ check("the upgraded site builds, is still without search and llms.txt, and passe
   );
   assert(/Safe to publish/.test(run("node", [CLI, "check"], { cwd: OLD_REPO })), "check failed");
 });
+
+console.log("5f/6 Managed paths through the installed packed CLI");
+const MANAGED_HEADER = "src/presentation/components/site/site-header.astro";
+const MANAGED_HELPER = "src/presentation/components/site/navigation-fit.ts";
+const safetyHash = (value) => createHash("sha256").update(value).digest("hex");
+// Do not follow links while recording the owned fixture, including dangling ones.
+function safetySnapshot(directory) {
+  return Object.fromEntries(
+    readdirSync(directory).flatMap((name) => {
+      const path = join(directory, name);
+      const entry = lstatSync(path);
+      if (entry.isSymbolicLink()) return [[name, `link:${readlinkSync(path)}`]];
+      if (entry.isDirectory())
+        return [
+          [name, "directory"],
+          ...Object.entries(safetySnapshot(path)).map(([relative, value]) => [
+            `${name}/${relative}`,
+            value,
+          ]),
+        ];
+      return [[name, `file:${readFileSync(path).toString("base64")}`]];
+    }),
+  );
+}
+for (const kind of [
+  "stock-symlink-upgrade",
+  "stock-symlink-add",
+  "stock-symlink-force",
+  "dangling-header",
+  "parent-link-upgrade",
+  "parent-link-force",
+  "hardlink-header",
+  "lock-link",
+  "conflict-companion",
+]) {
+  check(`the packed CLI refuses ${kind} without outside or partial site writes`, () => {
+    const fixture = join(WORK, `managed-path-${kind}`);
+    const site = join(fixture, "site");
+    try {
+      write(join(fixture, "package.json"), JSON.stringify({ name: "path-safety-fixture" }));
+      run("node", [CLI, "init", "--dir", "site", "--name", "Path safety"], { cwd: fixture });
+      const header = join(site, MANAGED_HEADER);
+      // Deliberately synthetic prior managed bytes, not a claimed historical release snapshot.
+      const old = `${readFileSync(header, "utf8")}\n<!-- previous managed safety fixture -->\n`;
+      writeFileSync(header, old);
+      const lockPath = join(site, ".sitekit.json");
+      const lock = JSON.parse(readFileSync(lockPath, "utf8"));
+      lock.sitekit = "0.4.0";
+      lock.files[MANAGED_HEADER] = safetyHash(old);
+      writeFileSync(lockPath, JSON.stringify(lock));
+      const outside = join(fixture, "outside.astro");
+      writeFileSync(outside, old);
+      if (kind.startsWith("parent-link")) {
+        const parent = join(site, "src/presentation/components/site");
+        const relocated = join(fixture, "outside-components");
+        renameSync(parent, relocated);
+        symlinkSync(relocated, parent);
+      } else if (kind === "lock-link") {
+        const externalLock = join(fixture, "outside-lock.json");
+        renameSync(lockPath, externalLock);
+        symlinkSync(externalLock, lockPath);
+      } else if (kind === "conflict-companion") {
+        writeFileSync(join(site, MANAGED_HELPER), "// custom helper fixture\n");
+        symlinkSync(outside, `${header}.sitekit-new`);
+      } else {
+        rmSync(header);
+        if (kind === "hardlink-header") linkSync(outside, header);
+        else
+          symlinkSync(
+            kind === "dangling-header" ? join(fixture, "missing.astro") : outside,
+            header,
+          );
+      }
+      const before = safetySnapshot(fixture);
+      const add = kind.endsWith("add") || kind.endsWith("force");
+      const args = add
+        ? ["add", "site-header", "--dir", "site", ...(kind.endsWith("force") ? ["--force"] : [])]
+        : ["upgrade", "--dir", "site", "--apply"];
+      const result = capture("node", [CLI, ...args], { cwd: fixture });
+      assert(result.status === 1, `expected a managed-path rejection, got ${result.status}`);
+      assert(
+        /Unsafe managed path.*manual migration/.test(result.stderr),
+        "no actionable path rejection",
+      );
+      assert(
+        JSON.stringify(safetySnapshot(fixture)) === JSON.stringify(before),
+        "the CLI changed an outside file or partially changed the site",
+      );
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+}
 
 console.log("6/6 Done");
 console.log(`\n${passed} passed, ${failures.length} failed`);

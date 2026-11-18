@@ -1,5 +1,6 @@
 import { joinPath } from "./paths";
 import type { FileSystem } from "./ports";
+import { assertManagedPaths } from "./managed-path";
 
 const HEADER_FILES = [
   "src/presentation/components/site/site-header.astro",
@@ -32,6 +33,7 @@ export function assertLegacyHeaderCompatible(
   const legacy = ["SiteHeader.astro", "MobileMenu.astro", "MobileMenu.tsx", "mobile-menu.tsx"]
     .map((name) => `src/presentation/components/site/${name}`)
     .filter((path) => locked[path] !== undefined || fs.exists(joinPath(siteAbs, path)));
+  assertManagedPaths(fs, siteAbs, legacy);
   const unsafe = legacy.filter((path) => {
     const target = joinPath(siteAbs, path);
     return (
@@ -53,6 +55,7 @@ export function blockedHeaderFiles(
   locked: Readonly<Record<string, string>>,
   hash: (content: string) => string,
 ): ReadonlySet<string> {
+  assertManagedPaths(fs, siteAbs, HEADER_FILES, { allowDirectoryLeaves: true });
   if (!headerFilesNeedRefresh(files, locked, hash)) return new Set();
   const blocked = HEADER_FILES.some((path) => {
     const target = joinPath(siteAbs, path);

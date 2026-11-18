@@ -2,6 +2,13 @@
 export interface FileSystem {
   exists(path: string): boolean;
   isDirectory(path: string): boolean;
+  /**
+   * Optional physical-entry inspection that does not follow symbolic links. The Node adapter
+   * supplies it for managed-path safety; older abstract adapters retain their existing file and
+   * directory model and remain responsible for equivalent physical-path protection.
+   * "file" means an ordinary single-link regular file; symlinks and shared inodes are "other".
+   */
+  pathKind?(path: string): "missing" | "file" | "directory" | "other";
   readText(path: string): string;
   writeText(path: string, content: string): void;
   /** Deletes a file. A file that is not there is not an error. */

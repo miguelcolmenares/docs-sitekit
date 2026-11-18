@@ -1,5 +1,6 @@
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
   readFileSync,
   readdirSync,
@@ -21,6 +22,18 @@ function walk(directory: string, prefix = ""): string[] {
 export const nodeFileSystem: FileSystem = {
   exists: (path) => existsSync(path),
   isDirectory: (path) => existsSync(path) && statSync(path).isDirectory(),
+  pathKind(path) {
+    try {
+      const entry = lstatSync(path);
+      if (entry.isDirectory()) return "directory";
+      // A shared inode must not be overwritten through a managed destination either.
+      if (entry.isFile() && entry.nlink === 1) return "file";
+      return "other";
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") return "missing";
+      throw error;
+    }
+  },
   readText: (path) => readFileSync(path, "utf8"),
   writeText(path, content) {
     mkdirSync(dirname(path), { recursive: true });

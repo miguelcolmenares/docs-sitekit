@@ -37,6 +37,26 @@ and `--dry-run` shows what it would write.
 | `sitekit add <component> [--force]`     | Copy a component and what it needs. A file you edited is kept.                |
 | `sitekit upgrade [--dry-run] [--apply]` | Bring a site up to the installed kit. A file you edited is never overwritten. |
 
+## Managed updates
+
+The default Node adapter checks the selected site root and managed paths beneath it before `add` or `upgrade` writes.
+Ancestors above the selected site root follow normal filesystem resolution.
+It rejects symbolic links, including dangling links, special files and files linked at multiple paths.
+Component restoration rejects a directory at a file destination.
+Upgrade preserves existing directory placeholders and checks its planned conflict copies before writing.
+The check also applies to upgrade state, `.sitekit-new` conflict copies and `add --force`.
+Resolve unsupported paths manually before retrying.
+
+Programmatic `FileSystem` adapters can supply optional `pathKind` inspection.
+Older adapters still compile and remain responsible for safely resolving their own paths.
+
+## Content-fit navigation
+
+The header measures its brand, links and actions rather than choosing a fixed viewport breakpoint.
+DOM mutations and font completion force a fit check.
+While collapsed, a size-only content shrink waits until the header row grows before the inline layout is reconsidered.
+Every destination remains available through the compact menu.
+
 ## GitHub Action
 
 `init` writes a workflow that rebuilds the site with this repository's action. You can also call it from any workflow of your own, for example to

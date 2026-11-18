@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-11-18
+
+### Fixed
+
+- Check managed destinations, parents, state and conflict copies before Node-backed `add` or `upgrade` writes. Refuse symbolic links, files linked at multiple paths and other unsupported entries, including forced component restoration.
+- Keep existing programmatic filesystem adapters compatible through optional path inspection.
+
+### Changed
+
+- Document the collapsed header's intentional size-only content shrink limit. DOM mutations and font completion still force measurement.
+
 ## [0.4.1] - 2026-11-18
 
 ### Fixed
