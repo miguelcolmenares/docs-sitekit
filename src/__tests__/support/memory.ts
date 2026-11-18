@@ -25,6 +25,10 @@ export class MemoryFileSystem implements FileSystem {
     return [...this.files.keys()].some((file) => file.startsWith(prefix));
   }
 
+  pathKind(path: string): "missing" | "file" | "directory" | "other" {
+    return this.files.has(path) ? "file" : this.isDirectory(path) ? "directory" : "missing";
+  }
+
   readText(path: string): string {
     const content = this.files.get(path);
     if (content === undefined) throw new Error(`ENOENT: ${path}`);

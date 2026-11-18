@@ -5,6 +5,7 @@ import {
   headerFilesNeedRefresh,
 } from "./header-files";
 import { LOCK_FILE } from "./init-site";
+import { assertManagedPaths } from "./managed-path";
 import type { SiteLock } from "./init-site";
 import type { ComponentRegistry, FileSystem, TemplateSource } from "./ports";
 
@@ -79,6 +80,7 @@ export function addComponent(
   let names = resolveComponents(registry, options.name);
   const templateFiles = new Map(template.files().map((file) => [file.path, file.content]));
   const lockPath = joinPath(options.siteAbs, LOCK_FILE);
+  assertManagedPaths(fs, options.siteAbs, [LOCK_FILE, "package.json"]);
   const lock: SiteLock = fs.exists(lockPath)
     ? (JSON.parse(fs.readText(lockPath)) as SiteLock)
     : { sitekit: template.version(), files: {} };
@@ -88,12 +90,15 @@ export function addComponent(
   if (options.name === "mobile-menu" && headerFilesNeedRefresh(templateFiles, lock.files, hash)) {
     names = resolveComponents(registry, "site-header");
   }
-  if (!options.force && names.some((name) => name === "site-header" || name === "mobile-menu")) {
+  const managedPaths = names.flatMap((name) => registry.components[name]!.files);
+  assertManagedPaths(fs, options.siteAbs, managedPaths);
+  const handlesHeaders = names.some((name) => name === "site-header" || name === "mobile-menu");
+  if (!options.force && handlesHeaders) {
     assertLegacyHeaderCompatible(fs, options.siteAbs, templateFiles, lock.files, hash);
   }
-  const blockedHeaders = options.force
-    ? new Set<string>()
-    : blockedHeaderFiles(fs, options.siteAbs, templateFiles, lock.files, hash);
+  const blockedHeaders = handlesHeaders
+    ? blockedHeaderFiles(fs, options.siteAbs, templateFiles, lock.files, hash)
+    : new Set<string>();
 
   for (const name of names) {
     for (const path of registry.components[name]!.files) {
@@ -102,7 +107,7 @@ export function addComponent(
         throw new Error(`The component "${name}" lists ${path}, which is not in the template.`);
       npmImports(content).forEach((pkg) => imported.add(pkg));
 
-      if (blockedHeaders.has(path)) {
+      if (!options.force && blockedHeaders.has(path)) {
         result.kept.push(path);
         continue;
       }
