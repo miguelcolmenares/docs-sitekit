@@ -275,6 +275,6 @@ describe("how the page loads, enforced", () => {
     const button = header.match(/<button[^>]*data-search-open[\s\S]*?<\/button>/)?.[0] ?? "";
     expect(button).not.toBe("");
     expect(button).not.toMatch(/aria-label=/);
-    expect(button).toMatch(/<span class="sr-only sm:not-sr-only">Search<\/span>/); // the name at every width
+    expect(button).toMatch(/<span data-header-search-text class="sr-only">Search<\/span>/); // the name at every width
   });
 });

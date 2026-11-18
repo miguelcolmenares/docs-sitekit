@@ -87,7 +87,7 @@ jobs:
       - run: npm ci
       # The tests and the type check import code from template/, which has its own dependencies.
       - run: npm ci --prefix template
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium firefox webkit
       # Packs the tarball, installs it, runs the CLI on a throwaway repository, builds the site it
       # generates, and then drives that site in a browser on a phone and a desktop.
       - run: npm run test:e2e

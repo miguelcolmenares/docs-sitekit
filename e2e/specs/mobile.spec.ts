@@ -253,7 +253,7 @@ test.describe("contrast measured in the browser", () => {
           expect(offenders.filter((offender) => offender.element.startsWith("span"))).toEqual([]);
         });
 
-        // The menu button is hidden from md up, so the open menu only exists at the phone widths.
+        // This fixture needs the compact menu at each phone width; other content may need it at wider widths too.
         if (viewport.width < 768) {
           test(`the open mobile menu at ${viewport.name} reaches AA`, async ({ page }) => {
             await page.setViewportSize({ width: viewport.width, height: viewport.height });

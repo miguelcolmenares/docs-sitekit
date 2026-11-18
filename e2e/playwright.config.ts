@@ -9,6 +9,7 @@ const OWN_PORT = PORT + 1;
 const NAV_PORT = PORT + 2;
 // The site that the recipes of "Extending your site" are applied to, built by verify-package, is served on the one after that.
 const RECIPES_PORT = PORT + 3;
+const HEADER_PORT = PORT + 4;
 
 export default defineConfig({
   testDir: join(import.meta.dirname, "specs"),
@@ -17,7 +18,19 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: { baseURL: `http://127.0.0.1:${PORT}`, trace: "on-first-retry" },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    {
+      name: "header-firefox",
+      testMatch: "content-fit-navigation.spec.ts",
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "header-webkit",
+      testMatch: "content-fit-navigation.spec.ts",
+      use: { ...devices["Desktop Safari"] },
+    },
+  ],
   // Serves the site that `npm run verify:package` generated and built, the way GitHub Pages would.
   webServer: [
     {
@@ -42,6 +55,12 @@ export default defineConfig({
       command: `node e2e/serve.mjs --dist e2e/.build/recipes-repo/site/dist --base /recipes/ --port ${RECIPES_PORT}`,
       cwd: join(import.meta.dirname, ".."),
       url: `http://127.0.0.1:${RECIPES_PORT}/recipes/`,
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: `node e2e/serve.mjs --dist e2e/.build/header-site --base /widget/ --port ${HEADER_PORT}`,
+      cwd: join(import.meta.dirname, ".."),
+      url: `http://127.0.0.1:${HEADER_PORT}/widget/`,
       reuseExistingServer: !process.env.CI,
     },
   ],

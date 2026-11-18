@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-18
+
+### Fixed
+
+- The header switches to its native navigation dialog when the complete brand, links and actions do not fit on one row. Available space, loaded fonts and changed labels determine the layout instead of a viewport breakpoint. Every destination remains available.
+- Resizing keeps an open menu until the inline navigation fits, then closes it and transfers focus to the corresponding link. The compact header wraps at larger text sizes. Without JavaScript, the same links and repository actions remain visible in a wrapping header.
+
 ## [0.4.0] - 2026-11-15
 
 ### Added
