@@ -85,7 +85,7 @@ The sticky header of every page, with the brand, the navigation, the search butt
 
 ### mobile-menu
 
-The navigation dialog for small screens, a native `<dialog>` and a few lines of script. The layout renders it after the header, and the button in the header opens it. Its script takes the first dialog of the page, so it cannot be previewed beside the real one. Open the menu of this page on a screen under 768 px wide to see it.
+The navigation dialog shown when the complete inline header does not fit, a native `<dialog>` and a few lines of script. The layout renders it after the header, and the button in the header opens it. Its script takes the first dialog of the page, so it cannot be previewed beside the real one. Narrow the page until the menu button appears to try it, see [Navigation](./options-navigation.md#the-header-menu).
 
 ### demo-preview
 

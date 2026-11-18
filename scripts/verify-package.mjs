@@ -1285,6 +1285,40 @@ check("a path of nav and footer.links gets the base, and the other links are not
   assert(!html.includes("/widget/widget/"), "a path that had the base got it twice");
 });
 
+console.log("5d/6 A packed consumer with a long name and five navigation collections");
+const HEADER_SITE = join(WORK, "header-site");
+const headerConfig = JSON.parse(savedConfig);
+headerConfig.site.name = "Practical Atlas Library";
+headerConfig.nav = [
+  { label: "Guides", href: "/docs/" },
+  { label: "Examples", href: "/tutorials/" },
+  { label: "Patterns", href: "/examples/" },
+  { label: "Reference", href: "/reference/" },
+  { label: "Changes", href: "/changes/" },
+];
+for (const id of ["reference", "changes"]) {
+  write(
+    join(REPO, `header-${id}/overview.md`),
+    `---\ntitle: ${id}\ndescription: Navigation sizing fixture.\n---\n\nGeneric fixture content.\n`,
+  );
+  headerConfig.collections.push({ id, label: id, dir: `../header-${id}` });
+}
+writeFileSync(configPath, JSON.stringify(headerConfig, null, 2));
+try {
+  runLoud("npm", ["run", "build", "--", "--outDir", HEADER_SITE], {
+    cwd: SITE,
+    env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" },
+  });
+} finally {
+  writeFileSync(configPath, savedConfig);
+}
+check("the packed header fixture preserves its complete names and navigation", () => {
+  const html = readFileSync(join(HEADER_SITE, "index.html"), "utf8");
+  assert(html.includes(headerConfig.site.name), "the header fixture lost its full name");
+  for (const link of headerConfig.nav)
+    assert(html.includes(`href="/widget${link.href}"`), "a header destination is missing");
+});
+
 console.log("5e/6 Recipes: extend a site made by init (docs/extend-*.md)");
 // Each recipe of "Extending your site" is a folder in e2e/recipes/, applied here to a site made by `init` and then built,
 // checked and driven by e2e/specs/recipes.spec.ts. The commands a page names are run below with the real CLI.

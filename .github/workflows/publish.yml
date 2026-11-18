@@ -34,7 +34,7 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run test:e2e
       # The first version of a package is published by hand, because a new name cannot have a trusted
       # publisher until it exists. The tag that follows must not fail on a version that is already there.
