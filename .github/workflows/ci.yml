@@ -8,8 +8,8 @@ on:
 permissions:
   contents: read
 
-# A newer push to a pull request replaces the run of the old commit. A run on main is never cancelled:
-# each merge is checked to the end, and the run is the record that main was green.
+# A newer push to a pull request replaces the run of the old commit. A run in progress on main is never
+# cancelled: each merge is checked to the end, and the run is the record that main was green.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
