@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **An optional `analytics` key.** `"provider": "gtm"` loads Google Tag Manager, with its head script and the `noscript` frame after `<body>`. `"provider": "ga4"` loads Google Analytics 4 with the gtag.js snippet. The `id` must start with `GTM-` or `G-` to match the provider, and any other id fails the build and `check`. A site without the key has no script, no request and no cookie from analytics, and existing sites do not change. The kit does not handle consent. See [docs/options-analytics.md](docs/options-analytics.md).
+
 ## [0.4.2] - 2026-11-18
 
 ### Fixed

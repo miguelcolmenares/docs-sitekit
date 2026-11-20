@@ -211,3 +211,12 @@ The date of the last change of each page, at the foot of the page. A site withou
 | Key | Type | Default | Allowed values | Description |
 | --- | --- | --- | --- | --- |
 | `lastUpdated.enabled` | boolean | `false` | `true`, `false` | Show the date of the last commit that changed the file, read from git at build time. It needs the full history: a shallow clone shows no dates. |
+
+## analytics
+
+Google Tag Manager or Google Analytics 4 in the head of every page. A site without the key has no script, no request and no cookie from analytics. The kit does not handle consent: if your visitors need a notice, the site owner writes it.
+
+| Key | Type | Default | Allowed values | Description |
+| --- | --- | --- | --- | --- |
+| `analytics.provider` | string | required | `"gtm"`, `"ga4"` | `gtm` loads Google Tag Manager, with its head script and the `noscript` frame after `<body>`. `ga4` loads Google Analytics 4 with the gtag.js snippet. A site has one of them. |
+| `analytics.id` | string | required | any | The container ID of Google Tag Manager, such as `GTM-XXXXXXX`, or the measurement ID of Google Analytics 4, such as `G-XXXXXXXXXX`. It starts with the prefix of the provider. It is public, so it is safe to commit. |

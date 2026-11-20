@@ -438,6 +438,18 @@ describe("upgradeSite", () => {
       expect(after.theme).toEqual({ default: "light" });
     });
 
+    it("keeps an analytics key the owner has set, and never adds one", () => {
+      const { fs, upgrade } = setup();
+      const path = `${SITE}/sitekit.config.json`;
+      const config = JSON.parse(fs.readText(path)) as Record<string, unknown>;
+      config.analytics = { provider: "gtm", id: "GTM-ABC1234" };
+      fs.writeText(path, JSON.stringify(config));
+      const result = upgrade();
+      expect(result.options.map((option) => option.key)).not.toContain("analytics");
+      const after = JSON.parse(fs.readText(path)) as Record<string, unknown>;
+      expect(after.analytics).toEqual({ provider: "gtm", id: "GTM-ABC1234" });
+    });
+
     it("does not turn the edit link or the dates off on a site that already has their files", () => {
       const withBoth = [
         ...OLD,
