@@ -4,6 +4,7 @@ import type { Locator, Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { PAGES } from "../../template/src/examples/catalog";
+import { answerGoogleTags, isGoogleTag } from "../support/analytics";
 import { measureContrast } from "../support/contrast";
 
 // The pages of the components belong to the documentation site of this project, which verify-package builds from the
@@ -19,6 +20,7 @@ const registry = JSON.parse(readFileSync(join(TEMPLATE, "registry.json"), "utf8"
 };
 
 test.use({ baseURL: OWN });
+test.beforeEach(({ page }) => answerGoogleTags(page));
 
 const url = (name: string) => `${BASE}/components/${name}/`;
 const exampleText = (name: string, id: string) =>
@@ -466,7 +468,12 @@ test.describe("the examples", () => {
   test("a page makes no request to another host", async ({ page }) => {
     const outside: string[] = [];
     page.on("request", (request) => {
-      if (!request.url().startsWith(OWN) && !request.url().startsWith("data:"))
+      // The Google tags of the container of the kit's own site are the one allowed host, answered by answerGoogleTags.
+      if (
+        !request.url().startsWith(OWN) &&
+        !request.url().startsWith("data:") &&
+        !isGoogleTag(new URL(request.url()))
+      )
         outside.push(request.url());
     });
     for (const name of ["button", "hero", "command-box", "catalog-filter"]) {
