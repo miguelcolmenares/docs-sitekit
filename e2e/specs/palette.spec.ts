@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { answerGoogleTags } from "../support/analytics";
 import { measureContrast } from "../support/contrast";
 
 // The color palette of the design tokens page of this project, built by verify-package from the template folder.
@@ -32,6 +33,7 @@ const rgb = (hex: string) => {
 };
 
 test.use({ baseURL: OWN });
+test.beforeEach(({ page }) => answerGoogleTags(page));
 
 test.describe("the color palette on the design tokens page", () => {
   test("shows every color token of both sets, with the color of the file", async ({ page }) => {

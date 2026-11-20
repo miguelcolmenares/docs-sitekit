@@ -1228,8 +1228,19 @@ check("the site of the project has a page for each component that has an example
 check("the site of the project makes no request to another host from a component page", () => {
   const html = readFileSync(join(OWN, "components", "stat-row", "index.html"), "utf8");
   const hosts = [...html.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((match) => match[1]);
+  // The site of the project sets its own analytics (template/sitekit.config.json), so its noscript frame is the one
+  // request to another host that is allowed, and only the frame of the container that the config names.
+  const { analytics } = JSON.parse(
+    readFileSync(join(ROOT, "template", "sitekit.config.json"), "utf8"),
+  );
+  const allowed =
+    analytics?.provider === "gtm"
+      ? [`https://www.googletagmanager.com/ns.html?id=${analytics.id}`]
+      : [];
   const foreign = hosts.filter(
-    (url) => !/^https:\/\/(github\.com\/(miguelcolmenares|demo)|miguelcolmenares\.com)\//.test(url),
+    (url) =>
+      !allowed.includes(url) &&
+      !/^https:\/\/(github\.com\/(miguelcolmenares|demo)|miguelcolmenares\.com)\//.test(url),
   );
   assert(foreign.length === 0, `links to: ${foreign.join(", ")}`);
   assert(!/<script[^>]+src="https?:/.test(html), "a script is loaded from another host");
