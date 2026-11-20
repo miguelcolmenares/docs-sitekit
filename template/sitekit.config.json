@@ -223,5 +223,9 @@
     "enabled": true,
     "optional": ["examples"],
     "markdownPages": true
+  },
+  "analytics": {
+    "provider": "gtm",
+    "id": "GTM-P7JGH55"
   }
 }
