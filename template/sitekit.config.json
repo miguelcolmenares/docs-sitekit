@@ -104,7 +104,8 @@
             "options-search-llms",
             "options-checks",
             "options-edit-link",
-            "options-brand-logos"
+            "options-brand-logos",
+            "options-analytics"
           ]
         },
         {

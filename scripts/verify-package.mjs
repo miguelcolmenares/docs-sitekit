@@ -1298,6 +1298,83 @@ check("a path of nav and footer.links gets the base, and the other links are not
   assert(!html.includes("/widget/widget/"), "a path that had the base got it twice");
 });
 
+console.log("5d/6 Analytics: one provider in the head, or none at all");
+// The default site has no `analytics` key, so it has no script, no request and no cookie from a provider. Two more builds
+// of the same site set one provider each, and the config is put back after each one.
+const GTM_SITE = join(WORK, "analytics-gtm");
+const GA4_SITE = join(WORK, "analytics-ga4");
+for (const [analytics, outDir] of [
+  [{ provider: "gtm", id: "GTM-ABC1234" }, GTM_SITE],
+  [{ provider: "ga4", id: "G-ABC1234" }, GA4_SITE],
+]) {
+  const withAnalytics = JSON.parse(savedConfig);
+  withAnalytics.analytics = analytics;
+  writeFileSync(configPath, JSON.stringify(withAnalytics, null, 2));
+  try {
+    runLoud("npm", ["run", "build", "--", "--outDir", outDir], {
+      cwd: SITE,
+      env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" },
+    });
+  } finally {
+    writeFileSync(configPath, savedConfig);
+  }
+}
+check("a site without the analytics key has no provider in any page, and no cookie", () => {
+  const pages = listFiles(dist).filter((file) => file.endsWith(".html"));
+  assert(pages.length > 0, "no page was built");
+  for (const page of pages) {
+    const html = readFileSync(page, "utf8");
+    assert(
+      !/googletagmanager|gtag\(|\bGTM-|\bG-[A-Z0-9]|<noscript><iframe/.test(html),
+      `a provider is in ${page}`,
+    );
+  }
+});
+check(
+  "gtm writes the head script with the container, and the noscript frame right after body",
+  () => {
+    const html = readFileSync(join(GTM_SITE, "index.html"), "utf8");
+    assert(html.includes('"GTM-ABC1234"'), "the container ID is not in the head script");
+    assert(html.includes("https://www.googletagmanager.com/gtm.js?id="), "no gtm.js loader");
+    assert(
+      html.includes(
+        '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-ABC1234"',
+      ),
+      "no noscript frame for the container",
+    );
+    assert(/<body>\s*<noscript>/.test(html), "the noscript frame is not the first thing in body");
+    assert(!html.includes("gtag/js"), "gtm writes the gtag.js snippet of GA4 as well");
+  },
+);
+check("ga4 writes the gtag.js snippet with the measurement ID, and no Tag Manager", () => {
+  const html = readFileSync(join(GA4_SITE, "index.html"), "utf8");
+  assert(
+    html.includes("https://www.googletagmanager.com/gtag/js?id=G-ABC1234"),
+    "no gtag.js loader with the measurement ID",
+  );
+  assert(html.includes('"G-ABC1234"'), "the measurement ID is not in the config call");
+  assert(!html.includes("gtm.js?id="), "ga4 writes the Tag Manager loader as well");
+  assert(
+    html.includes("window.gtag = function"),
+    "gtag is not global, so the site cannot send events",
+  );
+  assert(!html.includes("<noscript><iframe"), "ga4 writes the Tag Manager noscript frame");
+});
+check("check fails on an id of the other provider, and names the key", () => {
+  const broken = JSON.parse(savedConfig);
+  broken.analytics = { provider: "ga4", id: "GTM-ABC1234" };
+  writeFileSync(configPath, JSON.stringify(broken, null, 2));
+  let message = "";
+  try {
+    sitekit(["check"]);
+  } catch (error) {
+    message = String(error.stderr ?? error.message);
+  } finally {
+    writeFileSync(configPath, savedConfig);
+  }
+  assert(/analytics\.id/.test(message) && /"G-"/.test(message), `got: ${message}`);
+});
+
 console.log("5d/6 A packed consumer with a long name and five navigation collections");
 const HEADER_SITE = join(WORK, "header-site");
 const headerConfig = JSON.parse(savedConfig);

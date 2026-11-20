@@ -118,6 +118,11 @@ describe("deriveConfig", () => {
     expect(config.lastUpdated).toEqual({ enabled: true });
   });
 
+  it("leaves analytics out of a new site, so nothing is loaded from a provider until the owner adds it", () => {
+    const config = deriveConfig(facts({ remoteUrl: "https://github.com/me/proj.git" }));
+    expect(config).not.toHaveProperty("analytics");
+  });
+
   it("uses main when the branch is not known, and leaves the link off without a GitHub repository", () => {
     const github = deriveConfig(facts({ remoteUrl: "https://github.com/me/proj.git" }));
     expect(github.editLink.branch).toBe("main");
