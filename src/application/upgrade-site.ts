@@ -1,6 +1,8 @@
 import { LOCK_FILE } from "./init-site";
 import type { SiteLock } from "./init-site";
 import { joinPath } from "./paths";
+import { assertLegacyHeaderCompatible, blockedHeaderFiles } from "./header-files";
+import { assertManagedPaths } from "./managed-path";
 import type { Environment, FileSystem, TemplateSource } from "./ports";
 import { identityFor, renderTemplateFile } from "./template-file";
 import type { SiteIdentity } from "./template-file";
@@ -205,6 +207,7 @@ export function upgradeSite(deps: UpgradeDeps, options: UpgradeOptions): Upgrade
   const { fs, env, template, hash } = deps;
   const siteAbs = joinPath(options.root, options.siteDir);
   const lockPath = joinPath(siteAbs, LOCK_FILE);
+  assertManagedPaths(fs, siteAbs, [LOCK_FILE, "package.json", CONFIG_FILE]);
   const lock = readLock(fs, lockPath, options.siteDir);
   const oldLock: Record<string, string> = { ...lock.files };
 
@@ -238,13 +241,25 @@ export function upgradeSite(deps: UpgradeDeps, options: UpgradeOptions): Upgrade
   const moves: Array<{ from: string; to: string; content: string }> = [];
   const shipped = new Set<string>();
   const kitFiles = [...template.files()].sort((a, b) => a.path.localeCompare(b.path));
+  assertManagedPaths(
+    fs,
+    siteAbs,
+    kitFiles.map((file) => file.path),
+    { allowDirectoryLeaves: true },
+  );
   const kitPaths = new Set(kitFiles.map((file) => file.path));
+  const renderedFiles = new Map(
+    kitFiles.map((file) => [file.path, renderTemplateFile(file, identity)]),
+  );
+  assertLegacyHeaderCompatible(fs, siteAbs, renderedFiles, oldLock, hash);
+  const blockedHeaders = blockedHeaderFiles(fs, siteAbs, renderedFiles, oldLock, hash);
 
   // A file the kit named differently: the lock has the old name, the kit ships the kebab-case one.
   const renames = new Map<string, string>();
   for (const old of Object.keys(oldLock)) {
     const renamed = kebabCasePath(old);
     if (renamed !== old && !kitPaths.has(old) && kitPaths.has(renamed) && !(renamed in oldLock)) {
+      assertManagedPaths(fs, siteAbs, [old]);
       renames.set(renamed, old);
     }
   }
@@ -258,6 +273,14 @@ export function upgradeSite(deps: UpgradeDeps, options: UpgradeOptions): Upgrade
     const locked = lock.files[file.path];
     const present = fs.exists(target) && !fs.isDirectory(target);
     const shown = display(file.path);
+
+    if (blockedHeaders.has(file.path)) {
+      // Offer the compatible group for a manual merge, without partially replacing its live files or hashes.
+      if (locked !== undefined && !present) result.deleted.push(shown);
+      writes.push({ path: `${target}${NEW_VERSION_SUFFIX}`, content });
+      result.conflicts.push(shown);
+      continue;
+    }
 
     const old = locked === undefined ? renames.get(file.path) : undefined;
     const oldTarget = old === undefined ? undefined : joinPath(siteAbs, old);
@@ -361,6 +384,22 @@ export function upgradeSite(deps: UpgradeDeps, options: UpgradeOptions): Upgrade
     result.workflowPinned = WORKFLOW_PATH;
   }
 
+  // Check every actual companion/rename/state destination before the first mutation, including a dry run.
+  const lockChanged =
+    lock.sitekit !== result.to || JSON.stringify(lock.files) !== JSON.stringify(oldLock);
+  const sitePrefix = siteAbs.endsWith("/") ? siteAbs : `${siteAbs}/`;
+  assertManagedPaths(
+    fs,
+    siteAbs,
+    [
+      ...removals,
+      ...moves.flatMap((move) => [move.from, move.to]),
+      ...writes.map((write) => write.path),
+      ...(config && result.options.length > 0 ? [joinPath(siteAbs, CONFIG_FILE)] : []),
+      ...(lockChanged ? [lockPath] : []),
+    ].map((path) => path.slice(sitePrefix.length)),
+  );
+
   if (!dryRun) {
     // Old names go first: on a file system that ignores case, the new name is the same file.
     for (const path of removals) fs.remove(path);
@@ -372,8 +411,6 @@ export function upgradeSite(deps: UpgradeDeps, options: UpgradeOptions): Upgrade
     if (config && result.options.length > 0) {
       fs.writeText(joinPath(siteAbs, CONFIG_FILE), `${JSON.stringify(config, null, 2)}\n`);
     }
-    const lockChanged =
-      lock.sitekit !== result.to || JSON.stringify(lock.files) !== JSON.stringify(oldLock);
     if (lockChanged) {
       fs.writeText(
         lockPath,

@@ -26,7 +26,13 @@ Each key is documented in the [configuration reference](./configuration.md#nav).
 }
 ```
 
-With a `nav`, the header shows these links, in this order, and the menu that opens on a phone shows the same ones. Without it, the header has one link for each collection that has pages, in the order of `collections`, and then `Changelog` when the site has a changelog page.
+With a `nav`, the header shows these links, in this order. Without it, each collection that has pages gets a header link. Links follow `collections` order, followed by `Changelog` when that page exists.
+
+The complete brand, links and actions appear inline when they fit. Otherwise, the menu button opens the same destinations in a native dialog, including the repository and action links. Content and available room determine the layout, rather than a fixed viewport breakpoint. Long names and loaded fonts can change it.
+
+Escape closes the dialog and returns focus to its opener. When a wider row can show the links again, the menu closes and focus moves to the matching inline link. Without a match, focus moves to the brand.
+
+Fragment links reserve the measured header height, so wrapping text does not hide a destination behind the sticky bar. Without JavaScript, the links and repository actions remain visible in a wrapping header that scrolls with the page. An existing site gets the correction through `sitekit upgrade` when its header and menu files are unchanged. Keep customizations and merge the reported file conflicts when those components have been edited, see [Upgrading](./upgrading.md).
 
 ### The base on a link
 

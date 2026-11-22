@@ -32,9 +32,11 @@ on:
 permissions:
   contents: read
 
+# Deploys to Pages queue behind each other and a deploy in progress is never cancelled. A pull request builds in its own group, so it
+# neither waits for a deploy nor blocks one, and a newer push cancels its older build.
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && format('docs-{0}', github.ref) || 'pages' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:

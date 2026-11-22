@@ -104,7 +104,8 @@
             "options-search-llms",
             "options-checks",
             "options-edit-link",
-            "options-brand-logos"
+            "options-brand-logos",
+            "options-analytics"
           ]
         },
         {
@@ -222,5 +223,9 @@
     "enabled": true,
     "optional": ["examples"],
     "markdownPages": true
+  },
+  "analytics": {
+    "provider": "gtm",
+    "id": "GTM-P7JGH55"
   }
 }

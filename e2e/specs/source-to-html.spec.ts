@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { answerGoogleTags } from "../support/analytics";
 import { observeVitals, readVitals } from "../support/vitals";
 
 // The home page of the documentation of this project, built with its own config (the `demo` key). It is served under
@@ -36,6 +37,8 @@ async function ready(page: Page) {
     { timeout: 10_000 },
   );
 }
+
+test.beforeEach(({ page }) => answerGoogleTags(page));
 
 test.describe("the Markdown sample on the home page", () => {
   test.use({ baseURL: OWN });

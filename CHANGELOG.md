@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-20
+
+### Added
+
+- **An optional `analytics` key.** `"provider": "gtm"` loads Google Tag Manager, with its head script and the `noscript` frame after `<body>`. `"provider": "ga4"` loads Google Analytics 4 with the gtag.js snippet. The `id` must start with `GTM-` or `G-` to match the provider, and any other id fails the build and `check`. A site without the key has no script, no request and no cookie from analytics, and existing sites do not change. The kit does not handle consent. See [docs/options-analytics.md](docs/options-analytics.md).
+
+## [0.4.2] - 2026-11-18
+
+### Fixed
+
+- Check managed destinations, parents, state and conflict copies before Node-backed `add` or `upgrade` writes. Refuse symbolic links, files linked at multiple paths and other unsupported entries, including forced component restoration.
+- Keep existing programmatic filesystem adapters compatible through optional path inspection.
+
+### Changed
+
+- Document the collapsed header's intentional size-only content shrink limit. DOM mutations and font completion still force measurement.
+
+## [0.4.1] - 2026-11-18
+
+### Fixed
+
+- The header switches to its native navigation dialog when the complete brand, links and actions do not fit on one row. Available space, loaded fonts and changed labels determine the layout instead of a viewport breakpoint. Every destination remains available.
+- Resizing keeps an open menu until the inline navigation fits, then closes it and transfers focus to the corresponding link. The compact header wraps at larger text sizes. Without JavaScript, the same links and repository actions remain visible in a wrapping header.
+- Native fragment links reserve the measured header height. Without JavaScript, the wrapping header scrolls with the page so it cannot obscure a destination.
+- When adopting changed current-generation navigation files, upgrades and restoration preserve the compatible header, menu and measurement files together. A customized prerequisite leaves the group for manual merging. Known customized legacy navigation requires manual migration before any upgrade writes. An older customized global stylesheet is preserved.
+
 ## [0.4.0] - 2026-11-15
 
 ### Added

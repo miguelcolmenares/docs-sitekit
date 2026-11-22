@@ -5,7 +5,20 @@
 // a wrong path, server code in the browser bundle) fails here, before publish.
 
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  linkSync,
+  lstatSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  readlinkSync,
+  renameSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
+import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { applyRecipe } from "./recipes.mjs";
 
@@ -1215,8 +1228,19 @@ check("the site of the project has a page for each component that has an example
 check("the site of the project makes no request to another host from a component page", () => {
   const html = readFileSync(join(OWN, "components", "stat-row", "index.html"), "utf8");
   const hosts = [...html.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((match) => match[1]);
+  // The site of the project sets its own analytics (template/sitekit.config.json), so its noscript frame is the one
+  // request to another host that is allowed, and only the frame of the container that the config names.
+  const { analytics } = JSON.parse(
+    readFileSync(join(ROOT, "template", "sitekit.config.json"), "utf8"),
+  );
+  const allowed =
+    analytics?.provider === "gtm"
+      ? [`https://www.googletagmanager.com/ns.html?id=${analytics.id}`]
+      : [];
   const foreign = hosts.filter(
-    (url) => !/^https:\/\/(github\.com\/(miguelcolmenares|demo)|miguelcolmenares\.com)\//.test(url),
+    (url) =>
+      !allowed.includes(url) &&
+      !/^https:\/\/(github\.com\/(miguelcolmenares|demo)|miguelcolmenares\.com)\//.test(url),
   );
   assert(foreign.length === 0, `links to: ${foreign.join(", ")}`);
   assert(!/<script[^>]+src="https?:/.test(html), "a script is loaded from another host");
@@ -1283,6 +1307,117 @@ check("a path of nav and footer.links gets the base, and the other links are not
   assert(!html.includes('href="/docs/getting-started/"'), "a nav path was left without the base");
   assert(html.includes('class="lucide lucide-rss size-4"'), "the footer link draws no lucide icon");
   assert(!html.includes("/widget/widget/"), "a path that had the base got it twice");
+});
+
+console.log("5d/6 Analytics: one provider in the head, or none at all");
+// The default site has no `analytics` key, so it has no script, no request and no cookie from a provider. Two more builds
+// of the same site set one provider each, and the config is put back after each one.
+const GTM_SITE = join(WORK, "analytics-gtm");
+const GA4_SITE = join(WORK, "analytics-ga4");
+for (const [analytics, outDir] of [
+  [{ provider: "gtm", id: "GTM-ABC1234" }, GTM_SITE],
+  [{ provider: "ga4", id: "G-ABC1234" }, GA4_SITE],
+]) {
+  const withAnalytics = JSON.parse(savedConfig);
+  withAnalytics.analytics = analytics;
+  writeFileSync(configPath, JSON.stringify(withAnalytics, null, 2));
+  try {
+    runLoud("npm", ["run", "build", "--", "--outDir", outDir], {
+      cwd: SITE,
+      env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" },
+    });
+  } finally {
+    writeFileSync(configPath, savedConfig);
+  }
+}
+check("a site without the analytics key has no provider in any page, and no cookie", () => {
+  const pages = listFiles(dist).filter((file) => file.endsWith(".html"));
+  assert(pages.length > 0, "no page was built");
+  for (const page of pages) {
+    const html = readFileSync(page, "utf8");
+    assert(
+      !/googletagmanager|gtag\(|\bGTM-|\bG-[A-Z0-9]|<noscript><iframe/.test(html),
+      `a provider is in ${page}`,
+    );
+  }
+});
+check(
+  "gtm writes the head script with the container, and the noscript frame right after body",
+  () => {
+    const html = readFileSync(join(GTM_SITE, "index.html"), "utf8");
+    assert(html.includes('"GTM-ABC1234"'), "the container ID is not in the head script");
+    assert(html.includes("https://www.googletagmanager.com/gtm.js?id="), "no gtm.js loader");
+    assert(
+      html.includes(
+        '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-ABC1234"',
+      ),
+      "no noscript frame for the container",
+    );
+    assert(/<body>\s*<noscript>/.test(html), "the noscript frame is not the first thing in body");
+    assert(!html.includes("gtag/js"), "gtm writes the gtag.js snippet of GA4 as well");
+  },
+);
+check("ga4 writes the gtag.js snippet with the measurement ID, and no Tag Manager", () => {
+  const html = readFileSync(join(GA4_SITE, "index.html"), "utf8");
+  assert(
+    html.includes("https://www.googletagmanager.com/gtag/js?id=G-ABC1234"),
+    "no gtag.js loader with the measurement ID",
+  );
+  assert(html.includes('"G-ABC1234"'), "the measurement ID is not in the config call");
+  assert(!html.includes("gtm.js?id="), "ga4 writes the Tag Manager loader as well");
+  assert(
+    html.includes("window.gtag = function"),
+    "gtag is not global, so the site cannot send events",
+  );
+  assert(!html.includes("<noscript><iframe"), "ga4 writes the Tag Manager noscript frame");
+});
+check("check fails on an id of the other provider, and names the key", () => {
+  const broken = JSON.parse(savedConfig);
+  broken.analytics = { provider: "ga4", id: "GTM-ABC1234" };
+  writeFileSync(configPath, JSON.stringify(broken, null, 2));
+  let message = "";
+  try {
+    sitekit(["check"]);
+  } catch (error) {
+    message = String(error.stderr ?? error.message);
+  } finally {
+    writeFileSync(configPath, savedConfig);
+  }
+  assert(/analytics\.id/.test(message) && /"G-"/.test(message), `got: ${message}`);
+});
+
+console.log("5d/6 A packed consumer with a long name and five navigation collections");
+const HEADER_SITE = join(WORK, "header-site");
+const headerConfig = JSON.parse(savedConfig);
+headerConfig.site.name = "Practical Atlas Library";
+headerConfig.nav = [
+  { label: "Guides", href: "/docs/" },
+  { label: "Examples", href: "/tutorials/" },
+  { label: "Patterns", href: "/examples/" },
+  { label: "Reference", href: "/reference/" },
+  { label: "Changes", href: "/changes/" },
+];
+for (const id of ["reference", "changes"]) {
+  write(
+    join(REPO, `header-${id}/overview.md`),
+    `---\ntitle: ${id}\ndescription: Navigation sizing fixture.\n---\n\nGeneric fixture content.\n`,
+  );
+  headerConfig.collections.push({ id, label: id, dir: `../header-${id}` });
+}
+writeFileSync(configPath, JSON.stringify(headerConfig, null, 2));
+try {
+  runLoud("npm", ["run", "build", "--", "--outDir", HEADER_SITE], {
+    cwd: SITE,
+    env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" },
+  });
+} finally {
+  writeFileSync(configPath, savedConfig);
+}
+check("the packed header fixture preserves its complete names and navigation", () => {
+  const html = readFileSync(join(HEADER_SITE, "index.html"), "utf8");
+  assert(html.includes(headerConfig.site.name), "the header fixture lost its full name");
+  for (const link of headerConfig.nav)
+    assert(html.includes(`href="/widget${link.href}"`), "a header destination is missing");
 });
 
 console.log("5e/6 Recipes: extend a site made by init (docs/extend-*.md)");
@@ -1687,6 +1822,99 @@ check("the upgraded site builds, is still without search and llms.txt, and passe
   );
   assert(/Safe to publish/.test(run("node", [CLI, "check"], { cwd: OLD_REPO })), "check failed");
 });
+
+console.log("5f/6 Managed paths through the installed packed CLI");
+const MANAGED_HEADER = "src/presentation/components/site/site-header.astro";
+const MANAGED_HELPER = "src/presentation/components/site/navigation-fit.ts";
+const safetyHash = (value) => createHash("sha256").update(value).digest("hex");
+// Do not follow links while recording the owned fixture, including dangling ones.
+function safetySnapshot(directory) {
+  return Object.fromEntries(
+    readdirSync(directory).flatMap((name) => {
+      const path = join(directory, name);
+      const entry = lstatSync(path);
+      if (entry.isSymbolicLink()) return [[name, `link:${readlinkSync(path)}`]];
+      if (entry.isDirectory())
+        return [
+          [name, "directory"],
+          ...Object.entries(safetySnapshot(path)).map(([relative, value]) => [
+            `${name}/${relative}`,
+            value,
+          ]),
+        ];
+      return [[name, `file:${readFileSync(path).toString("base64")}`]];
+    }),
+  );
+}
+for (const kind of [
+  "stock-symlink-upgrade",
+  "stock-symlink-add",
+  "stock-symlink-force",
+  "dangling-header",
+  "parent-link-upgrade",
+  "parent-link-force",
+  "hardlink-header",
+  "lock-link",
+  "conflict-companion",
+]) {
+  check(`the packed CLI refuses ${kind} without outside or partial site writes`, () => {
+    const fixture = join(WORK, `managed-path-${kind}`);
+    const site = join(fixture, "site");
+    try {
+      write(join(fixture, "package.json"), JSON.stringify({ name: "path-safety-fixture" }));
+      run("node", [CLI, "init", "--dir", "site", "--name", "Path safety"], { cwd: fixture });
+      const header = join(site, MANAGED_HEADER);
+      // Deliberately synthetic prior managed bytes, not a claimed historical release snapshot.
+      const old = `${readFileSync(header, "utf8")}\n<!-- previous managed safety fixture -->\n`;
+      writeFileSync(header, old);
+      const lockPath = join(site, ".sitekit.json");
+      const lock = JSON.parse(readFileSync(lockPath, "utf8"));
+      lock.sitekit = "0.4.0";
+      lock.files[MANAGED_HEADER] = safetyHash(old);
+      writeFileSync(lockPath, JSON.stringify(lock));
+      const outside = join(fixture, "outside.astro");
+      writeFileSync(outside, old);
+      if (kind.startsWith("parent-link")) {
+        const parent = join(site, "src/presentation/components/site");
+        const relocated = join(fixture, "outside-components");
+        renameSync(parent, relocated);
+        symlinkSync(relocated, parent);
+      } else if (kind === "lock-link") {
+        const externalLock = join(fixture, "outside-lock.json");
+        renameSync(lockPath, externalLock);
+        symlinkSync(externalLock, lockPath);
+      } else if (kind === "conflict-companion") {
+        writeFileSync(join(site, MANAGED_HELPER), "// custom helper fixture\n");
+        symlinkSync(outside, `${header}.sitekit-new`);
+      } else {
+        rmSync(header);
+        if (kind === "hardlink-header") linkSync(outside, header);
+        else
+          symlinkSync(
+            kind === "dangling-header" ? join(fixture, "missing.astro") : outside,
+            header,
+          );
+      }
+      const before = safetySnapshot(fixture);
+      const add = kind.endsWith("add") || kind.endsWith("force");
+      const args = add
+        ? ["add", "site-header", "--dir", "site", ...(kind.endsWith("force") ? ["--force"] : [])]
+        : ["upgrade", "--dir", "site", "--apply"];
+      const result = capture("node", [CLI, ...args], { cwd: fixture });
+      assert(result.status === 1, `expected a managed-path rejection, got ${result.status}`);
+      assert(
+        /Unsafe managed path.*manual migration/.test(result.stderr),
+        "no actionable path rejection",
+      );
+      assert(
+        JSON.stringify(safetySnapshot(fixture)) === JSON.stringify(before),
+        "the CLI changed an outside file or partially changed the site",
+      );
+    } finally {
+      rmSync(fixture, { recursive: true, force: true });
+    }
+  });
+}
 
 console.log("6/6 Done");
 console.log(`\n${passed} passed, ${failures.length} failed`);

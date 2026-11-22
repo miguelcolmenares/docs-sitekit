@@ -171,13 +171,16 @@
       "example": "src/examples/breadcrumbs"
     },
     "mobile-menu": {
-      "description": "Navigation dialog for small screens, a native dialog and a few lines of script. The layout renders it, and the button in the site header opens it.",
+      "description": "Navigation dialog when the complete inline header does not fit, a native dialog and a few lines of script. The layout renders it, and the button in the site header opens it.",
       "files": ["src/presentation/components/site/mobile-menu.astro"],
       "requires": ["icon"]
     },
     "site-header": {
       "description": "Sticky translucent header.",
-      "files": ["src/presentation/components/site/site-header.astro"],
+      "files": [
+        "src/presentation/components/site/site-header.astro",
+        "src/presentation/components/site/navigation-fit.ts"
+      ],
       "requires": ["button", "icon", "mobile-menu"]
     },
     "hero": {

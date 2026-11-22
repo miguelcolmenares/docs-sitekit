@@ -17,6 +17,7 @@ Every example on these pages is a complete `sitekit.config.json` for the keys it
 | Decide what blocks a publish, and what is kept out  | `check`, `anonymize`, `vars`, `deploy`             | [Content checks and publishing](./options-checks.md)  |
 | Show an edit link and the date of the last change   | `editLink`, `lastUpdated`                          | [Edit link and dates](./options-edit-link.md)         |
 | Use a brand logo as an icon                         | `features[].icon`                                  | [Brand logos](./options-brand-logos.md)               |
+| Load Google Tag Manager or Google Analytics 4       | `analytics`                                        | [Analytics](./options-analytics.md)                   |
 
 > [!NOTE]
 > The file is a closed contract. A key that is not in the schema fails the build and `sitekit check`, and the message names it. If you are not sure of a name, start from the reference.

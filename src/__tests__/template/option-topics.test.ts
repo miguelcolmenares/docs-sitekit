@@ -57,8 +57,9 @@ const reference = readReference(siteConfigSchema);
 const rows = reference.groups.flatMap((group) => group.rows);
 
 describe("the topic pages of the options", () => {
-  it("are the seven topics, and each is a page of the Docs collection in the group Options by topic", () => {
+  it("are the eight topics, and each is a page of the Docs collection in the group Options by topic", () => {
     expect(TOPICS).toEqual([
+      "options-analytics.md",
       "options-brand-logos.md",
       "options-checks.md",
       "options-edit-link.md",

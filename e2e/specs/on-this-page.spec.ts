@@ -1,7 +1,10 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { answerGoogleTags } from "../support/analytics";
 import { measureContrast } from "../support/contrast";
+
+test.beforeEach(({ page }) => answerGoogleTags(page));
 
 // The kit's own site is built by verify-package on the port after the one of the widget site. Its page on the
 // options of navigation has several sections, so "On this page" has more than one link to move between.
